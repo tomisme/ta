@@ -1,72 +1,72 @@
 (ns ^:figwheel-always ta.core
-    (:require [reagent.core :as reagent :refer [atom]]))
+    (:require [reagent.core :as reagent :refer [atom]]
+              [ta.re-boot :refer [align panel icon]]))
 
 (def state (atom {:username "Aaron Graham"
                   :view :week
-                  :lessons {:mon  [{:class "11 General English"
+                  :timetable {:mon  [:dot "8 Media" "11 General English"]
+                              :tues ["11 General English" :dot :dot]
+                              :wed  ["8 Media" "10 Modified English" :dot]}
+                  :lessons {:mon  [{}
+                                   {:title "Film #2"
                                     :text "MOAR MOVIES"}
-                                   {:class "8 Media"
-                                    :text "Well, obviosly movies"}]
-                            :tues [{:class "8 Media"
-                                    :text "Maybe we'll watch some movies"}]
-                            :wed  [{:class "8 Media"
+                                   {:title "Autobiographies #4"
+                                    :text "Well, an autobiography movie!"}]
+                            :tues [{:title "Autobiographies #5"
+                                    :text "Maybe we'll watch some movies"}
+                                    {}
+                                    {}]
+                            :wed  [{:title "Film #3"
                                     :text "MOAAAAAR MOVIES"}
-                                   {:class "11 General English"
-                                    :text "Da MOVIES"}]}}))
+                                   {:title "Visual Texts #1"
+                                    :text "Da MOVIES"}
+                                    {}]}}))
 
-(def day-strings {:mon "Monday"
-                  :tues "Tuesday"
-                  :wed "Wednesday"})
+(def weekdays [:mon :tues :wed])
 
-(def panel-styles {:default "panel-default"
-                   :primary "panel-primary"
-                   :success "panel-success"
-                   :info "panel-info"
-                   :warning "panel-warning"
-                   :danger "panel-danger"
-                   nil "panel-default"})
+(def day-strings {:mon   "Monday"
+                  :tues  "Tuesday"
+                  :wed   "Wednesday"
+                  :thurs "Thursday"
+                  :fri   "Friday"})
 
 (defn nav-bar [brand name]
   [:nav {:class "navbar navbar-default"}
     [:div {:class "container"}
       [:div {:class "navbar-header"}
         [:a {:class "navbar-brand" :href "#"} brand]]
-      [:p {:class "navbar-text navbar-right"} "Logged in as "
+      [:p {:class "navbar-text navbar-right"}
+        (icon "cogs")]
+      [:p {:class "navbar-text navbar-right"}
+        (icon "calendar")]
+      [:p {:class "navbar-text navbar-right"}
+        (icon "archive")]
+      [:p {:class "navbar-text navbar-right"}
+        "Logged in as "
         [:a {:href "#"} name]]]])
 
-(defn panel
-  ([content]
-    [:div {:class "panel panel-default"}
-      [:div {:class "panel-body"} content]])
-  ([title content]
-    (panel title content :default))
-  ([title content style]
-    {:pre [(contains? panel-styles style)]}
-    [:div {:class (str "panel " (panel-styles style))}
-      [:div {:class "panel-heading"}
-        [:h3 {:class "panel-title"} title]]
-      [:div {:class "panel-body"} content]]))
+(defn lesson-panel[data]
+  [panel (:title data) [:div (:text data)] :primary])
 
-(defn lesson [title content]
-  [panel title [:div content] :primary])
+(defn class-slot [period lesson]
+  (if (= :dot period)
+    [panel (align :center (icon "coffee"))]
+    [panel [:div period (align :right (icon "cog"))]
+      [lesson-panel lesson]]))
 
 (defn weekday [day]
-  (let [lessons (get-in @state [:lessons day])]
+  ;TODO: use destructuring to make this cleaner
+  (let [lessons   (get-in @state [:lessons day])
+        timetable (get-in @state [:timetable day])]
     (fn []
       [:div
-        [:p [:center (day-strings day)]]
-        (for [l lessons]
-          [lesson (:class l) (:text l)])])))
+        [:p (align :center (day-strings day))]
+        (map #(vector class-slot %1 %2) timetable lessons)])))
 
 (defn week-view []
   [:div {:class "container"}
     [:div {:class "row"}
-      [:div {:class "col-xs-4"}
-        [weekday :mon]]
-      [:div {:class "col-xs-4"}
-        [weekday :tues]]
-      [:div {:class "col-xs-4"}
-        [weekday :wed]]]])
+      (map #(vector :div {:class "col-xs-4"} [weekday %]) weekdays)]])
 
 (defn app []
   [:div
