@@ -1,4 +1,5 @@
-(ns ta.re-boot)
+(ns ta.bootstrap
+  (:require [clojure.string :as string]))
 
 (defn align [direction el]
   [:div {:class (case direction :left "pull-left"
@@ -22,7 +23,7 @@
                          :m "fa-lg"
                          :l "fa-2x")
           name-str (str "fa-" name)]
-    [:i {:class (clojure.string/join " " ["fa" name-str size-str])}])))
+    [:i {:class (string/join " " ["fa" name-str size-str])}])))
 
 (defn panel
   ([content]

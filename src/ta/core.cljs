@@ -1,6 +1,6 @@
 (ns ^:figwheel-always ta.core
     (:require [reagent.core :as reagent :refer [atom]]
-              [ta.re-boot :refer [align panel icon]]))
+              [ta.bootstrap :refer [align panel icon]]))
 
 (def state (atom {:username "Aaron Graham"
                   :view :week
