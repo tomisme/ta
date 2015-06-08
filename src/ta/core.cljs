@@ -61,12 +61,15 @@
     (fn []
       [:div
         [:p (align :center (day-strings day))]
-        (map #(vector class-slot %1 %2) timetable lessons)])))
+        (map #(with-meta
+          ;TODO: Fix this hacky rand-int crap
+          (vector class-slot %1 %2) {:key (rand-int 1000)}) timetable lessons)])))
 
 (defn week-view []
   [:div {:class "container"}
     [:div {:class "row"}
-      (map #(vector :div {:class "col-xs-4"} [weekday %]) weekdays)]])
+      (map #(with-meta
+        (vector :div {:class "col-xs-4"} [weekday %]) {:key %}) weekdays)]])
 
 (defn app []
   [:div
