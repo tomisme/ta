@@ -1,5 +1,10 @@
 ##TODO
++ switch from bootstrap to semantic-ui
+  + try a mockup first?
 + incorporate re-frame
++ choose a persistence solution
+  + firebase?
+  + pg?
 
 ##First Milestone Functionality
 
