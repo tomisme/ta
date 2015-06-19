@@ -1,8 +1,6 @@
 (ns ta.db)
 
-(def default-db {:username "Tom Hutchinson"})
-
-#_(def default-db
+(def default-db
   { :username "Tom Hutchinson"
     :view :week
     :timetable {:mon  [:dot "8 Media" "11 General English"]

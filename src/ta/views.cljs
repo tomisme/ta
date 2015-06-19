@@ -10,7 +10,15 @@
                   :thurs "Thursday"
                   :fri   "Friday"})
 
-(defn nav-bar [brand name]
+(defn top-bar [brand name]
+  [:div {:class "testing container"
+         :style #js {:width "700"
+                     :padding-top "20"}}
+    [:div {:class "ui segment"}
+      [:a {:class "ui ribbon label"} brand]
+      "Logged in as " [:i {:class "australian flag"}] name]])
+
+#_(defn nav-bar [brand name]
   [:nav {:class "navbar navbar-default"}
     [:div {:class "container"}
       [:div {:class "navbar-header"}
@@ -55,5 +63,5 @@
   (let [username (re-frame/subscribe [:username])]
     (fn []
       [:div
-        [nav-bar "Zen Teacher" @username]
+        [top-bar "Zen Teacher" @username]
         #_[week-view]])))
