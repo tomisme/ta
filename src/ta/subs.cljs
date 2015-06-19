@@ -6,3 +6,8 @@
   :username
   (fn [db]
     (reaction (:username @db))))
+
+(re-frame/register-sub
+  :active-page
+  (fn [db]
+    (reaction (:active-page @db))))

@@ -1,6 +1,25 @@
 (ns ta.views
     (:require [re-frame.core :as re-frame]
-              [ta.bootstrap :refer [align panel icon]]))
+              [clojure.string :as string]))
+
+(enable-console-print!)
+
+(defn icon ;Font Awesome icons - to use: edit close bars
+  ([name] (icon name :s))
+  ([name size]
+    (let [size-str (case size
+                         :s nil
+                         :m "fa-lg"
+                         :l "fa-2x")
+          name-str (str "fa-" name)]
+    [:i {:class (string/join " " ["fa" name-str size-str])}])))
+
+(def page-links {:timetable {:icon (icon "calendar")
+                             :label "Timetable"
+                             :url "#/timetable"}
+                 :planner   {:icon (icon "edit")
+                             :label "Lesson Planner"
+                             :url "#/planner"}})
 
 (def weekdays [:mon :tues :wed])
 
@@ -10,28 +29,30 @@
                   :thurs "Thursday"
                   :fri   "Friday"})
 
-(defn top-bar [brand name]
-  [:div {:class "testing container"
-         :style #js {:width "700"
-                     :padding-top "20"}}
-    [:div {:class "ui segment"}
-      [:a {:class "ui ribbon label"} brand]
-      "Logged in as " [:i {:class "australian flag"}] name]])
+(def flag
+  [:i {:class "australia flag" :style #js {:padding-left 5}}])
 
-#_(defn nav-bar [brand name]
-  [:nav {:class "navbar navbar-default"}
-    [:div {:class "container"}
-      [:div {:class "navbar-header"}
-        [:a {:class "navbar-brand" :href "#"} brand]]
-      [:p {:class "navbar-text navbar-right"}
-        (icon "cogs")]
-      [:p {:class "navbar-text navbar-right"}
-        (icon "calendar")]
-      [:p {:class "navbar-text navbar-right"}
-        (icon "archive")]
-      [:p {:class "navbar-text navbar-right"}
-        "Logged in as "
-        [:a {:href "#"} name]]]])
+(defn nav-links [active-page]
+  (map (fn [page]
+         (let [class (str (if (= @active-page (key page)) "active ") "item")
+               icon [:span {:style #js {:padding-right 5}} (:icon (second page))]
+               label (:label (second page))
+               url (:url (second page))]
+           (vector :a {:class class :href url} icon label)))
+       page-links))
+
+(defn top-bar [brand]
+  (let [name (re-frame/subscribe [:username])
+        active-page (re-frame/subscribe [:active-page])]
+    (fn []
+      [:div {:class "ui grid container" :style #js {:margin 10}}
+        [:div {:class "row"}
+          [:div {:class "column"}
+            [:div {:class "ui secondary pointing menu"}
+              (nav-links active-page)
+              [:div {:class "right menu"}
+                [:a {:class "ui item"}
+                  [:span {:style #js {:font-weight "bold"}} @name] flag]]]]]])))
 
 #_(defn lesson-panel[data]
   [panel (:title data) [:div (:text data)] :primary])
@@ -60,8 +81,8 @@
         (vector :div {:class "col-xs-4"} [weekday %]) {:key %}) weekdays)]])
 
 (defn app []
-  (let [username (re-frame/subscribe [:username])]
+  (let []
     (fn []
       [:div
-        [top-bar "Zen Teacher" @username]
+        [top-bar "Zen Teacher"]
         #_[week-view]])))

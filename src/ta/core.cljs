@@ -13,4 +13,4 @@
 (routes/app-routes)
 (re-frame/dispatch-sync [:initialize-db])
 (mount-root)
-(.log js/console "Hello")
+#_(.log js/console "Hello")
