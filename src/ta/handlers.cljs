@@ -6,3 +6,9 @@
   :initialize-db
   (fn [_ _]
     db/default-db))
+
+(re-frame/register-handler
+  :navigate-to
+  (fn [db [_ page]]
+    (do #_(.log js/console db)
+        (assoc db :active-page page))))

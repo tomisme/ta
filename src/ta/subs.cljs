@@ -9,5 +9,5 @@
 
 (re-frame/register-sub
   :active-page
-  (fn [db]
+  (fn [db _]
     (reaction (:active-page @db))))

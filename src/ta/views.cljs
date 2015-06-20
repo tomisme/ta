@@ -14,10 +14,10 @@
           name-str (str "fa-" name)]
     [:i {:class (string/join " " ["fa" name-str size-str])}])))
 
-(def page-links {:timetable {:icon (icon "calendar")
+(def page-links {:timetable {:icon (icon "calendar" :m)
                              :label "Timetable"
                              :url "#/timetable"}
-                 :planner   {:icon (icon "edit")
+                 :planner   {:icon (icon "edit" :m)
                              :label "Lesson Planner"
                              :url "#/planner"}})
 
@@ -32,14 +32,16 @@
 (def flag
   [:i {:class "australia flag" :style #js {:padding-left 5}}])
 
-(defn nav-links [active-page]
-  (map (fn [page]
-         (let [class (str (if (= @active-page (key page)) "active ") "item")
-               icon [:span {:style #js {:padding-right 5}} (:icon (second page))]
-               label (:label (second page))
-               url (:url (second page))]
-           (vector :a {:class class :href url} icon label)))
-       page-links))
+(defn nav-links [current-page]
+  (let [active-page @current-page]
+    (map (fn [page]
+           (let [class (str (if (= active-page (key page)) "active ") "item")
+                 icon [:span {:style #js {:padding-right 8}} (:icon (second page))]
+                 label (:label (second page))
+                 url (:url (second page))]
+             (with-meta
+               (vector :a {:class class :href url} icon label) {:key label})))
+         page-links)))
 
 (defn top-bar [brand]
   (let [name (re-frame/subscribe [:username])
@@ -52,7 +54,11 @@
               (nav-links active-page)
               [:div {:class "right menu"}
                 [:a {:class "ui item"}
-                  [:span {:style #js {:font-weight "bold"}} @name] flag]]]]]])))
+                  [:span {:style #js {:padding-right 5}} (icon "caret-down")]
+                  [:span {:style #js {:font-weight "bold"}} @name]
+                  flag]
+                [:a {:class "ui item"}
+                  (icon "gear" :m)]]]]]])))
 
 #_(defn lesson-panel[data]
   [panel (:title data) [:div (:text data)] :primary])
