@@ -12,13 +12,12 @@
                   :thurs "Thursday"
                   :fri   "Friday"})
 
-(defn align [direction el]
-  [:div {:class (case direction :left "pull-left"
-                                :right "pull-right"
-                                :center "center")}
-    el])
+(defn sem [& bits]
+  "Return a string for use as an HTML component's :class"
+  (string/join " " bits))
 
-(defn icon ;Font Awesome icons - to use: edit close bars
+(defn icon
+  "Return a Font Awesome icon from string [name]"
   ([name] (icon name :s))
   ([name size]
     (let [size-str (case size
@@ -26,10 +25,11 @@
                          :m "fa-lg"
                          :l "fa-2x")
           name-str (str "fa-" name)]
-    [:i {:class (string/join " " ["fa" name-str size-str])}])))
+    [:i {:class (sem "fa" name-str size-str)}])))
 
-(def flag
-  [:i {:class "australia flag" :style #js {:padding-left 5}}])
+(defn flag-img [flag]
+  (case flag
+    :australia [:i {:class "australia flag" :style #js {:paddingLeft 5}}]))
 
 (def page-links {:timetable {:icon (icon "calendar" :m)
                              :label "Timetable"
@@ -42,7 +42,7 @@
   (let [active-page @current-page]
     (map (fn [page]
            (let [class (str (if (= active-page (key page)) "active ") "item")
-                 icon [:span {:style #js {:padding-right 8}} (:icon (second page))]
+                 icon [:span {:style #js {:paddingRight 8}} (:icon (second page))]
                  label (:label (second page))
                  url (:url (second page))]
              (with-meta
@@ -50,7 +50,9 @@
          page-links)))
 
 (defn top-bar [active-page]
-  (let [name (re-frame/subscribe [:username])]
+  (let [user (re-frame/subscribe [:user])
+        name (get-in @user [:name])
+        flag (get-in @user [:flag])]
     (fn []
         [:div {:class "row"}
           [:div {:class "column"}
@@ -58,32 +60,27 @@
               (nav-links active-page)
               [:div {:class "right menu"}
                 [:a {:class "ui item"}
-                  [:span {:style #js {:padding-right 5}} (icon "caret-down")]
-                  [:span {:style #js {:font-weight "bold"}} @name]
-                  flag]
-                [:a {:class "ui item"}
-                  (icon "gear" :m)]]]]])))
+                  [:span {:style #js {:fontWeight "bold"}} name]
+                  [flag-img flag]
+                  [:span {:style #js {:paddingLeft 5}} (icon "caret-down")]]]]]])))
 
-(defn panel [content]
-  [:div {:class "ui raised segment"}
-    [:span content]])
-
-(defn lesson-panel[data]
-  [panel (:title data) [:div (:text data)]])
-
-;TODO: panels only use lesson title atm, none of the content
 (defn class-slot [period lesson]
   (if (= :dot period)
-    [panel (icon "coffee")]
-    [panel [:div period (align :right (icon "cog"))]
-      [lesson-panel lesson]]))
+    [:div {:class "ui raised center aligned blue segment"} (icon "coffee")]
+    [:div {:class "ui raised green segment"}
+      [:div {:class "ui label ribbon green"} period]
+                             [:div {:class "pull-right"} (icon "pencil")]
+      [:div {:class "ui top attached header segment"
+             :style #js {:marginTop 10
+                         :textDecoration "underline"}} (:title lesson)]
+      [:div {:class "ui attached segment"} (:text lesson)]]))
 
 (defn weekday [day]
   (let [lessons   (re-frame/subscribe [:lessons day])
         timetable (re-frame/subscribe [:timetable day])]
     (fn []
       [:div
-        [:p (align :center (day-strings day))]
+        [:center (day-strings day)]
         (map #(with-meta
           ;TODO: Fix this hacky rand-int crap
           (vector class-slot %1 %2) {:key (rand-int 1000)}) @timetable @lessons)])))
@@ -101,7 +98,7 @@
 (defn planner-panel []
   (let []
     (fn []
-      [:span "Oh yeah it's a planner here"])))
+      [:p "Don't worry, you'll be able to plan lessons pretty soon. I can feel it."])))
 
 (defn main-panel [active-page]
   (let []

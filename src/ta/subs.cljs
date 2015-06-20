@@ -3,9 +3,9 @@
     (:require [re-frame.core :as re-frame]))
 
 (re-frame/register-sub
-  :username
+  :user
   (fn [db]
-    (reaction (:username @db))))
+    (reaction (get-in @db [:user]))))
 
 (re-frame/register-sub
   :active-page
