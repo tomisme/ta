@@ -4,6 +4,20 @@
 
 (enable-console-print!)
 
+(def weekdays [:mon :tues :wed])
+
+(def day-strings {:mon   "Monday"
+                  :tues  "Tuesday"
+                  :wed   "Wednesday"
+                  :thurs "Thursday"
+                  :fri   "Friday"})
+
+(defn align [direction el]
+  [:div {:class (case direction :left "pull-left"
+                                :right "pull-right"
+                                :center "center")}
+    el])
+
 (defn icon ;Font Awesome icons - to use: edit close bars
   ([name] (icon name :s))
   ([name size]
@@ -14,23 +28,15 @@
           name-str (str "fa-" name)]
     [:i {:class (string/join " " ["fa" name-str size-str])}])))
 
+(def flag
+  [:i {:class "australia flag" :style #js {:padding-left 5}}])
+
 (def page-links {:timetable {:icon (icon "calendar" :m)
                              :label "Timetable"
                              :url "#/timetable"}
                  :planner   {:icon (icon "edit" :m)
                              :label "Lesson Planner"
                              :url "#/planner"}})
-
-(def weekdays [:mon :tues :wed])
-
-(def day-strings {:mon   "Monday"
-                  :tues  "Tuesday"
-                  :wed   "Wednesday"
-                  :thurs "Thursday"
-                  :fri   "Friday"})
-
-(def flag
-  [:i {:class "australia flag" :style #js {:padding-left 5}}])
 
 (defn nav-links [current-page]
   (let [active-page @current-page]
@@ -43,11 +49,9 @@
                (vector :a {:class class :href url} icon label) {:key label})))
          page-links)))
 
-(defn top-bar [brand]
-  (let [name (re-frame/subscribe [:username])
-        active-page (re-frame/subscribe [:active-page])]
+(defn top-bar [active-page]
+  (let [name (re-frame/subscribe [:username])]
     (fn []
-      [:div {:class "ui grid container" :style #js {:margin 10}}
         [:div {:class "row"}
           [:div {:class "column"}
             [:div {:class "ui secondary pointing menu"}
@@ -58,37 +62,60 @@
                   [:span {:style #js {:font-weight "bold"}} @name]
                   flag]
                 [:a {:class "ui item"}
-                  (icon "gear" :m)]]]]]])))
+                  (icon "gear" :m)]]]]])))
 
-#_(defn lesson-panel[data]
-  [panel (:title data) [:div (:text data)] :primary])
+(defn panel [content]
+  [:div {:class "ui raised segment"}
+    [:span content]])
 
-#_(defn class-slot [period lesson]
+(defn lesson-panel[data]
+  [panel (:title data) [:div (:text data)]])
+
+;TODO: panels only use lesson title atm, none of the content
+(defn class-slot [period lesson]
   (if (= :dot period)
-    [panel (align :center (icon "coffee"))]
+    [panel (icon "coffee")]
     [panel [:div period (align :right (icon "cog"))]
       [lesson-panel lesson]]))
 
-#_(defn weekday [day]
-  ;TODO: use destructuring to make this cleaner
-  (let [lessons   (get-in @state [:lessons day])
-        timetable (get-in @state [:timetable day])]
+(defn weekday [day]
+  (let [lessons   (re-frame/subscribe [:lessons day])
+        timetable (re-frame/subscribe [:timetable day])]
     (fn []
       [:div
         [:p (align :center (day-strings day))]
         (map #(with-meta
           ;TODO: Fix this hacky rand-int crap
-          (vector class-slot %1 %2) {:key (rand-int 1000)}) timetable lessons)])))
+          (vector class-slot %1 %2) {:key (rand-int 1000)}) @timetable @lessons)])))
 
-#_(defn week-view []
-  [:div {:class "container"}
-    [:div {:class "row"}
-      (map #(with-meta
-        (vector :div {:class "col-xs-4"} [weekday %]) {:key %}) weekdays)]])
+(defn week-view []
+  [:div {:class "ui centered grid"}
+    (map #(with-meta
+      (vector :div {:class "five wide column"} [weekday %]) {:key %}) weekdays)])
 
-(defn app []
+(defn timetable-panel []
   (let []
     (fn []
-      [:div
-        [top-bar "Zen Teacher"]
-        #_[week-view]])))
+      [week-view])))
+
+(defn planner-panel []
+  (let []
+    (fn []
+      [:span "Oh yeah it's a planner here"])))
+
+(defn main-panel [active-page]
+  (let []
+    (fn []
+      [:div {:class "row"}
+        [:div {:class "column"}
+          (case @active-page
+                :timetable [timetable-panel]
+                :planner [planner-panel]
+                [:span "No Panel Found?"])]])))
+
+(defn app []
+  (let [active-page (re-frame/subscribe [:active-page])]
+    (fn []
+      [:div {:class "ui grid container" :style #js {:margin 10}}
+        [top-bar active-page]
+        [main-panel active-page]])))

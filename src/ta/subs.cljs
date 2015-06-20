@@ -11,3 +11,13 @@
   :active-page
   (fn [db _]
     (reaction (:active-page @db))))
+
+(re-frame/register-sub
+  :lessons
+  (fn [db [_ page]]
+    (reaction (get-in @db [:lessons page]))))
+
+(re-frame/register-sub
+  :timetable
+  (fn [db [_ page]]
+    (reaction (get-in @db [:timetable page]))))
