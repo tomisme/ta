@@ -16,6 +16,14 @@
 
 (defn app-routes []
   (secretary/set-config! :prefix "#")
+
   (defroute "/" []
-    (re-frame/dispatch [:dummy-event :hello]))
+    (re-frame/dispatch [:navigate-to :timetable]))
+
+  (defroute "/timetable" []
+    (re-frame/dispatch [:navigate-to :timetable]))
+
+  (defroute "/planner" []
+    (re-frame/dispatch [:navigate-to :planner]))
+
   (hook-browser-navigation!))
