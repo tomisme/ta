@@ -1,5 +1,7 @@
 (ns ta.handlers
     (:require [re-frame.core :as re-frame]
+              [shodan.console :as console :include-macros true]
+              [shodan.inspection :refer [inspect]]
               [ta.db :as db]))
 
 (re-frame/register-handler
@@ -10,5 +12,5 @@
 (re-frame/register-handler
   :navigate-to
   (fn [db [_ page]]
-    (do #_(.log js/console db)
-        (assoc db :active-page page))))
+    #_(inspect (:active-page db))
+    (assoc db :active-page page)))

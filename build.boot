@@ -1,13 +1,15 @@
 (set-env!
  :source-paths    #{"src"}
  :resource-paths  #{"resources"}
- :dependencies '[[adzerk/boot-cljs      "0.0-2814-4" :scope "test"]
+ :dependencies '[[org.clojure/clojurescript "0.0-3123"]
+                 [adzerk/boot-cljs      "0.0-2814-4" :scope "test"]
                  [adzerk/boot-cljs-repl "0.1.9"      :scope "test"]
                  [adzerk/boot-reload    "0.2.4"      :scope "test"]
                  [pandeiro/boot-http    "0.6.1"      :scope "test"]
                  [clj-time "0.9.0"]
                  [reagent "0.5.0-alpha3"]
                  [re-frame "0.4.1"]
+                 [shodan "0.4.2"]
                  [secretary "1.2.3"]])
 
 (require
@@ -18,8 +20,7 @@
 
 (deftask build []
   (comp (speak)
-        (cljs)
-        ))
+        (cljs)))
 
 (deftask run []
   (comp (serve)

@@ -5,7 +5,7 @@
 (re-frame/register-sub
   :user
   (fn [db]
-    (reaction (get-in @db [:user]))))
+    (reaction (:user @db))))
 
 (re-frame/register-sub
   :active-page

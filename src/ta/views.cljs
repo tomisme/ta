@@ -1,8 +1,8 @@
 (ns ta.views
     (:require [re-frame.core :as re-frame]
+              [shodan.console :as console :include-macros true]
+              [shodan.inspection :refer [inspect]]
               [clojure.string :as string]))
-
-(enable-console-print!)
 
 (def weekdays [:mon :tues :wed])
 
