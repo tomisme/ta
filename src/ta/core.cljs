@@ -1,4 +1,4 @@
-(ns ^:figwheel-always ta.core
+(ns ta.core
     (:require [reagent.core :as reagent]
               [re-frame.core :as re-frame]
               [ta.handlers]
@@ -10,7 +10,14 @@
   (reagent/render [views/app]
                   (.getElementById js/document "app")))
 
-(routes/app-routes)
-(re-frame/dispatch-sync [:initialize-db])
-(mount-root)
-#_(.log js/console "Hello")
+(defn init []
+  (do (routes/app-routes)
+      (re-frame/dispatch-sync [:initialize-db])
+      (mount-root)
+      (.log js/console "Init done BOOOYA")))
+
+;(defn init []
+;  (.log js.console "AHHH"))
+;(routes/app-routes)
+;(re-frame/dispatch-sync [:initialize-db])
+;(mount-root)
