@@ -17,15 +17,14 @@
   (string/join " " bits))
 
 (defn icon
-  "Return a Font Awesome icon from string [name]"
-  ([name] (icon name :s))
+  "Returns a semantic UI icon"
+  ([name] (icon name :m))
   ([name size]
     (let [size-str (case size
-                         :s nil
-                         :m "fa-lg"
-                         :l "fa-2x")
-          name-str (str "fa-" name)]
-    [:i {:class (sem "fa" name-str size-str)}])))
+                         :s "small"
+                         :m ""
+                         :l "large")]
+    [:i {:class (sem "icon" name size-str)}])))
 
 (defn flag-img [flag]
   (case flag
@@ -39,10 +38,11 @@
                              :url "#/planner"}})
 
 (defn nav-links [current-page]
+  ;TODO: I don't even remember why 'second' is used here... maybe do that better?
   (let [active-page @current-page]
     (map (fn [page]
            (let [class (str (if (= active-page (key page)) "active ") "item")
-                 icon [:span {:style #js {:paddingRight 8}} (:icon (second page))]
+                 icon [:span {:style #js {:paddingRight 4}} (:icon (second page))]
                  label (:label (second page))
                  url (:url (second page))]
              (with-meta
@@ -62,14 +62,14 @@
                 [:a {:class "ui item"}
                   [:span {:style #js {:fontWeight "bold"}} name]
                   [flag-img flag]
-                  [:span {:style #js {:paddingLeft 5}} (icon "caret-down")]]]]]])))
+                  [:span {:style #js {:paddingLeft 5}} (icon "caret down")]]]]]])))
 
 (defn class-slot [period lesson]
   (if (= :dot period)
     [:div {:class "ui raised center aligned blue segment"} (icon "coffee")]
     [:div {:class "ui raised green segment"}
       [:div {:class "ui label ribbon green"} period]
-                             [:div {:class "pull-right"} (icon "pencil")]
+      (icon "pencil")
       [:div {:class "ui top attached header segment"
              :style #js {:marginTop 10
                          :textDecoration "underline"}} (:title lesson)]
