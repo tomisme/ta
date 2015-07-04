@@ -88,9 +88,13 @@
     [:div {:class "ui centered grid"}
       [:div {:class "row"}
         [:div {:class "center aligned column"}
-          (icon "chevron circle left")
+          [:a {:href (str "#/timetable/week/" (dec @week))}
+            (icon "chevron circle left")]
           (str "Week " @week)
-          (icon "chevron circle right")]]
+          ;TODO: work out why 'inc @week' appends rather than increments here
+          ; is it a string for some reason? why does dec work fine?
+          [:a {:href (str "#/timetable/week/" (inc (int @week)))}
+            (icon "chevron circle right")]]]
       [:div {:class "row"}
         (map #(with-meta
                (vector :div {:class "five wide column"} [weekday %])

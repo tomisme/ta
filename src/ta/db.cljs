@@ -2,6 +2,8 @@
 
 (def default-db
   { :active-page :timetable
+    :timetable-view :week
+    :active-week 11
 
     :user {:name "Tom Hutchinson"
            :flag :australia}

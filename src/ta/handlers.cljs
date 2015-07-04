@@ -12,5 +12,11 @@
 (re-frame/register-handler
   :navigate-to
   (fn [db [_ page]]
-    #_(inspect (:active-page db))
     (assoc db :active-page page)))
+
+(re-frame/register-handler
+  :view-timetable
+  (fn [db [_ view week]]
+    (assoc db :active-page :timetable
+              :timetable-view view
+              :active-week week)))

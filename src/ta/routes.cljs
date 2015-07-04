@@ -26,4 +26,10 @@
   (defroute "/planner" []
     (re-frame/dispatch [:navigate-to :planner]))
 
+  (defroute "/timetable/:view/:week" [view week]
+    (re-frame/dispatch [:view-timetable (case view
+                                              "day" :day
+                                              "week" :week)
+                                        week]))
+
   (hook-browser-navigation!))
