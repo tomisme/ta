@@ -91,9 +91,7 @@
           [:a {:href (str "#/timetable/week/" (dec @week))}
             (icon "chevron circle left")]
           (str "Week " @week)
-          ;TODO: work out why 'inc @week' appends rather than increments here
-          ; is it a string for some reason? why does dec work fine?
-          [:a {:href (str "#/timetable/week/" (inc (int @week)))}
+          [:a {:href (str "#/timetable/week/" (inc @week))}
             (icon "chevron circle right")]]]
       [:div {:class "row"}
         (map #(with-meta
