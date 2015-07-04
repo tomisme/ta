@@ -60,20 +60,18 @@
               (nav-links active-page)
               [:div {:class "right menu"}
                 [:a {:class "ui item"}
-                  [:span {:style #js {:fontWeight "bold"}} name]
-                  [flag-img flag]
-                  [:span {:style #js {:paddingLeft 5}} (icon "caret down")]]]]]])))
+                  name (flag-img flag) (icon "caret down")]]]]])))
 
 (defn class-slot [period lesson]
   (if (= :dot period)
-    [:div {:class "ui raised center aligned blue segment"} (icon "coffee")]
-    [:div {:class "ui raised green segment"}
-      [:div {:class "ui label ribbon green"} period]
-      (icon "pencil")
-      [:div {:class "ui top attached header segment"
-             :style #js {:marginTop 10
-                         :textDecoration "underline"}} (:title lesson)]
-      [:div {:class "ui attached segment"} (:text lesson)]]))
+    [:div {:class "ui card"}
+      [:div {:class "center aligned content"} (icon "coffee")]]
+    [:div {:class "ui green card"}
+      [:div {:class "content"}
+        [:div {:class "ui label ribbon green"
+               :style #js {:marginBottom 10}} period]
+        [:h4  {:class "ui sub header"} (:title lesson)]
+        [:div {:class "description"} (:text lesson)]]]))
 
 (defn weekday [day]
   (let [lessons   (re-frame/subscribe [:lessons day])
@@ -86,9 +84,18 @@
           (vector class-slot %1 %2) {:key (rand-int 1000)}) @timetable @lessons)])))
 
 (defn week-view []
-  [:div {:class "ui centered grid"}
-    (map #(with-meta
-      (vector :div {:class "five wide column"} [weekday %]) {:key %}) weekdays)])
+  (let [week (re-frame/subscribe [:active-week])]
+    [:div {:class "ui centered grid"}
+      [:div {:class "row"}
+        [:div {:class "center aligned column"}
+          (icon "chevron circle left")
+          (str "Week " @week)
+          (icon "chevron circle right")]]
+      [:div {:class "row"}
+        (map #(with-meta
+               (vector :div {:class "five wide column"} [weekday %])
+               {:key %})
+          weekdays)]]))
 
 (defn timetable-panel []
   (let []
