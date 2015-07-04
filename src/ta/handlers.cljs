@@ -17,6 +17,7 @@
 (re-frame/register-handler
   :view-timetable
   (fn [db [_ view week]]
+      ;TODO insert pre condition that week is a number or generalised type checking?
     (assoc db :active-page :timetable
               :timetable-view view
               :active-week week)))
