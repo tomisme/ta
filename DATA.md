@@ -8,11 +8,13 @@ lesson
       unit (:film)
       tags
 
-timetable
-  mon
-
-  tues
-  wed
+unit
+  description
+  duration
+  level
+  outcomes
+  resources
+  lessons
 
 settings
   timetable
