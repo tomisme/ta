@@ -26,6 +26,9 @@
   (defroute "/planner" []
     (re-frame/dispatch [:navigate-to :planner]))
 
+  (defroute "/classes" []
+    (re-frame/dispatch [:navigate-to :classes]))
+
   (defroute "/timetable/:view/:id" [view id]
     (re-frame/dispatch [:view-timetable (case view "day" :day
                                                    "week" :week)

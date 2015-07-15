@@ -33,9 +33,12 @@
 (def page-links {:timetable {:icon (icon "calendar" :m)
                              :label "Timetable"
                              :url "#/timetable"}
-                 :planner   {:icon (icon "edit" :m)
-                             :label "Lesson Planner"
-                             :url "#/planner"}})
+                 :planner   {:icon (icon "book" :m)
+                             :label "Planbook"
+                             :url "#/planner"}
+                 :classes   {:icon (icon "table" :m)
+                             :label "Classes"
+                             :url "#/classes"}})
 
 (defn nav-links [current-page]
   ;TODO: I don't even remember why 'second' is used here... maybe do that better?
