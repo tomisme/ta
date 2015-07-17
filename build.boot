@@ -12,6 +12,7 @@
                  [re-frame "0.4.1"]
                  [shodan "0.4.2"]
                  [secretary "1.2.3"]
+                 [bidi "1.20.0"]
                  [matchbox "0.0.6"]])
 
 (require
