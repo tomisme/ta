@@ -8,14 +8,17 @@
 
 (def classes (m/get-in root [:classes]))
 
-(defn setup-fb-listener []
-  #_(m/auth-anon) ; When do I need this?? May be time to read fb docs
-  (m/listen-to classes :value #(re-frame/dispatch [:fb-update (second %)])))
+(defn add-new-class [class]
+  (m/conj! classes class))
+
+(defn setup-class-listener []
+  (m/listen-to classes :value #(re-frame/dispatch [:update-classes (second %)])))
 
 (def default-db
   { :active-page :timetable
     :timetable-view :week
     :active-week 11
+    :new-class {:color :blue}
 
     :user {:name "Tom Hutchinson"
            :flag :australia}
@@ -52,5 +55,16 @@
                                           :format :pdf
                                           :description "Haiku Starter"
                                           :source "readwritethink.org/files/resources/printouts/30697_haiku.pdf"}]}]}]})
+
+(def test-data
+  { :classes [{:name "8 Media"
+               :schedule {:mon 1 :wed 0}
+               :color :green}
+              {:name "11 General English"
+               :schedule {:mon 2 :tues 0}
+               :color :blue}
+              {:name "10 Modified English"
+               :schedule {:wed 1}
+               :color :red}]})
 
 (def resource-types [:worksheet])

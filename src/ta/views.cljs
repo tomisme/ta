@@ -1,8 +1,9 @@
 (ns ta.views
-    (:require [re-frame.core :as re-frame]
-              [shodan.console :as console :include-macros true]
-              [shodan.inspection :refer [inspect]]
-              [clojure.string :as string]))
+  (:require-macros [reagent.ratom :refer [reaction]])
+  (:require [re-frame.core :as re-frame]
+            [shodan.console :as console :include-macros true]
+            [shodan.inspection :refer [inspect]]
+            [clojure.string :as string]))
 
 (def weekdays [:mon :tues :wed])
 
@@ -15,6 +16,14 @@
 (defn sem [& bits]
   "Return a string for use as an HTML component's :class"
   (string/join " " bits))
+
+(defn e->val [e]
+  "Takes a browser event and returns it's target's value"
+  (-> e .-target .-value))
+
+(defn ibut [value]
+  "Handy inspection button!"
+  [:button {:on-click #(inspect value)} "what?"])
 
 (defn icon
   "Returns a semantic UI icon"
@@ -112,12 +121,40 @@
     (fn []
       [:p "Don't worry, you'll be able to plan lessons pretty soon. I can feel it."])))
 
-(defn class-card [{:keys [name color schedule]}]
+; For some reason the class is a vector? The deets are in index 1
+(defn class-card [[_ {:keys [name color schedule] :as class}]]
   ^{:key name} [:div {:class (str "ui card " (clojure.core/name color))}
     [:div {:class "content"}
       name
       [:div {:class "right floated"}
         [:a (icon "edit")]]]])
+
+(defn new-class-form []
+  (let [new-class (re-frame/subscribe [:new-class])
+        new-class-color (reaction (:color @new-class))
+        new-class-name (reaction (:name @new-class))]
+    (fn []
+      [:div {:class "ui card"}
+        [:div {:class "center aligned content"}
+          [:div {:class "header"} "Create a new class"]
+          [:div {:class "meta"} "It will be added to your timetable"]]
+        [:div {:class "center aligned content"}
+          [:div {:class "ui fluid input"}
+            [:input {:type "text"
+                     :value @new-class-name
+                     :placeholder "Choose a name for the class"
+                     :on-change #(re-frame/dispatch [:update-new-class-name (e->val %)])}]]
+        [:div {:class "ui mini horizontal divided list"}
+          (doall (for [color [:red :orange :yellow :green :blue :violet :pink]
+                :let [c (name color)
+                      selected? (= @new-class-color color)]]
+            ^{:key c} [:div {:class "item"} (if selected? [:b c]
+                                                          c)]))]]
+        [:div {:class "center aligned extra content"}
+          [:button {:class "ui labeled icon button"
+                    :on-click #(re-frame/dispatch [:add-new-class])}
+            (icon "plus")
+            "Add Class"]]])))
 
 (defn classes-panel []
   (let [classes (re-frame/subscribe [:classes])]
@@ -127,9 +164,7 @@
           [:div {:class "eight wide column"}
             [:div (map class-card @classes)]]
           [:div {:class "eight wide column"}
-            [:button {:class "ui labeled icon button"}
-              (icon "plus")
-              "Add Class"]]]])))
+            [new-class-form]]]])))
 
 (defn main-panel [active-page]
   (let []

@@ -23,6 +23,11 @@
     (reaction (:classes @db))))
 
 (re-frame/register-sub
+  :new-class
+  (fn [db [_ _]]
+    (reaction (:new-class @db))))
+
+(re-frame/register-sub
   :lessons
   (fn [db [_ page]]
     (reaction (get-in @db [:lessons page]))))

@@ -13,4 +13,4 @@
 
 (routes/app-routes)
 (re-frame/dispatch-sync [:initialize-db])
-(db/setup-fb-listener)
+(db/setup-class-listener)
