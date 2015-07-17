@@ -3,6 +3,7 @@
               [re-frame.core :as re-frame]
               [ta.handlers]
               [ta.subs]
+              [ta.db :as db]
               [ta.routes :as routes]
               [ta.views :as views]))
 
@@ -12,3 +13,4 @@
 
 (routes/app-routes)
 (re-frame/dispatch-sync [:initialize-db])
+(db/setup-fb-listener)

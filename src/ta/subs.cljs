@@ -18,6 +18,11 @@
     (reaction (:active-week @db))))
 
 (re-frame/register-sub
+  :classes
+  (fn [db _]
+    (reaction (:classes @db))))
+
+(re-frame/register-sub
   :lessons
   (fn [db [_ page]]
     (reaction (get-in @db [:lessons page]))))

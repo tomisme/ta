@@ -112,15 +112,34 @@
     (fn []
       [:p "Don't worry, you'll be able to plan lessons pretty soon. I can feel it."])))
 
+(defn class-card [{:keys [name color schedule]}]
+  ^{:key name} [:div {:class (str "ui card " (clojure.core/name color))}
+    [:div {:class "content"}
+      name
+      [:div {:class "right floated"}
+        [:a (icon "edit")]]]])
+
+(defn classes-panel []
+  (let [classes (re-frame/subscribe [:classes])]
+    (fn []
+      [:div {:class "ui centered grid"}
+        [:div {:class "row"}
+          [:div {:class "eight wide column"}
+            [:div (map class-card @classes)]]
+          [:div {:class "eight wide column"}
+            [:button {:class "ui labeled icon button"}
+              (icon "plus")
+              "Add Class"]]]])))
+
 (defn main-panel [active-page]
   (let []
     (fn []
       [:div {:class "row"}
         [:div {:class "column"}
-          (case @active-page
-                :timetable [timetable-panel]
-                :planner [planner-panel]
-                [:span "No Panel Found?"])]])))
+          (case @active-page :timetable [timetable-panel]
+                             :planner [planner-panel]
+                             :classes [classes-panel]
+                             [:span "No Panel Found?"])]])))
 
 (defn app []
   (let [active-page (re-frame/subscribe [:active-page])]

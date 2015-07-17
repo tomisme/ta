@@ -10,6 +10,11 @@
     db/default-db))
 
 (re-frame/register-handler
+  :fb-update
+  (fn [db [_ data]]
+    (assoc db :classes data)))
+
+(re-frame/register-handler
   :navigate-to
   (fn [db [_ page]]
     (assoc db :active-page page)))

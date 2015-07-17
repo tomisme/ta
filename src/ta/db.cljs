@@ -1,4 +1,16 @@
-(ns ta.db)
+(ns ta.db
+  (:require [matchbox.core :as m]
+            [re-frame.core :as re-frame]
+            [shodan.console :as console :include-macros true]
+            [shodan.inspection :refer [inspect]]))
+
+(def root (m/connect "https://frederick.firebaseio.com/"))
+
+(def classes (m/get-in root [:classes]))
+
+(defn setup-fb-listener []
+  #_(m/auth-anon) ; When do I need this?? May be time to read fb docs
+  (m/listen-to classes :value #(re-frame/dispatch [:fb-update (second %)])))
 
 (def default-db
   { :active-page :timetable
@@ -7,19 +19,6 @@
 
     :user {:name "Tom Hutchinson"
            :flag :australia}
-
-    :classes [{:name "8 Media"
-               :schedule [:mon 1 :wed 0]
-               :description "Strong class, most students are eager to learn"
-               :color :green}
-              {:name "11 General English"
-               :schedule [:mon 2 :tues 0]
-               :description "Low ability, many students moving to TAFE"
-               :color :blue}
-              {:name "10 Modified English"
-               :schedule [:wed 1]
-               :description "Several violent students, close supervision req"
-               :color :red}]
 
     :timetable {:mon  [:dot "8 Media" "11 General English"]
                 :tues ["11 General English" :dot :dot]
@@ -39,3 +38,13 @@
                      {:title "Visual Texts"
                       :text "Da MOVIES"}
                       {}]}})
+(def test-data
+  { :classes [{:name "8 Media"
+               :schedule {:mon 1 :wed 0}
+               :color :green}
+              {:name "11 General English"
+               :schedule {:mon 2 :tues 0}
+               :color :blue}
+              {:name "10 Modified English"
+               :schedule {:wed 1}
+               :color :red}]})
