@@ -38,13 +38,19 @@
                      {:title "Visual Texts"
                       :text "Da MOVIES"}
                       {}]}})
-(def test-data
-  { :classes [{:name "8 Media"
-               :schedule {:mon 1 :wed 0}
-               :color :green}
-              {:name "11 General English"
-               :schedule {:mon 2 :tues 0}
-               :color :blue}
-              {:name "10 Modified English"
-               :schedule {:wed 1}
-               :color :red}]})
+
+(def test-lesson
+  { :lessons [{:subject "English"
+               :class "Year 8"
+               :level "General"
+               :activities [{:tags [{:text "japan"}
+                                    {:text "poetry"}]
+                             :description "Students write a Haiku"
+                             :length 20 ;in minutes
+                             :resources [{:sides 2
+                                          :type :worksheet
+                                          :format :pdf
+                                          :description "Haiku Starter"
+                                          :source "readwritethink.org/files/resources/printouts/30697_haiku.pdf"}]}]}]})
+
+(def resource-types [:worksheet])
