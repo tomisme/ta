@@ -1,28 +1,29 @@
 (ns ta.views
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [re-frame.core :as re-frame]
-            [shodan.console :as console :include-macros true]
+  (:require [re-frame.core :as rf]
             [shodan.inspection :refer [inspect]]
             [clojure.string :as string]))
 
-(def weekdays [:mon :tues :wed])
+(def weekdays [:mon :tues :wed :thurs :fri])
 
 (def day-strings {:mon   "Monday"
                   :tues  "Tuesday"
                   :wed   "Wednesday"
                   :thurs "Thursday"
-                  :fri   "Friday"})
+                  :fri   "Friday"
+                  :sat   "Saturday"
+                  :sun   "Sunday"})
 
-(defn sem [& bits]
-  "Return a string for use as an HTML component's :class"
-  (string/join " " bits))
+(defn sem [& parts]
+  "Return a space separated string for use as an HTML component's :class"
+  (string/join " " parts))
 
 (defn e->val [e]
-  "Takes a browser event and returns it's target's value"
+  "Take a browser :on-change event and returns the item's value"
   (-> e .-target .-value))
 
 (defn ibut [value]
-  "Handy inspection button!"
+  "Handy inspection button! Click to inspect a value in the console"
   [:button {:on-click #(inspect value)} "what?"])
 
 (defn icon
@@ -36,35 +37,37 @@
     [:i {:class (sem "icon" name size-str)}])))
 
 (defn flag-img [flag]
+  "Returns a flag icon given a country keyword"
   (case flag
     :australia [:i {:class "australia flag" :style #js {:paddingLeft 5}}]))
 
-(def page-links {:timetable {:icon (icon "calendar" :m)
-                             :label "Timetable"
-                             :url "#/timetable"}
-                 :planner   {:icon (icon "book" :m)
-                             :label "Planbook"
-                             :url "#/planner"}
-                 :classes   {:icon (icon "table" :m)
-                             :label "Classes"
-                             :url "#/classes"}})
+(def page-links [ {:key :timetable
+                   :icon "calendar"
+                   :label "Timetable"
+                   :url "#/timetable"}
+                  {:key :planner
+                   :icon "book"
+                   :label "Planbook"
+                   :url "#/planner"}
+                  {:key :classes
+                   :icon "table"
+                   :label "Classes"
+                   :url "#/classes"}])
 
 (defn nav-links [current-page]
-  ;TODO: I don't even remember why 'second' is used here... maybe do that better?
   (let [active-page @current-page]
-    (map (fn [page]
-           (let [class (str (if (= active-page (key page)) "active ") "item")
-                 icon [:span {:style #js {:paddingRight 4}} (:icon (second page))]
-                 label (:label (second page))
-                 url (:url (second page))]
-             (with-meta
-               (vector :a {:class class :href url} icon label) {:key label})))
+    (map (fn [link]
+           (let [class (sem (if (= (:key link) active-page) "active") "item")
+                 icon [:span {:style #js {:paddingRight 4}} (icon (:icon link))]
+                 label (:label link)
+                 url (:url link)]
+             ^{:key label} [:a {:class class :href url} icon label]))
          page-links)))
 
 (defn top-bar [active-page]
-  (let [user (re-frame/subscribe [:user])
-        name (get-in @user [:name])
-        flag (get-in @user [:flag])]
+  (let [user (rf/subscribe [:user])
+        name (reaction (:name @user))
+        flag (reaction (:flag @user))]
     (fn []
         [:div {:class "row"}
           [:div {:class "column"}
@@ -72,7 +75,7 @@
               (nav-links active-page)
               [:div {:class "right menu"}
                 [:a {:class "ui item"}
-                  name (flag-img flag) (icon "caret down")]]]]])))
+                  @name (flag-img @flag) (icon "caret down")]]]]])))
 
 (defn class-slot [period lesson]
   (if (= :dot period)
@@ -85,18 +88,17 @@
         [:h4  {:class "ui sub header"} (:title lesson)]
         [:div {:class "description"} (:text lesson)]]]))
 
+; TODO: loop through new timetable data
 (defn weekday [day]
-  (let [lessons   (re-frame/subscribe [:lessons day])
-        timetable (re-frame/subscribe [:timetable day])]
+  (let [lessons   (rf/subscribe [:lessons day])
+        timetable (rf/subscribe [:timetable day])]
     (fn []
       [:div
         [:center (day-strings day)]
-        (map #(with-meta
-          ;TODO: Fix this hacky rand-int crap
-          (vector class-slot %1 %2) {:key (rand-int 1000)}) @timetable @lessons)])))
+        (map (fn [a b c] ^{:key c} [class-slot a b]) @timetable @lessons [1 2 3])])))
 
 (defn week-view []
-  (let [week (re-frame/subscribe [:active-week])]
+  (let [week (rf/subscribe [:active-week])]
     [:div {:class "ui centered grid"}
       [:div {:class "row"}
         [:div {:class "center aligned column"}
@@ -123,16 +125,63 @@
 
 ; For some reason the class is a vector? The deets are in index 1
 (defn class-card [[_ {:keys [name color schedule] :as class}]]
-  ^{:key name} [:div {:class (str "ui card " (clojure.core/name color))}
+  ^{:key name} [:div {:class (sem "ui card" (clojure.core/name color))}
     [:div {:class "content"}
       name
       [:div {:class "right floated"}
         [:a (icon "edit")]]]])
 
+(defn color-selector [selected-color on-selected]
+  [:div {:class "ui mini horizontal divided list"}
+          (doall (for [color [:red :orange :yellow :green :blue :violet :pink]
+                       :let [color-str (name color)
+                             selected? (= selected-color color)]]
+                   ^{:key color-str} [:div {:class "item"}
+                     (if selected?
+                       [:b color-str]
+                       [:a {:on-click #(on-selected color)}
+                         color-str])]))])
+
+(defn test-dropdown []
+  [:div {:class "ui selection dropdown"}
+    [:input {:type "hidden" :name "gender"}]
+    [:div {:class "default text"} "Gender"]
+    [:i {:class "dropdown icon"}]
+    [:div {:class "menu"}
+     [:div {:class "item" :data-value "1"} "Male"]
+     [:div {:class "item" :data-value "0"} "Female"]]])
+
+(defn schedule-selector [selected-color]
+  (let [day-keys {:mon "M"
+                  :tues "T"
+                  :wed "W"
+                  :thurs "T"
+                  :fri "F"}]
+  [:div
+    [:p "Select empty class slots to fill"]
+    [:div {:class "ui equal width center aligned padded grid"}
+      (for [row [:label "S1" "S2" "S3" "S4" "S5"]]
+       [:div {:class "row"}
+         (for [col [:label :mon :tues :wed :thurs :fri]]
+           (let [label-col? (= col :label)
+                 label-row? (= row :label)
+                 taken?     (= col :wed)
+                 selected?  true
+                 color-str  (cond taken? "black"
+                                  label-row? ""
+                                  label-col? ""
+                                  selected? (name selected-color))]
+           [:div {:class (sem color-str "column")}
+             (cond
+               label-row? [:span (col day-keys)]
+               label-col? [:span row]
+               taken? (icon "close")
+               :else (icon "check"))]))])]]))
+
 (defn new-class-form []
-  (let [new-class (re-frame/subscribe [:new-class])
+  (let [new-class       (rf/subscribe [:new-class])
         new-class-color (reaction (:color @new-class))
-        new-class-name (reaction (:name @new-class))]
+        new-class-name  (reaction (:name @new-class))]
     (fn []
       [:div {:class "ui card"}
         [:div {:class "center aligned content"}
@@ -140,24 +189,22 @@
           [:div {:class "meta"} "It will be added to your timetable"]]
         [:div {:class "center aligned content"}
           [:div {:class "ui fluid input"}
-            [:input {:type "text"
-                     :value @new-class-name
-                     :placeholder "Choose a name for the class"
-                     :on-change #(re-frame/dispatch [:update-new-class-name (e->val %)])}]]
-        [:div {:class "ui mini horizontal divided list"}
-          (doall (for [color [:red :orange :yellow :green :blue :violet :pink]
-                :let [c (name color)
-                      selected? (= @new-class-color color)]]
-            ^{:key c} [:div {:class "item"} (if selected? [:b c]
-                                                          c)]))]]
+          [:input {:type "text"
+                   :value @new-class-name
+                   :placeholder "Choose a name for the class"
+                   :on-change #(rf/dispatch [:update-new-class :name (e->val %)])}]]
+          (color-selector @new-class-color
+                          #(rf/dispatch [:update-new-class :color %]))
+          (schedule-selector @new-class-color)
+        ]
         [:div {:class "center aligned extra content"}
           [:button {:class "ui labeled icon button"
-                    :on-click #(re-frame/dispatch [:add-new-class])}
+                    :on-click #(rf/dispatch [:add-new-class])}
             (icon "plus")
             "Add Class"]]])))
 
 (defn classes-panel []
-  (let [classes (re-frame/subscribe [:classes])]
+  (let [classes (rf/subscribe [:classes])]
     (fn []
       [:div {:class "ui centered grid"}
         [:div {:class "row"}
@@ -177,7 +224,7 @@
                              [:span "No Panel Found?"])]])))
 
 (defn app []
-  (let [active-page (re-frame/subscribe [:active-page])]
+  (let [active-page (rf/subscribe [:active-page])]
     (fn []
       [:div {:class "ui grid container" :style #js {:margin 10}}
         [top-bar active-page]

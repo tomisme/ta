@@ -1,6 +1,7 @@
 (ns ta.core
-    (:require [reagent.core :as reagent]
-              [re-frame.core :as re-frame]
+    (:require [reagent.core :as r]
+              [re-frame.core :as rf]
+              [shodan.console :as console :include-macros true]
               [ta.handlers]
               [ta.subs]
               [ta.db :as db]
@@ -8,9 +9,8 @@
               [ta.views :as views]))
 
 (defn init []
-  (reagent/render [views/app]
-                  (.getElementById js/document "app")))
+  (r/render [views/app] (.getElementById js/document "app")))
 
 (routes/app-routes)
-(re-frame/dispatch-sync [:initialize-db])
-(db/setup-class-listener)
+(rf/dispatch-sync [:initialize-db])
+(db/setup-listeners)

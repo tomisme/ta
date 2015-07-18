@@ -10,14 +10,9 @@
     db/default-db))
 
 (re-frame/register-handler
-  :update-new-class-name
-  (fn [db [_ name]]
-    (assoc-in db [:new-class :name] name)))
-
-(re-frame/register-handler
-  :update-new-class-color
-  (fn [db [_ color]]
-    (assoc-in db [:new-class :color] color)))
+ :update-new-class
+ (fn [db [_ input value]]
+   (assoc-in db [:new-class input] value)))
 
 (re-frame/register-handler
   :add-new-class

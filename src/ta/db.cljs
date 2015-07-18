@@ -1,7 +1,6 @@
 (ns ta.db
   (:require [matchbox.core :as m]
-            [re-frame.core :as re-frame]
-            [shodan.console :as console :include-macros true]
+            [re-frame.core :as rf]
             [shodan.inspection :refer [inspect]]))
 
 (def root (m/connect "https://frederick.firebaseio.com/"))
@@ -12,7 +11,10 @@
   (m/conj! classes class))
 
 (defn setup-class-listener []
-  (m/listen-to classes :value #(re-frame/dispatch [:update-classes (second %)])))
+  (m/listen-to classes :value #(rf/dispatch [:update-classes (second %)])))
+
+(defn setup-listeners []
+  (setup-class-listener))
 
 (def default-db
   { :active-page :timetable
@@ -20,12 +22,20 @@
     :active-week 11
     :new-class {:color :blue}
 
+    :schedule {:mon   [:slot :slot :lunch :slot :slot :lunch :slot]
+               :tues  [:slot :slot :lunch :slot :slot :lunch :slot]
+               :wed   [:slot :slot :lunch :slot :slot :lunch :slot]
+               :thurs [:slot :slot :lunch :slot :slot :lunch :slot]
+               :fri   [:slot :slot :lunch :slot :slot :lunch :slot]}
+
     :user {:name "Tom Hutchinson"
            :flag :australia}
 
-    :timetable {:mon  [:dot "8 Media" "11 General English"]
-                :tues ["11 General English" :dot :dot]
-                :wed  ["8 Media" "10 Modified English" :dot]}
+    :timetable {:mon   [:dot :dot :dot :dot :dot]
+                :tues  [:dot :dot :dot :dot :dot]
+                :wed   [:dot :dot :dot :dot :dot]
+                :thurs [:dot :dot :dot :dot :dot]
+                :fri   [:dot :dot :dot :dot :dot]}
 
     :lessons {:mon  [{}
                      {:title "Film"
@@ -54,17 +64,4 @@
                                           :type :worksheet
                                           :format :pdf
                                           :description "Haiku Starter"
-                                          :source "readwritethink.org/files/resources/printouts/30697_haiku.pdf"}]}]}]})
-
-(def test-data
-  { :classes [{:name "8 Media"
-               :schedule {:mon 1 :wed 0}
-               :color :green}
-              {:name "11 General English"
-               :schedule {:mon 2 :tues 0}
-               :color :blue}
-              {:name "10 Modified English"
-               :schedule {:wed 1}
-               :color :red}]})
-
-(def resource-types [:worksheet])
+                                          :url "readwritethink.org/files/resources/printouts/30697_haiku.pdf"}]}]}]})
