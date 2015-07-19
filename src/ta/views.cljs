@@ -1,6 +1,6 @@
 (ns ta.views
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [re-frame.core :as rf]
+  (:require [re-frame.core :refer [subscribe dispatch]]
             [shodan.inspection :refer [inspect]]
             [clojure.string :as string]))
 
@@ -15,11 +15,11 @@
                   :sun   "Sunday"})
 
 (defn sem [& parts]
-  "Return a space separated string for use as an HTML component's :class"
+  "Returns a space separated string for use as an HTML component's :class"
   (string/join " " parts))
 
 (defn e->val [e]
-  "Take a browser :on-change event and returns the item's value"
+  "Take an input component's :on-change event and returns the its value"
   (-> e .-target .-value))
 
 (defn ibut [value]
@@ -27,7 +27,7 @@
   [:button {:on-click #(inspect value)} "what?"])
 
 (defn icon
-  "Returns a semantic UI icon"
+  "Takes name string and optional size keyword and returns an icon element"
   ([name] (icon name :m))
   ([name size]
     (let [size-str (case size
@@ -36,23 +36,23 @@
                          :l "large")]
     [:i {:class (sem "icon" name size-str)}])))
 
-(defn flag-img [flag]
-  "Returns a flag icon given a country keyword"
-  (case flag
+(defn flag-img [country]
+  "Takes a country keyword and returns a flag icon element"
+  (case country
     :australia [:i {:class "australia flag" :style #js {:paddingLeft 5}}]))
 
-(def page-links [ {:key :timetable
-                   :icon "calendar"
-                   :label "Timetable"
-                   :url "#/timetable"}
-                  {:key :planner
-                   :icon "book"
-                   :label "Planbook"
-                   :url "#/planner"}
-                  {:key :classes
-                   :icon "table"
-                   :label "Classes"
-                   :url "#/classes"}])
+(def page-links [{:key :timetable
+                  :icon "calendar"
+                  :label "Timetable"
+                  :url "#/timetable"}
+                 {:key :planner
+                  :icon "book"
+                  :label "Planbook"
+                  :url "#/planner"}
+                 {:key :classes
+                  :icon "table"
+                  :label "Classes"
+                  :url "#/classes"}])
 
 (defn nav-links [current-page]
   (let [active-page @current-page]
@@ -65,7 +65,7 @@
          page-links)))
 
 (defn top-bar [active-page]
-  (let [user (rf/subscribe [:user])
+  (let [user (subscribe [:user])
         name (reaction (:name @user))
         flag (reaction (:flag @user))]
     (fn []
@@ -90,15 +90,15 @@
 
 ; TODO: loop through new timetable data
 (defn weekday [day]
-  (let [lessons   (rf/subscribe [:lessons day])
-        timetable (rf/subscribe [:timetable day])]
+  (let [lessons   (subscribe [:lessons day])
+        timetable (subscribe [:timetable day])]
     (fn []
       [:div
         [:center (day-strings day)]
         (map (fn [a b c] ^{:key c} [class-slot a b]) @timetable @lessons [1 2 3])])))
 
 (defn week-view []
-  (let [week (rf/subscribe [:active-week])]
+  (let [week (subscribe [:active-week])]
     [:div {:class "ui centered grid"}
       [:div {:class "row"}
         [:div {:class "center aligned column"}
@@ -153,7 +153,7 @@
 
 (defn schedule-selector [selected-color schedule on-change]
   "When a cell in the timetable is clicked, on-change is called with
-  {:session X day Y} as first param"
+  {:session X :day Y} as first param"
   (let [day-keys {:mon "M"
                   :tues "T"
                   :wed "W"
@@ -183,8 +183,8 @@
                :else (icon "circle" :s))]))])]]))
 
 (defn new-class-form []
-  (let [schedule        (rf/subscribe [:schedule])
-        new-class       (rf/subscribe [:new-class])
+  (let [schedule        (subscribe [:schedule])
+        new-class       (subscribe [:new-class])
         new-class-color (reaction (:color @new-class))
         new-class-name  (reaction (:name @new-class))]
     (fn []
@@ -197,21 +197,21 @@
           [:input {:type "text"
                    :value @new-class-name
                    :placeholder "Choose a name for the class"
-                   :on-change #(rf/dispatch [:update-new-class :name (e->val %)])}]]
+                   :on-change #(dispatch [:update-new-class :name (e->val %)])}]]
           (color-selector @new-class-color
-                          #(rf/dispatch [:update-new-class :color %]))
+                          #(dispatch [:update-new-class :color %]))
           (schedule-selector @new-class-color
                              @schedule
-                             #(rf/dispatch [:inspect %]))
+                             #(dispatch [:inspect %]))
         ]
         [:div {:class "center aligned extra content"}
           [:button {:class "ui labeled icon button"
-                    :on-click #(rf/dispatch [:add-new-class])}
+                    :on-click #(dispatch [:add-new-class])}
             (icon "plus")
             "Add Class"]]])))
 
 (defn classes-panel []
-  (let [classes (rf/subscribe [:classes])]
+  (let [classes (subscribe [:classes])]
     (fn []
       [:div {:class "ui centered grid"}
         [:div {:class "row"}
@@ -231,7 +231,7 @@
                              [:span "No Panel Found?"])]])))
 
 (defn app []
-  (let [active-page (rf/subscribe [:active-page])]
+  (let [active-page (subscribe [:active-page])]
     (fn []
       [:div {:class "ui grid container" :style #js {:margin 10}}
         [top-bar active-page]
