@@ -5,7 +5,7 @@
 
 (register-handler
   :inspect
-  (fn [db stuff]
+  (fn [db [_ stuff]]
     (inspect stuff)
     db))
 
