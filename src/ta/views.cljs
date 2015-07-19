@@ -151,7 +151,9 @@
      [:div {:class "item" :data-value "1"} "Male"]
      [:div {:class "item" :data-value "0"} "Female"]]])
 
-(defn schedule-selector [selected-color]
+(defn schedule-selector [selected-color schedule on-change]
+  "When a cell in the timetable is clicked, on-change is called with
+  {:session X day Y} as first param"
   (let [day-keys {:mon "M"
                   :tues "T"
                   :wed "W"
@@ -166,20 +168,23 @@
            (let [label-col? (= col :label)
                  label-row? (= row :label)
                  taken?     (= col :wed)
-                 selected?  true
+                 selected?  (> 1 (rand-int 2))
                  color-str  (cond taken? "black"
                                   label-row? ""
                                   label-col? ""
                                   selected? (name selected-color))]
-           [:div {:class (sem color-str "column")}
+           [:div {:class (sem color-str "column")
+                  :on-click #(on-change [row col])}
              (cond
                label-row? [:span (col day-keys)]
                label-col? [:span row]
                taken? (icon "close")
-               :else (icon "check"))]))])]]))
+               selected? (icon "check")
+               :else (icon "circle" :s))]))])]]))
 
 (defn new-class-form []
-  (let [new-class       (rf/subscribe [:new-class])
+  (let [schedule        (rf/subscribe [:schedule])
+        new-class       (rf/subscribe [:new-class])
         new-class-color (reaction (:color @new-class))
         new-class-name  (reaction (:name @new-class))]
     (fn []
@@ -195,7 +200,9 @@
                    :on-change #(rf/dispatch [:update-new-class :name (e->val %)])}]]
           (color-selector @new-class-color
                           #(rf/dispatch [:update-new-class :color %]))
-          (schedule-selector @new-class-color)
+          (schedule-selector @new-class-color
+                             @schedule
+                             #(rf/dispatch [:inspect %]))
         ]
         [:div {:class "center aligned extra content"}
           [:button {:class "ui labeled icon button"

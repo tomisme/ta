@@ -5,6 +5,12 @@
               [ta.db :as db]))
 
 (re-frame/register-handler
+  :inspect
+  (fn [db stuff]
+    (inspect stuff)
+    db))
+
+(re-frame/register-handler
   :initialize-db
   (fn [_ _]
     db/default-db))
