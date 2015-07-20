@@ -20,13 +20,18 @@
   { :active-page :timetable
     :timetable-view :week
     :active-week 11
-    :new-class {:color :blue}
+    :new-class {:color :blue
+                :schedule {:mon   [:slot :slot :slot :slot :slot]
+                           :tues  [:slot :slot :slot :slot :slot]
+                           :wed   [:slot :slot :slot :slot :slot]
+                           :thurs [:slot :slot :slot :slot :slot]
+                           :fri   [:slot :slot :slot :slot :slot]}}
 
-    :schedule {:mon   [:slot :slot :lunch :slot :slot :lunch :slot]
-               :tues  [:slot :slot :lunch :slot :slot :lunch :slot]
-               :wed   [:slot :slot :lunch :slot :slot :lunch :slot]
-               :thurs [:slot :slot :lunch :slot :slot :lunch :slot]
-               :fri   [:slot :slot :lunch :slot :slot :lunch :slot]}
+    :schedule {:mon   [:slot :class :class :slot :slot]
+               :tues  [:slot :slot :class :class :class]
+               :wed   [:slot :class :slot :class :slot]
+               :thurs [:class :class :class :class :slot]
+               :fri   [:class :class :slot :class :slot]}
 
     :user {:name "Tom Hutchinson"
            :flag :australia}
