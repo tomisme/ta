@@ -16,22 +16,25 @@
 (defn setup-listeners []
   (setup-class-listener))
 
+(defn default-new-class-data []
+  {:color (rand-nth [:red :orange :yellow :green :blue :pink])
+   :schedule {:mon   [:slot :slot :slot :slot :slot]
+              :tues  [:slot :slot :slot :slot :slot]
+              :wed   [:slot :slot :slot :slot :slot]
+              :thurs [:slot :slot :slot :slot :slot]
+              :fri   [:slot :slot :slot :slot :slot]}})
+
 (def default-db
   { :active-page :timetable
     :timetable-view :week
     :active-week 11
-    :new-class {:color :blue
-                :schedule {:mon   [:slot :slot :slot :slot :slot]
-                           :tues  [:slot :slot :slot :slot :slot]
-                           :wed   [:slot :slot :slot :slot :slot]
-                           :thurs [:slot :slot :slot :slot :slot]
-                           :fri   [:slot :slot :slot :slot :slot]}}
+    :new-class (default-new-class-data)
 
-    :schedule {:mon   [:slot :class :class :slot :slot]
-               :tues  [:slot :slot :class :class :class]
-               :wed   [:slot :class :slot :class :slot]
-               :thurs [:class :class :class :class :slot]
-               :fri   [:class :class :slot :class :slot]}
+    :schedule {:mon   [:dot :class :class :dot :dot]
+               :tues  [:dot :dot :class :class :class]
+               :wed   [:dot :class :dot :class :dot]
+               :thurs [:class :class :class :class :dot]
+               :fri   [:class :class :dot :class :dot]}
 
     :user {:name "Tom Hutchinson"
            :flag :australia}

@@ -24,7 +24,7 @@
   (fn [db [_ _]]
     (let [class (:new-class db)]
       (db/add-new-class class)
-      db)))
+      (assoc db :new-class (db/default-new-class-data)))))
 
 (register-handler
   :update-classes

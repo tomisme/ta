@@ -41,6 +41,15 @@
   (case country
     :australia [:i {:class "australia flag" :style #js {:paddingLeft 5}}]))
 
+(defn test-dropdown []
+  [:div {:class "ui selection dropdown"}
+    [:input {:type "hidden" :name "gender"}]
+    [:div {:class "default text"} "Gender"]
+    [:i {:class "dropdown icon"}]
+    [:div {:class "menu"}
+     [:div {:class "item" :data-value "1"} "Male"]
+     [:div {:class "item" :data-value "0"} "Female"]]])
+
 (def page-links [{:key :timetable
                   :icon "calendar"
                   :label "Timetable"
@@ -123,13 +132,23 @@
     (fn []
       [:p "Don't worry, you'll be able to plan lessons pretty soon. I can feel it."])))
 
-;; For some reason the class is a vector? The deets are in index 1
-(defn class-card [[_ {:keys [name color schedule] :as class}]]
-  ^{:key name} [:div {:class (sem "ui card" (clojure.core/name color))}
+(defn mini-schedule [schedule color]
+  (inspect schedule)
+  [:div {:class "ui equal width center aligned padded grid"}
+    (for [day [:mon :tues :wed :thurs :fri]]
+      ^{:key day} [:div {:class "row"}
+       (for [cell (day schedule)]
+         [:div {:class (str (if (= :selected cell) (name color)) " column")}
+          (icon "circle" :s)])]
+    )])
+
+;; first param is the internal id for the class, e.g. :-JufNb6aylkTrW5irdQu
+(defn class-card [[id {:keys [name color schedule] :as class}]]
+  ^{:key id} [:div {:class (sem "ui card" (clojure.core/name color))}
     [:div {:class "content"}
       name]
     [:div {:class "content"}
-      (str schedule)]])
+      (mini-schedule schedule color)]])
 
 (defn color-selector [selected-color on-selected]
   [:div {:class "ui mini horizontal divided list"}
@@ -142,51 +161,41 @@
                        [:a {:on-click #(on-selected color)}
                          color-str])]))])
 
-(defn test-dropdown []
-  [:div {:class "ui selection dropdown"}
-    [:input {:type "hidden" :name "gender"}]
-    [:div {:class "default text"} "Gender"]
-    [:i {:class "dropdown icon"}]
-    [:div {:class "menu"}
-     [:div {:class "item" :data-value "1"} "Male"]
-     [:div {:class "item" :data-value "0"} "Female"]]])
-
 (defn schedule-selector [on-change schedule new-schedule selected-color]
   "When an empty class slot in the table is clicked, it calls on-change
    with an updated schedule"
-  (let [day-keys {:mon   "M"
-                  :tues  "T"
-                  :wed   "W"
-                  :thurs "T"
-                  :fri   "F"}]
+  (let [day-labels {:mon   "Mo"
+                    :tues  "Tu"
+                    :wed   "We"
+                    :thurs "Th"
+                    :fri   "Fr"}]
   [:div
     [:span "When do you have the class?"]
     [:div {:class "ui equal width center aligned padded grid"}
       (for [row [:label 0 1 2 3 4]]
        ^{:key row} [:div {:class "row"}
          (for [col [:label :mon :tues :wed :thurs :fri]]
-           ;; what kind if cell are we?
-           (let [label-col? (= col :label)
-                 label-row? (= row :label)
-                 schedule-content (get-in schedule [col row])
-                 taken?     (not= :slot schedule-content)
-                 slot?      (not (or label-col? label-row? taken?))
+           ;; what kind if table cell are we?
+           (let [col-label? (= col :label)
+                 row-label? (= row :label)
+                 taken?     (not= :dot (get-in schedule [col row]))
+                 slot?      (not (or col-label? row-label? taken?))
                  selected?  (if slot?
                               (= (get-in new-schedule [col row]) :selected))
-                 select (if slot?
-                          #(on-change (assoc-in new-schedule
-                                                [col row] (if selected?
-                                                            :slot
-                                                            :selected))))
-                 color-str  (cond label-row? ""
-                                  label-col? ""
+                 on-select  (if slot?
+                              #(on-change (assoc-in new-schedule
+                                                    [col row] (if selected?
+                                                                :slot
+                                                                :selected))))
+                 color-str  (cond row-label? ""
+                                  col-label? ""
                                   taken? "black"
                                   selected? (name selected-color))]
              ^{:key col} [:div {:class (sem color-str "column")
-                                :on-click select}
+                                :on-click on-select}
              (cond
-               label-row? [:span (col day-keys)]
-               label-col? [:span (str "S" (inc row))]
+               row-label? [:span (col day-labels)]
+               col-label? [:span (str "S" (inc row))]
                taken? (icon "close")
                selected? (icon "check")
                :else (icon "circle" :s))]))])]]))
