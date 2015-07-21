@@ -1,18 +1,11 @@
 (ns ta.views
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [re-frame.core :refer [subscribe dispatch]]
+  (:require [ta.util :refer [weekdays day-strings]]
+            [re-frame.core :refer [subscribe dispatch]]
             [shodan.inspection :refer [inspect]]
             [clojure.string :as string]))
 
-(def weekdays [:mon :tues :wed :thurs :fri])
 
-(def day-strings {:mon   "Monday"
-                  :tues  "Tuesday"
-                  :wed   "Wednesday"
-                  :thurs "Thursday"
-                  :fri   "Friday"
-                  :sat   "Saturday"
-                  :sun   "Sunday"})
 
 (defn sem [& parts]
   "Returns a space separated string for use as an HTML component's :class"
@@ -133,14 +126,38 @@
       [:p "Don't worry, you'll be able to plan lessons pretty soon. I can feel it."])))
 
 (defn mini-schedule [schedule color]
-  (inspect schedule)
+  #_(inspect schedule)
   [:div {:class "ui equal width center aligned padded grid"}
-    (for [day [:mon :tues :wed :thurs :fri]]
-      ^{:key day} [:div {:class "row"}
-       (for [cell (day schedule)]
-         [:div {:class (str (if (= :selected cell) (name color)) " column")}
-          (icon "circle" :s)])]
-    )])
+    (for [session (range 5)]
+      ^{:key session}
+        [:div {:class "row"}
+          (for [day weekdays]
+            (let [cell (get-in schedule [day session])]
+              ^{:key (str day session)}
+                [:div {:class (str (if (= :selected cell) (name color)) " column")}
+                 (icon "circle" :s)]))])])
+
+(defn table-test [schedule classes]
+  #_(inspect schedule)
+  [:div {:class "ui equal width center aligned padded grid"}
+    (for [session (range 5)]
+      ^{:key session}
+        [:div {:class "row"}
+          (for [day weekdays]
+            (let [class (get-in schedule [day session])
+                  color-str (if-not (= :dot class)
+                              (name (:color (class classes))))
+                  content (icon "circle" :s)]
+              ^{:key (str day session)}
+                [:div {:class (str color-str " column")}
+                  content]))])])
+
+(defn timetable-test []
+  (let [timetable (subscribe [:schedule])
+        classes (subscribe [:classes])]
+    [:div {:class "ui card"}
+      [:div {:class "content"}
+        [table-test @timetable @classes]]]))
 
 ;; first param is the internal id for the class, e.g. :-JufNb6aylkTrW5irdQu
 (defn class-card [[id {:keys [name color schedule] :as class}]]
@@ -172,9 +189,9 @@
   [:div
     [:span "When do you have the class?"]
     [:div {:class "ui equal width center aligned padded grid"}
-      (for [row [:label 0 1 2 3 4]]
+      (for [row (conj (range 5) :label)] ;; prepend :label
        ^{:key row} [:div {:class "row"}
-         (for [col [:label :mon :tues :wed :thurs :fri]]
+         (for [col (into [:label] weekdays)] ;; prepend :label
            ;; what kind if table cell are we?
            (let [col-label? (= col :label)
                  row-label? (= row :label)
@@ -236,6 +253,7 @@
       [:div {:class "ui centered grid"}
         [:div {:class "row"}
           [:div {:class "eight wide column"}
+            [timetable-test]
             [:div (map class-card @classes)]]
           [:div {:class "eight wide column"}
             [new-class-form]]]])))
