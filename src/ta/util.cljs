@@ -9,3 +9,12 @@
                   :fri   "Friday"
                   :sat   "Saturday"
                   :sun   "Sunday"})
+
+(def color-strings {:red "red"
+                    :orange "orange"
+                    :yellow "yellow"
+                    :green "green"
+                    :blue "blue"
+                    :pink "pink"})
+
+(def colors [:red :orange :yellow :green :blue :pink])

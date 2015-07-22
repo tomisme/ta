@@ -1,11 +1,9 @@
 (ns ta.views
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [ta.util :refer [weekdays day-strings]]
+  (:require [ta.util :refer [weekdays day-strings colors color-strings]]
             [re-frame.core :refer [subscribe dispatch]]
             [shodan.inspection :refer [inspect]]
             [clojure.string :as string]))
-
-
 
 (defn sem [& parts]
   "Returns a space separated string for use as an HTML component's :class"
@@ -126,7 +124,6 @@
       [:p "Don't worry, you'll be able to plan lessons pretty soon. I can feel it."])))
 
 (defn mini-schedule [schedule color]
-  #_(inspect schedule)
   [:div {:class "ui equal width center aligned padded grid"}
     (for [session (range 5)]
       ^{:key session}
@@ -134,19 +131,17 @@
           (for [day weekdays]
             (let [cell (get-in schedule [day session])]
               ^{:key (str day session)}
-                [:div {:class (str (if (= :selected cell) (name color)) " column")}
+                [:div {:class (str (if (= :selected cell) (color color-strings)) " column")}
                  (icon "circle" :s)]))])])
 
 (defn table-test [schedule classes]
-  #_(inspect schedule)
   [:div {:class "ui equal width center aligned padded grid"}
     (for [session (range 5)]
       ^{:key session}
         [:div {:class "row"}
           (for [day weekdays]
             (let [class (get-in schedule [day session])
-                  color-str (if-not (= :dot class)
-                              (name (:color (class classes))))
+                  color-str (if class ((:color (class classes)) color-strings))
                   content (icon "circle" :s)]
               ^{:key (str day session)}
                 [:div {:class (str color-str " column")}
@@ -159,23 +154,22 @@
       [:div {:class "content"}
         [table-test @timetable @classes]]]))
 
-;; first param is the internal id for the class, e.g. :-JufNb6aylkTrW5irdQu
 (defn class-card [[id {:keys [name color schedule] :as class}]]
-  ^{:key id} [:div {:class (sem "ui card" (clojure.core/name color))}
+  ^{:key id} [:div {:class (sem "ui card" (color color-strings))}
     [:div {:class "content"}
       name]
     [:div {:class "content"}
       (mini-schedule schedule color)]])
 
-(defn color-selector [selected-color on-selected]
+(defn color-selector [on-change selected-color]
   [:div {:class "ui mini horizontal divided list"}
-          (doall (for [color [:red :orange :yellow :green :blue :pink]
-                       :let [color-str (name color)
+          (doall (for [color colors
+                       :let [color-str (color color-strings)
                              selected? (= selected-color color)]]
                    ^{:key color-str} [:div {:class "item"}
                      (if selected?
                        [:b color-str]
-                       [:a {:on-click #(on-selected color)}
+                       [:a {:on-click #(on-change color)}
                          color-str])]))])
 
 (defn schedule-selector [on-change schedule new-schedule selected-color]
@@ -195,8 +189,8 @@
            ;; what kind if table cell are we?
            (let [col-label? (= col :label)
                  row-label? (= row :label)
-                 taken?     (not= :dot (get-in schedule [col row]))
-                 slot?      (not (or col-label? row-label? taken?))
+                 class?     (get-in schedule [col row])
+                 slot?      (not (or col-label? row-label? class?))
                  selected?  (if slot?
                               (= (get-in new-schedule [col row]) :selected))
                  on-select  (if slot?
@@ -206,14 +200,14 @@
                                                                 :selected))))
                  color-str  (cond row-label? ""
                                   col-label? ""
-                                  taken? "black"
-                                  selected? (name selected-color))]
+                                  class? "black"
+                                  selected? (selected-color color-strings))]
              ^{:key col} [:div {:class (sem color-str "column")
                                 :on-click on-select}
              (cond
                row-label? [:span (col day-labels)]
                col-label? [:span (str "S" (inc row))]
-               taken? (icon "close")
+               class? (icon "close")
                selected? (icon "check")
                :else (icon "circle" :s))]))])]]))
 
@@ -234,10 +228,9 @@
                    :value @new-class-name
                    :placeholder "Choose a name for the class"
                    :on-change #(dispatch [:update-new-class :name (e->val %)])}]]
-          (color-selector @new-class-color
-                          #(dispatch [:update-new-class :color %]))
-          (schedule-selector #_(dispatch [:inspect %])
-                             #(dispatch [:update-new-class :schedule %])
+          (color-selector  #(dispatch [:update-new-class :color %])
+                           @new-class-color)
+          (schedule-selector #(dispatch [:update-new-class :schedule %])
                              @schedule
                              @new-class-schedule
                              @new-class-color)]

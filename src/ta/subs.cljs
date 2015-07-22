@@ -39,31 +39,15 @@
   (fn [db [_ page]]
     (reaction (get-in @db [:timetable page]))))
 
-(defn get-class-or-dot [classes-in-slot]
-  (some #(if (not= :empty %) % :dot) classes-in-slot))
-
-;; TODO: do something about class slot conflicts
-;;       currently returns first class found for the slot or :dot
 (defn class-in-slot [classes day session]
-  (do (inspect "================================")
-  (get-class-or-dot (for [class classes]
-    (do (inspect "internal seq")
-        (inspect (first class))
-        (inspect day)
-        (inspect session)
-        (inspect (get-in class [:schedule day session]))
-        (inspect (get-in (second class) [:schedule day])))
-    #_(if (= :selected (get-in class [:schedule day session]))
-      id :empty)))))
+  (some #(if (not= :slot %) %) (for [[id class] classes]
+             (if (= :selected (get-in class [:schedule day session])) id :slot))))
 
 (defn classes->schedule [classes]
-  (zipmap weekdays (for [weekday (range 5)]
-                     (into [] (for [cell (range 5)]
-                       (if (seq classes) ;; if there are no classes
-                         (do #_(inspect (class-in-slot classes (get weekdays weekday) cell))
-                         (class-in-slot classes (get weekdays weekday) cell))
-                         :dot) ;; return a grid of dot periods
-                       #_(str (get weekdays weekday) cell))))))
+  (zipmap weekdays (for [day weekdays]
+                     (into [] (for [session (range 5)]
+                       (if (seq classes)
+                         (class-in-slot classes day session)))))))
 
 (register-sub
   :schedule
