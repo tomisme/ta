@@ -40,10 +40,14 @@
     (reaction (get-in @db [:timetable page]))))
 
 (defn class-in-slot [classes day session]
-  (some #(if (not= :slot %) %) (for [[id class] classes]
-             (if (= :selected (get-in class [:schedule day session])) id :slot))))
+  "The id keyword of the first class found for the slot or nil"
+  ;; TODO: handle class clashes
+  (some #(if % %) ;; get the first truthy value (a filled slot)
+        (for [[id class] classes]
+          (if (= :selected (get-in class [:schedule day session])) id))))
 
 (defn classes->schedule [classes]
+  "A matrix of combined class schedules"
   (zipmap weekdays (for [day weekdays]
                      (into [] (for [session (range 5)]
                        (if (seq classes)
@@ -52,5 +56,4 @@
 (register-sub
   :schedule
   (fn [db _]
-    (reaction (classes->schedule (:classes @db))
-     #_(:schedule @db))))
+    (reaction (classes->schedule (:classes @db)))))

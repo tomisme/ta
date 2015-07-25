@@ -91,11 +91,14 @@
 ;; TODO: loop through new timetable data
 (defn weekday [day]
   (let [lessons   (subscribe [:lessons day])
-        timetable (subscribe [:timetable day])]
+        timetable (subscribe [:timetable day])
+        schedule (subscribe [:schedule])]
     (fn []
       [:div
         [:center (day-strings day)]
-        (map (fn [a b c] ^{:key c} [class-slot a b]) @timetable @lessons [1 2 3])])))
+        (map (fn [a b c]
+               ^{:key c} [class-slot a b])
+             @timetable @lessons [1 2 3 4 5])])))
 
 (defn week-view []
   (let [week (subscribe [:active-week])]
@@ -123,7 +126,7 @@
     (fn []
       [:p "Don't worry, you'll be able to plan lessons pretty soon. I can feel it."])))
 
-(defn mini-schedule [schedule color]
+(defn class-schedule [schedule color]
   [:div {:class "ui equal width center aligned padded grid"}
     (for [session (range 5)]
       ^{:key session}
@@ -147,19 +150,19 @@
                 [:div {:class (str color-str " column")}
                   content]))])])
 
-(defn timetable-test []
-  (let [timetable (subscribe [:schedule])
+(defn week-schedule []
+  (let [schedule (subscribe [:schedule])
         classes (subscribe [:classes])]
     [:div {:class "ui card"}
       [:div {:class "content"}
-        [table-test @timetable @classes]]]))
+        [table-test @schedule @classes]]]))
 
 (defn class-card [[id {:keys [name color schedule] :as class}]]
   ^{:key id} [:div {:class (sem "ui card" (color color-strings))}
     [:div {:class "content"}
       name]
     [:div {:class "content"}
-      (mini-schedule schedule color)]])
+      (class-schedule schedule color)]])
 
 (defn color-selector [on-change selected-color]
   [:div {:class "ui mini horizontal divided list"}
@@ -246,8 +249,10 @@
       [:div {:class "ui centered grid"}
         [:div {:class "row"}
           [:div {:class "eight wide column"}
-            [timetable-test]
-            [:div (map class-card @classes)]]
+            [week-schedule]
+            (if (seq @classes)
+              [:div (map class-card @classes)]
+              [:span "Loading Classes..."])]
           [:div {:class "eight wide column"}
             [new-class-form]]]])))
 
