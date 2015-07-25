@@ -137,25 +137,27 @@
                 [:div {:class (str (if (= :selected cell) (color color-strings)) " column")}
                  (icon "circle" :s)]))])])
 
-(defn table-test [schedule classes]
+(defn schedule-table [schedule classes]
   [:div {:class "ui equal width center aligned padded grid"}
     (for [session (range 5)]
       ^{:key session}
         [:div {:class "row"}
           (for [day weekdays]
-            (let [class (get-in schedule [day session])
+            (let [class     (get-in schedule [day session])
                   color-str (if class ((:color (class classes)) color-strings))
-                  content (icon "circle" :s)]
+                  content   (icon "circle" :s)]
               ^{:key (str day session)}
-                [:div {:class (str color-str " column")}
-                  content]))])])
+                [:div {:class (str color-str " column")} content]))])])
 
 (defn week-schedule []
   (let [schedule (subscribe [:schedule])
-        classes (subscribe [:classes])]
+        classes  (subscribe [:classes])]
     [:div {:class "ui card"}
       [:div {:class "content"}
-        [table-test @schedule @classes]]]))
+        [:div {:class "center aligned header"}
+          "Your Weekly Schedule"]]
+      [:div {:class "content"}
+        [schedule-table @schedule @classes]]]))
 
 (defn class-card [[id {:keys [name color schedule] :as class}]]
   ^{:key id} [:div {:class (sem "ui card" (color color-strings))}
@@ -239,7 +241,7 @@
                              @new-class-color)]
         [:div {:class "center aligned extra content"}
           [:button {:class "ui labeled icon button"
-                    :on-click #_(dispatch [:inspect @new-class]) #(dispatch [:add-new-class])}
+                    :on-click #(dispatch [:add-new-class!])}
             (icon "plus")
             "Add Class"]]])))
 
@@ -249,11 +251,11 @@
       [:div {:class "ui centered grid"}
         [:div {:class "row"}
           [:div {:class "eight wide column"}
-            [week-schedule]
             (if (seq @classes)
               [:div (map class-card @classes)]
               [:span "Loading Classes..."])]
           [:div {:class "eight wide column"}
+            [week-schedule]
             [new-class-form]]]])))
 
 (defn main-panel [active-page]

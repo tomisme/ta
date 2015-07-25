@@ -20,16 +20,16 @@
    (assoc-in db [:new-class input] value)))
 
 (register-handler
-  :add-new-class
+  :add-new-class!
   (fn [db [_ _]]
     (let [class (:new-class db)]
-      (db/add-new-class class)
-      (assoc db :new-class (db/default-new-class-data)))))
+      (db/add-new-class! class)
+      (assoc db :new-class (db/default-new-class-data))))) ;; reset form
 
 (register-handler
   :update-classes
-  (fn [db [_ data]]
-    (assoc db :classes data)))
+  (fn [db [_ classes]]
+    (assoc db :classes classes)))
 
 (register-handler
   :navigate-to
