@@ -77,28 +77,28 @@
                 [:a {:class "ui item"}
                   @name (flag-img @flag) (icon "caret down")]]]]])))
 
-(defn class-slot [period lesson]
-  (if (= :dot period)
+(defn class-slot [id classes]
+  (if (not id)
     [:div {:class "ui card"}
       [:div {:class "center aligned content"} (icon "coffee")]]
-    [:div {:class "ui green card"}
-      [:div {:class "content"}
-        [:div {:class "ui label ribbon green"
-               :style #js {:marginBottom 10}} period]
-        [:h4  {:class "ui sub header"} (:title lesson)]
-        [:div {:class "description"} (:text lesson)]]]))
+    (let [{:keys [name color schedule] :as class} (id @classes)
+          color-str (color color-strings)]
+      [:div {:class (sem "ui" color-str "card")}
+        [:div {:class "content"}
+          [:div {:class (sem "ui" color-str "label ribbon")
+                 :style #js {:marginBottom 10}} name]
+          [:h4  {:class "ui sub header"} "Empty Slot"]
+          [:div {:class "description"} (str "Click to add a lessson")]]])))
 
-;; TODO: loop through new timetable data
 (defn weekday [day]
-  (let [lessons   (subscribe [:lessons day])
-        timetable (subscribe [:timetable day])
-        schedule (subscribe [:schedule])]
+  (let [schedule (subscribe [:schedule])
+        classes  (subscribe [:classes])]
     (fn []
       [:div
         [:center (day-strings day)]
-        (map (fn [a b c]
-               ^{:key c} [class-slot a b])
-             @timetable @lessons [1 2 3 4 5])])))
+        (for [slot (day @schedule)]
+          ^{:key (rand-int 1000)} ;; TODO: work out a better key
+            [class-slot slot classes])])))
 
 (defn week-view []
   (let [week (subscribe [:active-week])]
@@ -111,10 +111,9 @@
           [:a {:href (str "#/timetable/week/" (inc @week))}
             (icon "chevron circle right")]]]
       [:div {:class "row"}
-        (map #(with-meta
-               (vector :div {:class "five wide column"} [weekday %])
-               {:key %})
-          weekdays)]]))
+        (for [day weekdays]
+          ^{:key day} [:div {:class "five wide column"}
+                        [weekday day]])]]))
 
 (defn timetable-panel []
   (let []
