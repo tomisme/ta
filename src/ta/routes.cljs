@@ -12,7 +12,7 @@
                    (fn [event] (secretary/dispatch! (.-token event))))
     (.setEnabled true)))
 
-(defn app-routes []
+(defn setup-routes []
   (secretary/set-config! :prefix "#")
 
   (defroute "/" []

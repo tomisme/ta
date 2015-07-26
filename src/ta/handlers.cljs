@@ -20,7 +20,7 @@
    (assoc-in db [:new-class input] value)))
 
 (register-handler
-  :add-new-class!
+  :add-new-class
   (fn [db [_ _]]
     (let [class (:new-class db)]
       (db/add-new-class! class)

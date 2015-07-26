@@ -87,7 +87,6 @@
         [:div {:class "content"}
           [:div {:class (sem "ui" color-str "label ribbon")
                  :style #js {:marginBottom 10}} name]
-          [:h4  {:class "ui sub header"} "Empty Slot"]
           [:div {:class "description"} (str "Click to add a lessson")]]])))
 
 (defn weekday [day]
@@ -240,7 +239,7 @@
                              @new-class-color)]
         [:div {:class "center aligned extra content"}
           [:button {:class "ui labeled icon button"
-                    :on-click #(dispatch [:add-new-class!])}
+                    :on-click #(dispatch [:add-new-class])}
             (icon "plus")
             "Add Class"]]])))
 
