@@ -6,10 +6,10 @@
               [ta.subs]
               [ta.db :as db]
               [ta.routes :as routes]
-              [ta.views :as views]))
+              [ta.views.app :as app]))
 
 (defn init []
-  (render [views/app] (.getElementById js/document "app")))
+  (render [app/container] (.getElementById js/document "app")))
 
 (routes/setup-routes)
 (dispatch-sync [:initialize-db])
