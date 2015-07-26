@@ -7,10 +7,11 @@
                  [adzerk/boot-cljs-repl "0.1.10-SNAPSHOT"  :scope "test"]
                  [adzerk/boot-reload    "0.3.1"            :scope "test"]
                  [pandeiro/boot-http    "0.6.3-SNAPSHOT"   :scope "test"]
-                 [clj-time "0.9.0"]
                  [reagent "0.5.0"]
                  [re-frame "0.4.1"]
                  [shodan "0.4.2"]
+                 [com.andrewmcveigh/cljs-time "0.3.10"]
+                 [cljsjs/moment "2.9.0-0"]
                  [secretary "1.2.3"]
                  [bidi "1.20.0"]
                  [matchbox "0.0.6"]])
