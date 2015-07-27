@@ -37,8 +37,8 @@
     (assoc db :active-page page)))
 
 (register-handler
-  :view-timetable
+  :view-calendar
   (fn [db [_ view week]]
-    (assoc db :active-page :timetable
-              :timetable-view view
+    (assoc db :active-page :calendar
+              :calendar-view view
               :active-week week)))

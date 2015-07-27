@@ -1,6 +1,5 @@
 (ns ta.views.planner
-  (:require [ta.util :refer [colors color-strings]]
-            [ta.views.common :refer [sem e->val icon]]
+  (:require [ta.views.common :refer [sem e->val icon]]
             [re-frame.core :refer [subscribe dispatch]]
             [shodan.inspection :refer [inspect]]))
 

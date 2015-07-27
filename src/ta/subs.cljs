@@ -35,9 +35,9 @@
     (reaction (get-in @db [:lessons page]))))
 
 (register-sub
-  :timetable
+  :calendar
   (fn [db [_ page]]
-    (reaction (get-in @db [:timetable page]))))
+    (reaction (get-in @db [:calendar page]))))
 
 (defn class-in-slot [classes day session]
   "The id keyword of the first class found for the slot or nil"

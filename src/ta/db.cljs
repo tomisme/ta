@@ -26,8 +26,8 @@
               :thurs [:slot :slot :slot :slot :slot]
               :fri   [:slot :slot :slot :slot :slot]}})
 
-(def default-db {:active-page :timetable
-                 :timetable-view :week
+(def default-db {:active-page :calendar
+                 :calendar-view :week
                  :active-week 11
                  :new-class (default-new-class-data)
                  :user {:name "Tom Hutchinson"

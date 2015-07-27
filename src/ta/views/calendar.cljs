@@ -31,10 +31,10 @@
     [:div {:class "ui centered grid"}
       [:div {:class "row"}
         [:div {:class "center aligned column"}
-          [:a {:href (str "#/timetable/week/" (dec @week))}
+          [:a {:href (str "#/calendar/week/" (dec @week))}
             (icon "chevron circle left")]
           (str "Week " @week)
-          [:a {:href (str "#/timetable/week/" (inc @week))}
+          [:a {:href (str "#/calendar/week/" (inc @week))}
             (icon "chevron circle right")]]]
       [:div {:class "row"}
         (for [day weekdays]

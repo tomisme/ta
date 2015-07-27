@@ -1,6 +1,6 @@
 (ns ta.views.classes
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [ta.util :refer [weekdays day-strings colors color-strings]]
+  (:require [ta.util :refer [weekdays colors color-strings]]
             [ta.views.common :refer [sem e->val icon]]
             [re-frame.core :refer [subscribe dispatch]]
             [shodan.inspection :refer [inspect]]))

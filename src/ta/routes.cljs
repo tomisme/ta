@@ -16,10 +16,10 @@
   (secretary/set-config! :prefix "#")
 
   (defroute "/" []
-    (dispatch [:navigate-to :timetable]))
+    (dispatch [:navigate-to :calendar]))
 
-  (defroute "/timetable" []
-    (dispatch [:navigate-to :timetable]))
+  (defroute "/calendar" []
+    (dispatch [:navigate-to :calendar]))
 
   (defroute "/planner" []
     (dispatch [:navigate-to :planner]))
@@ -27,9 +27,9 @@
   (defroute "/classes" []
     (dispatch [:navigate-to :classes]))
 
-  (defroute "/timetable/:view/:id" [view id]
-    (dispatch [:view-timetable (case view "day" :day
-                                          "week" :week)
-                               (js/parseInt id)]))
+  (defroute "/calendar/:view/:id" [view id]
+    (dispatch [:view-calendar (case view "day" :day
+                                         "week" :week)
+                              (js/parseInt id)]))
 
   (hook-browser-navigation!))
