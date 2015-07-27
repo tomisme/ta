@@ -32,17 +32,3 @@
                  :new-class (default-new-class-data)
                  :user {:name "Tom Hutchinson"
                         :flag :australia}})
-
-(def test-lesson
-  { :lessons [{:subject "English"
-               :class "Year 8"
-               :level "General"
-               :activities [{:tags [{:text "japan"}
-                                    {:text "poetry"}]
-                             :description "Students write a Haiku"
-                             :length 20 ;in minutes
-                             :resources [{:sides 2
-                                          :type :worksheet
-                                          :format :pdf
-                                          :description "Haiku Starter"
-                                          :url "readwritethink.org/files/resources/printouts/30697_haiku.pdf"}]}]}]})
