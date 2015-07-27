@@ -1,5 +1,6 @@
 (ns ta.views.common
-  (:require [clojure.string :as string]))
+  (:require [shodan.inspection :refer [inspect]]
+            [clojure.string :as string]))
 
 (defn sem [& parts]
   "Returns a space separated string for use as an HTML component's :class"
@@ -22,3 +23,17 @@
                          :m ""
                          :l "large")]
     [:i {:class (sem "icon" name size-str)}])))
+
+(defn flag-img [country]
+  "Takes a country keyword and returns a flag icon element"
+  (case country
+    :australia [:i {:class "australia flag" :style #js {:paddingLeft 5}}]))
+
+(defn test-dropdown []
+  [:div {:class "ui selection dropdown"}
+    [:input {:type "hidden" :name "gender"}]
+    [:div {:class "default text"} "Gender"]
+    [:i {:class "dropdown icon"}]
+    [:div {:class "menu"}
+     [:div {:class "item" :data-value "1"} "Male"]
+     [:div {:class "item" :data-value "0"} "Female"]]])

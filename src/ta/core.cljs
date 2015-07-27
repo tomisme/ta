@@ -9,7 +9,7 @@
               [ta.views.app :as app]))
 
 (defn init []
-  (render [app/container] (.getElementById js/document "app")))
+  (render [app/app-container] (.getElementById js/document "app")))
 
 (routes/setup-routes)
 (dispatch-sync [:initialize-db])

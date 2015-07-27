@@ -26,7 +26,7 @@
 
 (register-sub
   :new-class
-  (fn [db [_ _]]
+  (fn [db _]
     (reaction (:new-class @db))))
 
 (register-sub

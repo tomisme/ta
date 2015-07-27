@@ -15,6 +15,7 @@
                     :yellow "yellow"
                     :green "green"
                     :blue "blue"
-                    :pink "pink"})
+                    :pink "pink"
+                    :teal "teal"})
 
-(def colors [:red :orange :yellow :green :blue :pink])
+(def colors [:red :orange :yellow :green :blue :pink :teal])
