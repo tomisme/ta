@@ -1,7 +1,7 @@
 (ns ta.views.app
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [ta.views.calendar :refer [calendar-panel]]
-            [ta.views.planner :refer [planner-panel]]
+            [ta.views.planbook :refer [planbook-panel]]
             [ta.views.classes :refer [classes-panel]]
             [ta.views.common :refer [sem icon flag-img]]
             [re-frame.core :refer [subscribe]]
@@ -11,10 +11,10 @@
                   :icon "calendar"
                   :label "Calendar"
                   :url "#/calendar"}
-                 {:key :planner
+                 {:key :planbook
                   :icon "book"
                   :label "Planbook"
-                  :url "#/planner"}
+                  :url "#/planbook"}
                  {:key :classes
                   :icon "table"
                   :label "Classes"
@@ -46,7 +46,7 @@
   [:div {:class "row"}
     [:div {:class "column"}
       (case @active-page :calendar [calendar-panel]
-                         :planner  [planner-panel]
+                         :planbook [planbook-panel]
                          :classes  [classes-panel]
                          [:span "No Panel Found?"])]])
 

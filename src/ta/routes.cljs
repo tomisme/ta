@@ -21,8 +21,8 @@
   (defroute "/calendar" []
     (dispatch [:navigate-to :calendar]))
 
-  (defroute "/planner" []
-    (dispatch [:navigate-to :planner]))
+  (defroute "/planbook" []
+    (dispatch [:navigate-to :planbook]))
 
   (defroute "/classes" []
     (dispatch [:navigate-to :classes]))

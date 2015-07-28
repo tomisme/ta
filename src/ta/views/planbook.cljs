@@ -1,4 +1,4 @@
-(ns ta.views.planner
+(ns ta.views.planbook
   (:require [ta.views.common :refer [ibut sem e->val icon]]
             [re-frame.core :refer [subscribe dispatch]]
             [shodan.inspection :refer [inspect]]))
@@ -45,7 +45,7 @@
 (defn lesson-detail []
   [:span "Select a lesson to work on"])
 
-(defn planner-panel []
+(defn planbook-panel []
   (let []
     (fn []
       [:div {:class "ui grid"}

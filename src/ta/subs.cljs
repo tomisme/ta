@@ -31,8 +31,8 @@
 
 (register-sub
   :lessons
-  (fn [db [_ page]]
-    (reaction (get-in @db [:lessons page]))))
+  (fn [db _]
+    (reaction (get-in @db [:planbook :lessons]))))
 
 (register-sub
   :calendar
