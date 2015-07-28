@@ -37,3 +37,8 @@
     [:div {:class "menu"}
      [:div {:class "item" :data-value "1"} "Male"]
      [:div {:class "item" :data-value "0"} "Female"]]])
+
+(defn checkbox [on-click label checked]
+  [:div {:class "ui checkbox"}
+    [:input {:type "checkbox" :tabindex "0" :class "hidden" :checked checked}]
+    [:label label]])

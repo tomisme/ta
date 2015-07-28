@@ -1,5 +1,5 @@
 (ns ta.views.planbook
-  (:require [ta.views.common :refer [ibut sem e->val icon]]
+  (:require [ta.views.common :refer [ibut sem e->val icon checkbox]]
             [re-frame.core :refer [subscribe dispatch]]
             [shodan.inspection :refer [inspect]]))
 
@@ -31,25 +31,35 @@
 (defn lesson-item [{:keys [title subject year activities]}]
   ^{:key title} [:div {:class "item"}
                   [:div {:class "content"}
-                    [:span {:class "header"} title]]])
+                    [:a {:class "header"} title]]])
 
-(defn lesson-list []
-  (let [lessons test-lessons #_(subscribe [:lessons])]
-    (fn []
-      (if (seq lessons)
-        [:div {:class "ui divided items"}
-          (for [lesson lessons]
-            [lesson-item lesson])]
-        [:span "Loading Lessons..."]))))
+(defn lesson-list [lessons]
+  (if (seq lessons)
+    [:div {:class "ui divided items"}
+      (for [lesson lessons]
+        [lesson-item lesson])]
+    [:span "Loading Lessons..."]))
 
 (defn lesson-detail []
-  [:span "Select a lesson to work on"])
+  [:div {:class "ui segment"}
+    [:div {:class "ui form"}
+      [:div {:class "fields"}
+        [:div {:class "field"}
+          [:select
+            [:option {:value ""} "Year"]
+            [:option {:value "7"} "7"]]]
+        [:div {:class "field"}
+          [:select
+            [:option {:value ""} "Subject"]
+            [:option {:value "English"} "English"]]]
+        [:div {:class "field" :style #js {:marginTop 8 :float "right"}}
+          [checkbox #() "Finished" true]]]
+      [:input {:type "text" :placeholder "Enter a one line description for your lesson"}]]])
 
 (defn planbook-panel []
-  (let []
-    (fn []
-      [:div {:class "ui grid"}
-        [:div {:class "four wide column"}
-          [lesson-list]]
-        [:div {:class "six wide column"}
-          [lesson-detail]]])))
+  (let [lessons test-lessons #_(subscribe [:lessons])]
+    [:div {:class "ui grid"}
+      [:div {:class "four wide column"}
+        [lesson-list lessons]]
+      [:div {:class "twelve wide column"}
+        [lesson-detail]]]))
