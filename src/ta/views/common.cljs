@@ -29,7 +29,23 @@
   (case country
     :australia [:i {:class "australia flag" :style #js {:paddingLeft 5}}]))
 
-(defn test-dropdown []
+(defn checkbox [on-click label checked]
+  [:div {:class "ui checkbox" :onClick #(on-click (not checked))}
+    [:input {:type "checkbox"
+             :tabIndex "0"
+             :class "hidden"
+             :checked checked
+             :readOnly true}]
+    [:label label]])
+
+(defn dropdown [{:keys [value options starting]}]
+  [:select {:value value}
+    [:option {:value ""} starting]
+    (map-indexed (fn [i option]
+                   ^{:key (str i "-" option)}
+                     [:option {:value option} option]) options)])
+
+(defn semantic-dropdown []
   [:div {:class "ui selection dropdown"}
     [:input {:type "hidden" :name "gender"}]
     [:div {:class "default text"} "Gender"]
@@ -37,8 +53,3 @@
     [:div {:class "menu"}
      [:div {:class "item" :data-value "1"} "Male"]
      [:div {:class "item" :data-value "0"} "Female"]]])
-
-(defn checkbox [on-click label checked]
-  [:div {:class "ui checkbox"}
-    [:input {:type "checkbox" :tabindex "0" :class "hidden" :checked checked}]
-    [:label label]])

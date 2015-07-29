@@ -26,9 +26,37 @@
               :thurs [:slot :slot :slot :slot :slot]
               :fri   [:slot :slot :slot :slot :slot]}})
 
+(def test-lessons {:a {:description "Haikus 1"
+                    :subject "English"
+                    :year 7
+                    :finished true
+                    :activities [{:tags [{:text "japan"}
+                                         {:text "poetry"}]
+                                  :description "Students write a Haiku"
+                                  :length 20 ;in minutes
+                                  :resources [{:sides 2
+                                               :type :worksheet
+                                               :format :pdf
+                                               :description "Haiku Starter"
+                                               :url "readwritethink.org/files/resources/printouts/30697_haiku.pdf"}]}]}
+                   :b {:description "Haikus 2"
+                    :subject "English"
+                    :year 8
+                    :finished false
+                    :activities [{:tags [{:text "japan"}
+                                         {:text "poetry"}]
+                                  :description "Students write a Haiku"
+                                  :length 20 ;in minutes
+                                  :resources [{:sides 2
+                                               :type :worksheet
+                                               :format :pdf
+                                               :description "Haiku Starter"
+                                               :url "readwritethink.org/files/resources/printouts/30697_haiku.pdf"}]}]}})
+
 (def default-db {:active-page :calendar
                  :calendar-view :week
                  :active-week 11
                  :new-class (default-new-class-data)
                  :user {:name "Tom Hutchinson"
-                        :flag :australia}})
+                        :flag :australia}
+                 :planbook {:lessons test-lessons}})

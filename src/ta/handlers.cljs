@@ -4,6 +4,12 @@
               [ta.db :as db]))
 
 (register-handler
+  :inspect-db
+  (fn [db _]
+    (inspect db)
+    db))
+
+(register-handler
   :inspect
   (fn [db [_ stuff]]
     (inspect stuff)
@@ -30,6 +36,16 @@
   :update-classes
   (fn [db [_ classes]]
     (assoc db :classes classes)))
+
+(register-handler
+  :set-open-lesson
+  (fn [db [_ id]]
+    (assoc-in db [:planbook :open-lesson] id)))
+
+(register-handler
+  :update-lesson
+  (fn [db [_ id attribute value]]
+    (assoc-in db [:planbook :lessons id attribute] value)))
 
 (register-handler
   :navigate-to

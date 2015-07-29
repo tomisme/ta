@@ -35,6 +35,11 @@
     (reaction (get-in @db [:planbook :lessons]))))
 
 (register-sub
+  :open-lesson
+  (fn [db _]
+    (reaction (get-in @db [:planbook :open-lesson]))))
+
+(register-sub
   :calendar
   (fn [db [_ page]]
     (reaction (get-in @db [:calendar page]))))
