@@ -38,8 +38,9 @@
              :readOnly true}]
     [:label label]])
 
-(defn dropdown [{:keys [value options starting]}]
-  [:select {:value value}
+(defn dropdown [{:keys [value options starting on-change]}]
+  [:select {:value value
+            :onChange #(on-change %)}
     [:option {:value ""} starting]
     (map-indexed (fn [i option]
                    ^{:key (str i "-" option)}

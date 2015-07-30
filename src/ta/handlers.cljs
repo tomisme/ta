@@ -20,6 +20,8 @@
   (fn [_ _]
     db/default-db))
 
+ ;; CLASSES =======================
+
 (register-handler
  :update-new-class
  (fn [db [_ input value]]
@@ -37,15 +39,32 @@
   (fn [db [_ classes]]
     (assoc db :classes classes)))
 
+ ;; PLANBOOK =======================
+
+(register-handler
+  :update-lessons
+  (fn [db [_ lessons]]
+    (assoc-in db [:planbook :lessons] lessons)))
+
+(register-handler
+  :add-lesson
+  (fn [db _]
+    (db/add-lesson! {:description "New Lesson"})
+    #_(assoc db :planbook :adding-lesson true) ;; TODO: make new lesson button spin?
+    db))
+
+(register-handler
+  :update-lesson
+  (fn [db [_ id attribute value]]
+    (db/update-lesson-attribute! id attribute value)
+    db))
+
 (register-handler
   :set-open-lesson
   (fn [db [_ id]]
     (assoc-in db [:planbook :open-lesson] id)))
 
-(register-handler
-  :update-lesson
-  (fn [db [_ id attribute value]]
-    (assoc-in db [:planbook :lessons id attribute] value)))
+ ;; ROUTING =======================
 
 (register-handler
   :navigate-to

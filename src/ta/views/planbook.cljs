@@ -7,49 +7,66 @@
 
 (def subjects ["English" "Media"])
 
-(defn lesson-item [id {:keys [description subject year activities]}]
+(defn lesson-list-item
+  [id {:keys [description subject year finished activities]} selected?]
   (let [desc-str (if (not= description "") description  ;; TODO: better validation
                                            "Untitled")]
-  [:div {:class "item"}
-    [:div {:class "content"}
-      [:a {:class "header"
-           :onClick #(dispatch [:set-open-lesson id])} desc-str]]]))
+  [:div {:class (sem "ui" (if selected? "black") "link card")}
+    [:div {:class "content"
+           :onClick #(dispatch [:set-open-lesson id])}
+      [:div {:style #js {:marginBottom 4}}
+        (if year [:div {:class "ui olive mini label"} (str "Year " year)])
+        (if subject [:div {:class "ui blue mini label"} subject])
+        (if finished [:div {:class "ui green mini label"} "Ready"])]
+      [:div desc-str]]]))
 
-(defn lesson-list [lessons]
-  (if (seq lessons)
-    [:div {:class "ui divided items"}
-      (for [lesson lessons
-            :let [[id content] lesson]]
-        ^{:key (:description content)} [lesson-item id content])]
-    [:span "Loading Lessons..."]))
+(defn lesson-list [lessons-atom open-lesson-atom]
+  (fn []
+    (let [lessons @lessons-atom
+          open-lesson @open-lesson-atom]
+      [:div {:class "ui center aligned stacked segment"}
+        [:div {:class "ui header"} "Lesson Stack"]
+        [:div {:class "ui labeled icon button"
+               :onClick #(dispatch [:add-lesson])}
+          (icon "plus") "New Lesson"]
+      (if (not (seq lessons)) [:div {:class "ui active inline loader"}]
+        [:div {:class "ui items"}
+          (for [lesson lessons
+                :let [[id content] lesson
+                      selected? (= open-lesson id)]]
+            ^{:key (str id)} [lesson-list-item id content selected?])])])))
 
-(defn lesson-detail [id {:keys [year subject finished description title] :as lesson}]
+(defn lesson-inspector [id {:keys [year subject finished description title] :as lesson}]
   [:div {:class "ui segment"}
     [:div {:class "ui form"}
+      [:div {:class "field"}
+        [:input {:type "text"
+                 :placeholder "Enter a short description for your lesson"
+                 :value description
+                 :onChange #(dispatch [:update-lesson id :description (e->val %)])}]]
       [:div {:class "fields"}
         [:div {:class "field"}
-          [dropdown {:value year
+          [dropdown {:on-change #(dispatch [:update-lesson id :year (e->val %)])
+                     :value year
                      :options year-levels
                      :starting "Year"}]]
         [:div {:class "field"}
-          [dropdown {:value subject
+          [dropdown {:on-change #(dispatch [:update-lesson id :subject (e->val %)])
+                     :value subject
                      :options subjects
                      :starting "Subject"}]]
         [:div {:class "field" :style #js {:marginTop 8}}
           [checkbox #(dispatch [:update-lesson id :finished %])
-                    "Ready" finished]]]
-      [:input {:type "text"
-               :placeholder "Enter a one line description for your lesson"
-               :value description
-               :onChange #(dispatch [:update-lesson id :description (e->val %)])}]]])
+                    "Ready" finished]]]]])
 
 (defn planbook-panel []
   (let [lessons (subscribe [:lessons])
         open-lesson (subscribe [:open-lesson])]
     (fn []
       [:div {:class "ui grid"}
-        [:div {:class "four wide column"}
-          [lesson-list @lessons]]
-        [:div {:class "twelve wide column"}
-          (if @open-lesson [lesson-detail @open-lesson (get @lessons @open-lesson)]
-                           [:span "Select a lesson to work on"])]])))
+        [:div {:class "five wide column"}
+          [lesson-list lessons open-lesson]]
+        [:div {:class "eleven wide column"}
+          (if @open-lesson [lesson-inspector @open-lesson (get @lessons @open-lesson)]
+                           [:div {:class "ui green compact inverted segment"}
+                             (icon "left arrow") "Got time to work on a lesson from your stack?"])]])))

@@ -7,16 +7,22 @@
 (def root (m/connect "https://frederick.firebaseio.com/"))
 
 (def classes (m/get-in root [:classes]))
+(def lessons (m/get-in root [:lessons]))
 
 (defn add-new-class! [class]
   (m/conj! classes class))
 
-(defn setup-class-listener []
-  (m/listen-to classes :value (fn [[_ v]]
-                                (dispatch [:update-classes v]))))
+(defn add-lesson! [lesson]
+  (m/conj! lessons lesson))
+
+(defn update-lesson-attribute! [id attribute value]
+  (m/reset-in! lessons [id attribute] value))
 
 (defn setup-listeners []
-  (setup-class-listener))
+  (m/listen-to classes
+               :value (fn [[_ val]] (dispatch [:update-classes val])))
+  (m/listen-to lessons
+               :value (fn [[_ val]] (dispatch [:update-lessons val]))))
 
 (defn default-new-class-data []
   {:color (rand-nth colors)

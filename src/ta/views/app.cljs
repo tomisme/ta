@@ -4,7 +4,7 @@
             [ta.views.planbook :refer [planbook-panel]]
             [ta.views.classes :refer [classes-panel]]
             [ta.views.common :refer [sem icon flag-img]]
-            [re-frame.core :refer [subscribe]]
+            [re-frame.core :refer [subscribe dispatch]]
             [shodan.inspection :refer [inspect]]))
 
 (def page-links [{:key :calendar
@@ -40,7 +40,11 @@
             (nav-links active-page)
             [:div {:class "right menu"}
               [:a {:class "ui item"}
-                @name (flag-img @flag) (icon "caret down")]]]]])))
+                @name (flag-img @flag) (icon "caret down")]
+              [:div {:class "ui item"}
+                [:div {:class "ui labeled icon button"
+                       :onClick #(dispatch [:inspect-db])}
+                  (icon "world") "db"]]]]]])))
 
 (defn main-panel [active-page]
   [:div {:class "row"}
