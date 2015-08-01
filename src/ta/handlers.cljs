@@ -1,7 +1,27 @@
 (ns ta.handlers
-    (:require [re-frame.core :refer [register-handler]]
-              [shodan.inspection :refer [inspect]]
-              [ta.db :as db]))
+    (:require [ta.util :refer [colors]]
+              [re-frame.core :refer [register-handler dispatch]]
+              [matchbox.core :as m]
+              [shodan.inspection :refer [inspect]]))
+
+(def root (m/connect "https://frederick.firebaseio.com/"))
+
+(def fb-classes (m/get-in root [:classes]))
+(def fb-lessons (m/get-in root [:lessons]))
+
+(def starting-db
+  {:active-page :calendar
+   :calendar-view :week
+   :active-week 11
+   :planbook {:open-page :lessons}
+   :new-class {:color (rand-nth colors)
+               :schedule {:mon   [:slot :slot :slot :slot :slot]
+                          :tues  [:slot :slot :slot :slot :slot]
+                          :wed   [:slot :slot :slot :slot :slot]
+                          :thurs [:slot :slot :slot :slot :slot]
+                          :fri   [:slot :slot :slot :slot :slot]}}
+   :user {:name "Tom Hutchinson"
+          :flag :australia}})
 
 (register-handler
   :inspect-db
@@ -16,9 +36,15 @@
     db))
 
 (register-handler
-  :initialize-db
-  (fn [_ _]
-    db/default-db))
+  :setup-db
+  (fn [db _]
+    (m/listen-to fb-classes
+                 :value (fn [[_ val]]
+                          (dispatch [:update-classes val])))
+    (m/listen-to fb-lessons
+                 :value (fn [[_ val]]
+                          (dispatch [:update-lessons val])))
+    starting-db))
 
  ;; CLASSES =======================
 
@@ -31,8 +57,8 @@
   :add-new-class
   (fn [db [_ _]]
     (let [class (:new-class db)]
-      (db/add-new-class! class)
-      (assoc db :new-class (db/default-new-class-data))))) ;; reset form
+      (m/conj! fb-classes class)
+      (assoc db :new-class (:new-class starting-db))))) ;; reset form
 
 (register-handler
   :update-classes
@@ -49,14 +75,13 @@
 (register-handler
   :add-lesson
   (fn [db _]
-    (db/add-lesson! {:description "New Lesson"})
-    #_(assoc db :planbook :adding-lesson true) ;; TODO: make new lesson button spin?
+    (m/conj! fb-lessons {:description "New Lesson"})
     db))
 
 (register-handler
   :update-lesson
   (fn [db [_ id attribute value]]
-    (db/update-lesson-attribute! id attribute value)
+    (m/reset-in! fb-lessons [id attribute] value)
     db))
 
 (register-handler
