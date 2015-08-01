@@ -41,7 +41,7 @@
           ^{:key day} [:div {:class "five wide column"}
                         [weekday day]])]]))
 
-(defn calendar-panel []
+(defn calendar-view []
   (let []
     (fn []
       [week-view])))

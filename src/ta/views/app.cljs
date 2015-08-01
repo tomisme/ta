@@ -1,8 +1,8 @@
 (ns ta.views.app
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [ta.views.calendar :refer [calendar-panel]]
-            [ta.views.planbook :refer [planbook-panel]]
-            [ta.views.classes :refer [classes-panel]]
+  (:require [ta.views.calendar :refer [calendar-view]]
+            [ta.views.planbook :refer [planbook-view]]
+            [ta.views.classes :refer [classes-view]]
             [ta.views.common :refer [sem icon flag-img]]
             [re-frame.core :refer [subscribe dispatch]]
             [shodan.inspection :refer [inspect]]))
@@ -46,12 +46,12 @@
                        :onClick #(dispatch [:inspect-db])}
                   (icon "world") "db"]]]]]])))
 
-(defn main-panel [active-page]
+(defn main-view [active-page]
   [:div {:class "row"}
     [:div {:class "column"}
-      (case @active-page :calendar [calendar-panel]
-                         :planbook [planbook-panel]
-                         :classes  [classes-panel]
+      (case @active-page :calendar [calendar-view]
+                         :planbook [planbook-view]
+                         :classes  [classes-view]
                          [:span "No Panel Found?"])]])
 
 (defn app-container []
@@ -59,4 +59,4 @@
     (fn []
       [:div {:class "ui grid container" :style #js {:margin 0}} ;; better way?
         [top-bar active-page]
-        [main-panel active-page]])))
+        [main-view active-page]])))

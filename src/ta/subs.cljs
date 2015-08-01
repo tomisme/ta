@@ -30,6 +30,11 @@
     (reaction (:new-class @db))))
 
 (register-sub
+  :planbook-page
+  (fn [db _]
+    (reaction (get-in @db [:planbook :open-page]))))
+
+(register-sub
   :lessons
   (fn [db _]
     (reaction (get-in @db [:planbook :lessons]))))

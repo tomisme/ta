@@ -64,6 +64,11 @@
   (fn [db [_ id]]
     (assoc-in db [:planbook :open-lesson] id)))
 
+(register-handler
+  :set-planbook-page
+  (fn [db [_ page]]
+    (assoc-in db [:planbook :open-page] page)))
+
  ;; ROUTING =======================
 
 (register-handler

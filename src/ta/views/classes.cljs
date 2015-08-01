@@ -124,7 +124,7 @@
             (icon "plus")
             "Add Class"]]])))
 
-(defn classes-panel []
+(defn classes-view []
   (let [classes (subscribe [:classes])]
     (fn []
       [:div {:class "ui centered grid"}

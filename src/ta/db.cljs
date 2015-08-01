@@ -62,7 +62,7 @@
 (def default-db {:active-page :calendar
                  :calendar-view :week
                  :active-week 11
+                 :planbook {:open-page :lessons}
                  :new-class (default-new-class-data)
                  :user {:name "Tom Hutchinson"
-                        :flag :australia}
-                 :planbook {:lessons test-lessons}})
+                        :flag :australia}})
