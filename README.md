@@ -1,41 +1,38 @@
-##TODO
-+ small
-  + show class colours in timetable view
-+ big
-  + login with Google OAuth and get Drive access
-  + save to firebase with matchbox
-
 ##Version 1.0 Functionality
 + account setup
-  + login with Google credentials
-    + get name
-    + get drive access
-  + add classes
-    + automatically pre-fills timetable with lesson slots
-+ timetable
-  + day/week view of classes and attached lessons
-+ planning
-  + lesson builder
-    + can be used to fill lesson slots
-    + made up of:
-      + objectives
-      + re-organisable activities
-    + can be associated with a unit
-  + unit builder
-    + resources in linked Google drive can be associated
-    + notes can be attached
-    + components
-      + unit name/description
-      + syllabus outcomes
-      + associated lessons
+  + [ ] login with Google credentials
+    + [ ] get name
+    + [ ] get drive access
++ classes
+  + [x] add classes
+  + [ ] edit classes
+  + [ ] remove classes
+  + [ ] automatically pre-fill calendar with lesson slots
++ calendar
+  + [ ] day/week view of class slots and attached lessons
+  + [ ] highlight current day
++ planbook
+  + [ ] lesson builder
+    + [ ] can be used to fill lesson slots
+    + [ ] made up of:
+      + [ ] objectives
+      + [ ] re-organisable activities
+    + [ ] can be associated with a unit
+  + [ ] unit builder
+    + [ ] resources in linked Google drive can be associated
+    + [ ] notes can be attached
+    + [ ] components
+      + [ ] unit name/description
+      + [ ] syllabus outcomes
+      + [ ] associated lessons
 
 ##Version 2.0 Functionality
-+ lesson performer
-  + generates a slideshow based on lesson activities
-  + separate student content (projected) and teacher content (on laptop/tablet)
-+ generate a page numbered pdf booklet from a series of separate gdrive resources
-+ syllabus outcomes come directly from Australian curriculum
-+ lessons can be built from suggested and customizable templates
++ [ ] lesson performer
+  + [ ] generates a slideshow based on lesson activities
+  + [ ] separate student content (projected) and teacher content (on laptop/tablet)
++ [ ] generate a page numbered pdf booklet from a series of separate gdrive resources
++ [ ] syllabus outcomes come directly from Australian curriculum
++ [ ] lessons can be built from suggested and customizable templates
 
 ##Mixed Ideas
 Lessons have attached resources that move between stages like 'to be completed' and 'to be printed'. This means a list could be generated of 'class sets to be printed for today' or 'things to work on for next week'.
