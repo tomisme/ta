@@ -1,16 +1,18 @@
 (ns ta.handlers
-    (:require [ta.util :refer [colors]]
-              [re-frame.core :refer [register-handler dispatch]]
-              [matchbox.core :as m]
-              [shodan.inspection :refer [inspect]]))
+  (:require [ta.util :refer [colors]]
+            [re-frame.core :refer [register-handler dispatch]]
+            [matchbox.core :as m]
+            [shodan.inspection :refer [inspect]]))
 
-(def root (m/connect "https://frederick.firebaseio.com/"))
+(def fb-root (m/connect "https://frederick.firebaseio.com/"))
 
-(def fb-classes (m/get-in root [:classes]))
-(def fb-lessons (m/get-in root [:lessons]))
+(def fb-classes (m/get-in fb-root [:classes]))
+(def fb-lessons (m/get-in fb-root [:lessons]))
 
 (def starting-db
-  {:active-page :calendar
+  {:user {:name "Tom Hutchinson"
+          :flag :australia}
+   :active-page :calendar
    :calendar-view :week
    :active-week 11
    :planbook {:open-page :lessons}
@@ -19,9 +21,7 @@
                           :tues  [:slot :slot :slot :slot :slot]
                           :wed   [:slot :slot :slot :slot :slot]
                           :thurs [:slot :slot :slot :slot :slot]
-                          :fri   [:slot :slot :slot :slot :slot]}}
-   :user {:name "Tom Hutchinson"
-          :flag :australia}})
+                          :fri   [:slot :slot :slot :slot :slot]}}})
 
 (register-handler
   :inspect-db
@@ -73,7 +73,17 @@
     (assoc-in db [:planbook :lessons] lessons)))
 
 (register-handler
-  :add-lesson
+  :set-open-lesson
+  (fn [db [_ id]]
+    (assoc-in db [:planbook :open-lesson] id)))
+
+(register-handler
+  :set-planbook-page
+  (fn [db [_ page]]
+    (assoc-in db [:planbook :open-page] page)))
+
+(register-handler
+  :new-empty-lesson
   (fn [db _]
     (m/conj! fb-lessons {:description "New Lesson"})
     db))
@@ -83,16 +93,6 @@
   (fn [db [_ id attribute value]]
     (m/reset-in! fb-lessons [id attribute] value)
     db))
-
-(register-handler
-  :set-open-lesson
-  (fn [db [_ id]]
-    (assoc-in db [:planbook :open-lesson] id)))
-
-(register-handler
-  :set-planbook-page
-  (fn [db [_ page]]
-    (assoc-in db [:planbook :open-page] page)))
 
  ;; ROUTING =======================
 

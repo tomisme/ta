@@ -30,7 +30,7 @@
       [:div {:class "ui center aligned stacked segment"}
         [:div {:class "ui header"} "Lesson Stack"]
         [:div {:class "ui labeled icon button"
-               :onClick #(dispatch [:add-lesson])}
+               :onClick #(dispatch [:new-empty-lesson])}
           (icon "plus") "New Lesson"]
       (if (not (seq lessons)) [:div {:class "ui active inline loader"}]
         [:div {:class "ui items"}
@@ -39,7 +39,7 @@
                       selected? (= open-lesson id)]]
             ^{:key (str id)} [lesson-list-item id content selected?])])])))
 
-(defn lesson-inspector
+(defn lesson-details
   [id {:keys [year subject finished description title]}]
   [:div {:class "ui form" :style #js {:marginBottom 15}}
     [:div {:class "field"}
@@ -86,7 +86,7 @@
                 :url "readwritethink.org/files/resources/printouts/30697_haiku.pdf"}]})
 
 (defn activity-card
-  [id activities]
+  [id {:keys [description length resources tags]}]
   [:div])
 
 (defn lesson-activities
@@ -125,7 +125,8 @@
                              text (icon "delete icon")])
                        tags)]])])
 
-(defn lessons-panel
+
+(defn lessons-tab
   [lessons open-lesson]
   [:div {:class "row"}
     [:div {:class "five wide column"}
@@ -133,22 +134,22 @@
     [:div {:class "eleven wide column"}
       (if @open-lesson
           [:div {:class "ui segment"}
-            [lesson-inspector @open-lesson (get @lessons @open-lesson)]
-            #_[lesson-objectives]
+            [lesson-details @open-lesson (get @lessons @open-lesson)]
+            [lesson-objectives]
             [lesson-activities]]
           [:div {:class "circular ui large green inverted label"}
             (icon "left arrow") "Got time to work on a lesson from your stack?"])]])
 
 (defn planbook-view
   []
-  (let [planbook-page (subscribe [:planbook-page])
-        lessons (subscribe [:lessons])
+  (let [open-page   (subscribe [:planbook-page])
         open-lesson (subscribe [:open-lesson])
+        lessons     (subscribe [:lessons])
         tabs [{:key :activities :str "Activities"}
               {:key :lessons :str "Lessons"}
               {:key :units :str "Units"}]]
     (fn []
-      (let [active-page @planbook-page]
+      (let [page @open-page]
         [:div {:class "ui grid"}
           [:div {:class "centered row"}
            [:div {:class "two wide colum"}
@@ -156,10 +157,10 @@
               (for [tab tabs :let [{:keys [key str]} tab]]
                 ^{:key str}
                   [:button {:onClick #(dispatch [:set-planbook-page key])
-                            :class (sem (if (= active-page key) "active")
+                            :class (sem (if (= page key) "active")
                                         "ui attached button")}
                     str])]]]
-          (condp = @planbook-page
-            :lessons [lessons-panel lessons open-lesson]
+          (condp = page
+            :lessons [lessons-tab lessons open-lesson]
             :units [:p "Lets make some units!"]
             :activities [:p "Let's look at some activities!"])]))))
