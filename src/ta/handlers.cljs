@@ -6,8 +6,9 @@
 
 (def fb-root (m/connect "https://frederick.firebaseio.com/"))
 
-(def fb-classes (m/get-in fb-root [:classes]))
-(def fb-lessons (m/get-in fb-root [:lessons]))
+(def fb-classes    (m/get-in fb-root [:classes]))
+(def fb-lessons    (m/get-in fb-root [:lessons]))
+(def fb-activities (m/get-in fb-root [:activities]))
 
 (def starting-db
   {:user {:name "Tom Hutchinson"
@@ -44,6 +45,9 @@
     (m/listen-to fb-lessons
                  :value (fn [[_ val]]
                           (dispatch [:update-lessons val])))
+    (m/listen-to fb-activities
+                 :value (fn [[_ val]]
+                          (dispatch [:update-activities val])))
     starting-db))
 
  ;; CLASSES =======================
@@ -73,6 +77,11 @@
     (assoc-in db [:planbook :lessons] lessons)))
 
 (register-handler
+  :update-activities
+  (fn [db [_ activities]]
+    (assoc-in db [:planbook :activities] activities)))
+
+(register-handler
   :set-open-lesson
   (fn [db [_ id]]
     (assoc-in db [:planbook :open-lesson] id)))
@@ -83,9 +92,21 @@
     (assoc-in db [:planbook :open-page] page)))
 
 (register-handler
+  :new-activity
+  (fn [db [_ activity]]
+    (m/conj! fb-activities activity)
+    db))
+
+(register-handler
   :new-empty-lesson
   (fn [db _]
     (m/conj! fb-lessons {:description "New Lesson"})
+    db))
+
+(register-handler
+  :remove-lesson
+  (fn [db [_ id]]
+    (m/dissoc-in! fb-lessons [id])
     db))
 
 (register-handler

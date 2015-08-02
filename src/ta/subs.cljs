@@ -40,6 +40,11 @@
     (reaction (get-in @db [:planbook :lessons]))))
 
 (register-sub
+  :activities
+  (fn [db _]
+    (reaction (get-in @db [:planbook :activities]))))
+
+(register-sub
   :open-lesson
   (fn [db _]
     (reaction (get-in @db [:planbook :open-lesson]))))

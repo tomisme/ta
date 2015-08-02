@@ -11,7 +11,7 @@
                           :worksheet "file"})
 
 (defn lesson-list-item
-  [id {:keys [description subject year finished activities]} selected?]
+  [id {:keys [description subject year finished activity-ids]} selected?]
   (let [desc-str (if (= description "") "Untitled" description)]
     [:div {:class (sem "ui" (if selected? "black") "link card")}
       [:div {:class "content"
@@ -42,6 +42,15 @@
 (defn lesson-details
   [id {:keys [year subject finished description title]}]
   [:div {:class "ui form" :style #js {:marginBottom 15}}
+    [:div {:class "right aligned fields"}
+      [:div {:class "field"}
+        [:button {:class "ui green icon button"
+                  :onClick #(dispatch [:set-open-lesson nil])}
+            (icon "check")]]
+      [:div {:class "field"}
+        [:button {:class "ui red icon button"
+                  :onClick #(dispatch [:remove-lesson id])}
+          (icon "trash")]]]
     [:div {:class "field"}
       [:input {:type "text"
                :placeholder "Enter a short description for your lesson"
@@ -61,19 +70,26 @@
                    :value subject
                    :options subjects
                    :starting "Subject"}]]
-      [:div {:class "field" :style #js {:marginTop 8}}
+      [:div {:class "field" :style #js {:marginTop 5}}
         [checkbox #(dispatch [:update-lesson id :finished %])
-                  "Ready" finished]]]])
+                  "Ready" finished]]
+      [:div {:class "field"}
+        [:button {:class "ui compact small labeled icon button"}
+         (icon "calendar")
+         "Choose Slot"]]]])
 
 (defn lesson-objectives
   [id {:keys [objectives]}]
   [:div
    [:h4 {:class "ui horizontal divider header"} "Objectives"]
-   [:p "Here you will be able to select from unit objectives"]
+   [:p "To add lesson objectives, you need to "
+       [:a {:class "ui  horizontal label"
+            :style #js {:marginLeft 3 :marginTop 3}}
+         "associate this lesson with a unit"]]
    [:p]])
 
 (def test-activity
-  {:tags [{:text "japan"}
+  {:tags [{:text "english"}
           {:text "poetry"}
           {:text "8s"}
           {:text "9s"}]
@@ -86,45 +102,64 @@
                 :url "readwritethink.org/files/resources/printouts/30697_haiku.pdf"}]})
 
 (defn activity-card
-  [id {:keys [description length resources tags]}]
-  [:div])
+  [[id {:keys [description length resources tags]}]]
+  [:div {:class "ui fluid card"}
+    [:div {:class "content"}
+      [:a
+        [:div {:class "ui blue label"
+               :style #js {:marginRight 10}}
+          (str length "m")]]
+      description]
+    [:div {:class "content"}
+      [:button {:class "ui icon button"
+                :style #js {:marginRight 10}}
+        [:i {:class "large icons"}
+          (icon "file text")
+          (icon "corner plus")]]
+      (for [resource resources
+            :let [{:keys [description url type sides]} resource]]
+        ^{:key description}
+          [:div {:class "ui violet label"}
+            [:a (icon (type resource-icon-names))]
+            description
+            (icon "delete icon")])]
+    [:div {:class "content"}
+      [:button {:class "ui icon button"
+                :style #js {:marginRight 10}}
+        [:i {:class "large icons"}
+          (icon "tag")
+          (icon "corner plus")]]
+      (map-indexed (fn [i {:keys [text]}]
+                     ^{:key (str i text)}
+                       [:div {:class "ui yellow label"}
+                         text (icon "delete icon")])
+                   tags)]])
+
+(defn activity-card-list
+  [activities]
+  [:div
+    (map-indexed (fn [i [id activity]]
+                   ^{:key (str id)} [activity-card [id activity]])
+                 activities)])
 
 (defn lesson-activities
-  [id {:keys [activities]}]
-  [:div
-    [:h4 {:class "ui horizontal divider header"} "Activities"]
-    (let [{:keys [tags description length resources]} test-activity]
-      [:div {:class "ui fluid card"}
-        [:div {:class "content"}
-          [:div {:class "ui blue label"
-                 :style #js {:marginRight 10}}
-            (str length "m")]
-            description]
-        [:div {:class "content"}
-          [:button {:class "ui icon button"
-                    :style #js {:marginRight 10}}
-            [:i {:class "large icons"}
-              (icon "file text")
-              (icon "corner plus")]]
-          (for [resource resources
-                :let [{:keys [description url type sides]} resource]]
-            ^{:key description}
-              [:div {:class "ui teal label"}
-                (icon (type resource-icon-names))
-                description
-                (icon "delete icon")])]
-        [:div {:class "content"}
-          [:button {:class "ui icon button"
-                    :style #js {:marginRight 10}}
-            [:i {:class "large icons"}
-              (icon "tag")
-              (icon "corner plus")]]
-          (map-indexed (fn [i {:keys [text]}]
-                         ^{:key (str i text)}
-                           [:div {:class "ui green label"}
-                             text (icon "delete icon")])
-                       tags)]])])
+  [id {:keys [activity-ids]}]
+  (let [all-activities (subscribe [:activities])]
+    (fn []
+      [:div
+        [:h4 {:class "ui horizontal divider header"} "Activities"]
+        (if (seq activity-ids)
+          (let [activities @all-activities]
+            [activity-card-list
+              (for [activity-id activity-ids]
+                [activity-id (get activities activity-id)])]))])))
 
+(defn lesson-details-panel
+  [id lesson]
+  [:div {:class "ui segment"}
+    [lesson-details id lesson]
+    [lesson-objectives]
+    [lesson-activities id lesson]])
 
 (defn lessons-tab
   [lessons open-lesson]
@@ -133,21 +168,27 @@
       [lesson-list lessons open-lesson]]
     [:div {:class "eleven wide column"}
       (if @open-lesson
-          [:div {:class "ui segment"}
-            [lesson-details @open-lesson (get @lessons @open-lesson)]
-            [lesson-objectives]
-            [lesson-activities]]
-          [:div {:class "circular ui large green inverted label"}
-            (icon "left arrow") "Got time to work on a lesson from your stack?"])]])
+        [lesson-details-panel @open-lesson (get @lessons @open-lesson)]
+        [:div {:class "circular ui large green inverted label"}
+          (icon "left arrow") "Got time to work on a lesson from your stack?"])]])
+
+(defn activities-tab
+  [activities]
+  [:div
+    [:button {:class "ui icon button"
+              :onClick #(dispatch [:new-activity test-activity])}
+      (icon "plus")]
+    [activity-card-list @activities]])
 
 (defn planbook-view
   []
   (let [open-page   (subscribe [:planbook-page])
         open-lesson (subscribe [:open-lesson])
         lessons     (subscribe [:lessons])
+        activities  (subscribe [:activities])
         tabs [{:key :activities :str "Activities"}
-              {:key :lessons :str "Lessons"}
-              {:key :units :str "Units"}]]
+              {:key :lessons    :str "Lessons"}
+              {:key :units      :str "Units"}]]
     (fn []
       (let [page @open-page]
         [:div {:class "ui grid"}
@@ -161,6 +202,6 @@
                                         "ui attached button")}
                     str])]]]
           (condp = page
-            :lessons [lessons-tab lessons open-lesson]
-            :units [:p "Lets make some units!"]
-            :activities [:p "Let's look at some activities!"])]))))
+            :units      [:p "Lets make some units!"]
+            :lessons    [lessons-tab lessons open-lesson]
+            :activities [activities-tab activities])]))))
