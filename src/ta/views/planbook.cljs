@@ -1,4 +1,5 @@
 (ns ta.views.planbook
+  (:require-macros [reagent.ratom :refer [reaction]])
   (:require [ta.views.common :refer [sem e->val icon checkbox dropdown]]
             [re-frame.core :refer [subscribe dispatch]]
             [shodan.inspection :refer [inspect]]))
@@ -143,23 +144,32 @@
                  activities)])
 
 (defn lesson-activities
-  [id {:keys [activity-ids]}]
+  [a-id a-lesson]
   (let [all-activities (subscribe [:activities])]
     (fn []
+      (let [id @a-id
+            {:keys [activity-ids]} @a-lesson]
       [:div
-        [:h4 {:class "ui horizontal divider header"} "Activities"]
+        [:h4 {:class "ui horizontal divider header"}
+          "Activities"]
+        [:button {:class "ui labeled icon button"}
+          (icon "plus") "Create New Activity"]
         (if (seq activity-ids)
           (let [activities @all-activities]
             [activity-card-list
               (for [activity-id activity-ids]
-                [activity-id (get activities activity-id)])]))])))
+                [activity-id (get activities activity-id)])]))]))))
 
 (defn lesson-details-panel
-  [id lesson]
-  [:div {:class "ui segment"}
-    [lesson-details id lesson]
-    [lesson-objectives]
-    [lesson-activities id lesson]])
+  []
+  (let [lessons (subscribe [:lessons])
+        id      (subscribe [:open-lesson])
+        lesson  (reaction (get @lessons @id))]
+    (fn []
+      [:div {:class "ui segment"}
+        [lesson-details @id @lesson]
+        [lesson-objectives]
+        [lesson-activities id lesson]])))
 
 (defn lessons-tab
   [lessons open-lesson]
