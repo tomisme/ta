@@ -106,10 +106,6 @@
   [[id {:keys [description length resources tags]}]]
   [:div {:class "ui fluid card"}
     [:div {:class "content"}
-      [:a
-        [:div {:class "ui blue label"
-               :style #js {:marginRight 10}}
-          (str length "m")]]
       description]
     [:div {:class "content"}
       [:button {:class "ui icon button"
@@ -137,28 +133,38 @@
                    tags)]])
 
 (defn activity-card-list
-  [activities]
-  [:div
-    (map-indexed (fn [i [id activity]]
-                   ^{:key (str id)} [activity-card [id activity]])
-                 activities)])
+  [activity-ids]
+  (let [all-activities (subscribe [:activities])]
+    (fn []
+      (let [activities @all-activities]
+        [:div {:class "ui grid"}
+          (for [id activity-ids
+                :let [activity (get activities id)
+                      length (:length activity)]]
+            ^{:key (str id)}
+              [:div {:class "row"}
+                [:div {:class "two wide column"}
+                  [:div {:class "ui blue label"}
+                    (str length "m")]]
+                [:div {:class "fourteen wide column"}
+                  [activity-card [id activity]]]])]))))
 
 (defn lesson-activities
   [a-id a-lesson]
-  (let [all-activities (subscribe [:activities])]
-    (fn []
-      (let [id @a-id
-            {:keys [activity-ids]} @a-lesson]
+  (fn []
+    (let [id @a-id
+          {:keys [activity-ids]} @a-lesson]
       [:div
         [:h4 {:class "ui horizontal divider header"}
           "Activities"]
-        [:button {:class "ui labeled icon button"}
-          (icon "plus") "Create New Activity"]
-        (if (seq activity-ids)
-          (let [activities @all-activities]
-            [activity-card-list
-              (for [activity-id activity-ids]
-                [activity-id (get activities activity-id)])]))]))))
+        [:div {:class "ui grid"}
+          [:div {:class "sixteen wide center aligned column"}
+            [:button {:class "ui labeled icon button"}
+              (icon "plus") "Create New"]
+            [:button {:class "ui labeled icon button"}
+              (icon "linkify") "Add Existing"]]
+          [:div {:class "sixteen wide column"}
+            [activity-card-list activity-ids]]]])))
 
 (defn lesson-details-panel
   []
@@ -196,21 +202,20 @@
         open-lesson (subscribe [:open-lesson])
         lessons     (subscribe [:lessons])
         activities  (subscribe [:activities])
-        tabs [{:key :activities :str "Activities"}
-              {:key :lessons    :str "Lessons"}
-              {:key :units      :str "Units"}]]
+        tabs [{:key :activities :str "Activities" :i "cube"}
+              {:key :lessons    :str "Lessons"    :i "file outline"}
+              {:key :units      :str "Units"      :i "briefcase"}]]
     (fn []
       (let [page @open-page]
         [:div {:class "ui grid"}
           [:div {:class "centered row"}
            [:div {:class "two wide colum"}
-             [:div {:class "ui buttons"}
-              (for [tab tabs :let [{:keys [key str]} tab]]
-                ^{:key str}
-                  [:button {:onClick #(dispatch [:set-planbook-page key])
-                            :class (sem (if (= page key) "active")
-                                        "ui attached button")}
-                    str])]]]
+             (for [tab tabs :let [{:keys [key str i]} tab]]
+               ^{:key str}
+                 [:button {:onClick #(dispatch [:set-planbook-page key])
+                           :class (sem (if (= page key) "active")
+                                      "ui labeled icon button")}
+                   (icon i) str])]]
           (condp = page
             :units      [:p "Lets make some units!"]
             :lessons    [lessons-tab lessons open-lesson]

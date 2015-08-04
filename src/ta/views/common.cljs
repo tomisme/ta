@@ -30,7 +30,8 @@
     :australia [:i {:class "australia flag" :style #js {:paddingLeft 5}}]))
 
 (defn checkbox [on-click label checked]
-  [:div {:class "ui checkbox" :onClick #(on-click (not checked))}
+  [:div {:class "ui checkbox"
+         :onClick #(on-click (not checked))}
     [:input {:type "checkbox"
              :tabIndex "0"
              :class "hidden"
