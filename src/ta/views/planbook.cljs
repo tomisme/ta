@@ -35,8 +35,7 @@
           (icon "plus") "New Lesson"]
       (if (not (seq lessons)) [:div {:class "ui active inline loader"}]
         [:div {:class "ui items"}
-          (for [lesson lessons
-                :let [[id content] lesson
+          (for [lesson lessons :let [[id content] lesson
                       selected? (= open-lesson id)]]
             ^{:key (str id)} [lesson-list-item id content selected?])])])))
 
@@ -75,9 +74,9 @@
         [checkbox #(dispatch [:update-lesson id :finished %])
                   "Ready" finished]]
       [:div {:class "field"}
-        [:button {:class "ui compact small labeled icon button"}
+        [:button {:class "ui labeled icon button"}
          (icon "calendar")
-         "Choose Slot"]]]])
+         "Add to Slot"]]]])
 
 (defn lesson-objectives
   [id {:keys [objectives]}]
@@ -133,38 +132,41 @@
                    tags)]])
 
 (defn activity-card-list
-  [activity-ids]
-  (let [all-activities (subscribe [:activities])]
+  [lesson-id]
+  (let [activities (subscribe [:lesson-activities @lesson-id])]
     (fn []
-      (let [activities @all-activities]
-        [:div {:class "ui grid"}
-          (for [id activity-ids
-                :let [activity (get activities id)
-                      length (:length activity)]]
-            ^{:key (str id)}
-              [:div {:class "row"}
-                [:div {:class "two wide column"}
+      [:div {:class "ui grid"}
+        (for [[id activity] @activities
+              :let [length (get activity :length)]]
+          ^{:key (str id)}
+            [:div {:class "row"}
+              [:div {:class "center aligned two wide column"
+                     :style #js {:padding-right 0}}
+                [:a {:class "row"}
+                  (icon "chevron circle up" :l)]
+                [:div {:class "row"}
                   [:div {:class "ui blue label"}
                     (str length "m")]]
-                [:div {:class "fourteen wide column"}
-                  [activity-card [id activity]]]])]))))
+                [:a {:class "row"}
+                  (icon "chevron circle down" :l)]]
+              [:div {:class "fourteen wide column"}
+                [activity-card [id activity]]]])])))
 
 (defn lesson-activities
-  [a-id a-lesson]
+  [lesson-id]
   (fn []
-    (let [id @a-id
-          {:keys [activity-ids]} @a-lesson]
-      [:div
-        [:h4 {:class "ui horizontal divider header"}
-          "Activities"]
-        [:div {:class "ui grid"}
-          [:div {:class "sixteen wide center aligned column"}
+    [:div
+      [:h4 {:class "ui horizontal divider header"}
+        "Activities"]
+      [:div {:class "ui grid"}
+        [:div {:class "one column row"}
+          [:div {:class "column"}
+            [activity-card-list lesson-id]]]
+        [:div {:class "center aligned one column row"
+               :style #js {:padding-top 0}}
+          [:div {:class "column"}
             [:button {:class "ui labeled icon button"}
-              (icon "plus") "Create New"]
-            [:button {:class "ui labeled icon button"}
-              (icon "linkify") "Add Existing"]]
-          [:div {:class "sixteen wide column"}
-            [activity-card-list activity-ids]]]])))
+              (icon "cube") "Add an Activity"]]]]]))
 
 (defn lesson-details-panel
   []
@@ -175,7 +177,7 @@
       [:div {:class "ui segment"}
         [lesson-details @id @lesson]
         [lesson-objectives]
-        [lesson-activities id lesson]])))
+        [lesson-activities id]])))
 
 (defn lessons-tab
   [lessons open-lesson]
@@ -194,7 +196,7 @@
     [:button {:class "ui icon button"
               :onClick #(dispatch [:new-activity test-activity])}
       (icon "plus")]
-    [activity-card-list @activities]])
+    #_[activity-card-list @activities]])
 
 (defn planbook-view
   []

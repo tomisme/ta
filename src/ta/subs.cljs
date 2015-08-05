@@ -2,7 +2,7 @@
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [ta.util :refer [weekdays]]
             [shodan.inspection :refer [inspect]]
-            [re-frame.core :refer [register-sub]]))
+            [re-frame.core :refer [register-sub subscribe]]))
 
 (register-sub
   :user
@@ -43,6 +43,16 @@
   :activities
   (fn [db _]
     (reaction (get-in @db [:planbook :activities]))))
+
+(register-sub
+  :lesson-activities
+  (fn [db [_ lesson-id]]
+    (reaction (let [activities (subscribe [:activities])
+                    lessons    (subscribe [:lessons])
+                    lesson     (reaction (get @lessons lesson-id))
+                    ids        (reaction (get @lesson :activity-ids))]
+                (for [id @ids]
+                  [id (get @activities id)])))))
 
 (register-sub
   :open-lesson
