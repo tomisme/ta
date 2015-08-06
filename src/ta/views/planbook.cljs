@@ -132,52 +132,50 @@
                    tags)]])
 
 (defn activity-card-list
-  [lesson-id]
-  (let [activities (subscribe [:lesson-activities @lesson-id])]
-    (fn []
-      [:div {:class "ui grid"}
-        (for [[id activity] @activities
-              :let [length (get activity :length)]]
-          ^{:key (str id)}
-            [:div {:class "row"}
-              [:div {:class "center aligned two wide column"
-                     :style #js {:padding-right 0}}
-                [:a {:class "row"}
-                  (icon "chevron circle up" :l)]
-                [:div {:class "row"}
-                  [:div {:class "ui blue label"}
-                    (str length "m")]]
-                [:a {:class "row"}
-                  (icon "chevron circle down" :l)]]
-              [:div {:class "fourteen wide column"}
-                [activity-card [id activity]]]])])))
+  [lesson-id activities]
+    [:div {:class "ui grid"}
+      (for [[id activity] activities
+            :let [length (get activity :length)]]
+        ^{:key (str id)}
+          [:div {:class "row"}
+            [:div {:class "center aligned two wide column"
+                   :style #js {:paddingRight 0}}
+              [:a {:class "row"}
+                (icon "chevron circle up" :l)]
+              [:div {:class "row"}
+                [:div {:class "ui blue label"}
+                  (str length "m")]]
+              [:a {:class "row"}
+                (icon "chevron circle down" :l)]]
+            [:div {:class "fourteen wide column"}
+              [activity-card [id activity]]]])])
 
 (defn lesson-activities
-  [lesson-id]
-  (fn []
-    [:div
-      [:h4 {:class "ui horizontal divider header"}
-        "Activities"]
-      [:div {:class "ui grid"}
-        [:div {:class "one column row"}
-          [:div {:class "column"}
-            [activity-card-list lesson-id]]]
-        [:div {:class "center aligned one column row"
-               :style #js {:padding-top 0}}
-          [:div {:class "column"}
-            [:button {:class "ui labeled icon button"}
-              (icon "cube") "Add an Activity"]]]]]))
+  [lesson-id activities]
+  [:div
+    [:h4 {:class "ui horizontal divider header"}
+      "Activities"]
+    [:div {:class "ui grid"}
+      [:div {:class "one column row"}
+        [:div {:class "column"}
+         (activity-card-list lesson-id activities)]]
+      [:div {:class "center aligned one column row"
+             :style #js {:paddingTop 0}}
+        [:div {:class "column"}
+          [:button {:class "ui labeled icon button"}
+            (icon "cube") "Add an Activity"]]]]])
 
 (defn lesson-details-panel
   []
-  (let [lessons (subscribe [:lessons])
-        id      (subscribe [:open-lesson])
-        lesson  (reaction (get @lessons @id))]
+  (let [lessons    (subscribe [:lessons])
+        id         (subscribe [:open-lesson])
+        activities (reaction @(subscribe [:lesson-activities @id]))
+        lesson     (reaction (get @lessons @id))]
     (fn []
       [:div {:class "ui segment"}
         [lesson-details @id @lesson]
         [lesson-objectives]
-        [lesson-activities id]])))
+        (lesson-activities @id @activities)])))
 
 (defn lessons-tab
   [lessons open-lesson]

@@ -47,12 +47,12 @@
 (register-sub
   :lesson-activities
   (fn [db [_ lesson-id]]
-    (reaction (let [activities (subscribe [:activities])
-                    lessons    (subscribe [:lessons])
-                    lesson     (reaction (get @lessons lesson-id))
-                    ids        (reaction (get @lesson :activity-ids))]
-                (for [id @ids]
-                  [id (get @activities id)])))))
+    (let [activities @(subscribe [:activities])
+          lessons    (subscribe [:lessons])
+          lesson     (reaction (get @lessons lesson-id))
+          ids        (reaction (get @lesson :activity-ids))]
+      (reaction (for [id @ids]
+                  [id (get activities id)])))))
 
 (register-sub
   :open-lesson
