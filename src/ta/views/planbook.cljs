@@ -24,20 +24,19 @@
         [:div desc-str]]]))
 
 (defn lesson-list
-  [lessons-atom open-lesson-atom]
-  (fn []
-    (let [lessons @lessons-atom
-          open-lesson @open-lesson-atom]
-      [:div {:class "ui center aligned stacked segment"}
-        [:div {:class "ui header"} "Lesson Stack"]
-        [:div {:class "ui labeled icon button"
-               :onClick #(dispatch [:new-empty-lesson])}
-          (icon "plus") "New Lesson"]
-      (if (not (seq lessons)) [:div {:class "ui active inline loader"}]
-        [:div {:class "ui items"}
-          (for [lesson lessons :let [[id content] lesson
-                      selected? (= open-lesson id)]]
-            ^{:key (str id)} [lesson-list-item id content selected?])])])))
+  [lessons open-lesson]
+  [:div {:class "ui center aligned stacked segment"}
+    [:div {:class "ui header"} "Lesson Stack"]
+    [:div {:class "ui labeled icon button"
+           :onClick #(dispatch [:new-empty-lesson])}
+      (icon "plus") "New Lesson"]
+    (if (not (seq @lessons)) [:div {:class "ui active inline loader"}]
+      [:div {:class "ui items"}
+        (doall
+          (for [lesson @lessons
+                :let [[id content] lesson
+                      selected? (= @open-lesson id)]]
+            ^{:key (str id)} [lesson-list-item id content selected?]))])])
 
 (defn lesson-details
   [id {:keys [year subject finished description title]}]
@@ -88,6 +87,8 @@
          "associate this lesson with a unit"]]
    [:p]])
 
+(def test-url "readwritethink.org/files/resources/printouts/30697_haiku.pdf")
+
 (def test-activity
   {:tags [{:text "english"}
           {:text "poetry"}
@@ -99,13 +100,12 @@
                 :type :worksheet
                 :format :pdf
                 :description "Haiku Starter"
-                :url "readwritethink.org/files/resources/printouts/30697_haiku.pdf"}]})
+                :url test-url}]})
 
 (defn activity-card
   [[id {:keys [description length resources tags]}]]
   [:div {:class "ui fluid card"}
-    [:div {:class "content"}
-      description]
+    [:div {:class "content"} description]
     [:div {:class "content"}
       [:button {:class "ui icon button"
                 :style #js {:marginRight 10}}
@@ -153,12 +153,10 @@
 (defn lesson-activities
   [lesson-id activities]
   [:div
-    [:h4 {:class "ui horizontal divider header"}
-      "Activities"]
+    [:h4 {:class "ui horizontal divider header"} "Activities"]
     [:div {:class "ui grid"}
       [:div {:class "one column row"}
-        [:div {:class "column"}
-         (activity-card-list lesson-id activities)]]
+        [:div {:class "column"} [activity-card-list lesson-id activities]]]
       [:div {:class "center aligned one column row"
              :style #js {:paddingTop 0}}
         [:div {:class "column"}
@@ -166,16 +164,14 @@
             (icon "cube") "Add an Activity"]]]]])
 
 (defn lesson-details-panel
-  []
-  (let [lessons    (subscribe [:lessons])
-        id         (subscribe [:open-lesson])
-        activities (reaction @(subscribe [:lesson-activities @id]))
-        lesson     (reaction (get @lessons @id))]
-    (fn []
+  [lessons id]
+  (let [lesson     (reaction (get @lessons @id))
+        activities (reaction @(subscribe [:lesson-activities @id]))]
+    (fn [_ id]
       [:div {:class "ui segment"}
         [lesson-details @id @lesson]
         [lesson-objectives]
-        (lesson-activities @id @activities)])))
+        [lesson-activities @id @activities]])))
 
 (defn lessons-tab
   [lessons open-lesson]
@@ -184,9 +180,10 @@
       [lesson-list lessons open-lesson]]
     [:div {:class "eleven wide column"}
       (if @open-lesson
-        [lesson-details-panel @open-lesson (get @lessons @open-lesson)]
+        [lesson-details-panel lessons open-lesson]
         [:div {:class "circular ui large green inverted label"}
-          (icon "left arrow") "Got time to work on a lesson from your stack?"])]])
+          (icon "left arrow")
+          "Got time to work on a lesson from your stack?"])]])
 
 (defn activities-tab
   [activities]
@@ -198,10 +195,10 @@
 
 (defn planbook-view
   []
-  (let [open-page   (subscribe [:planbook-page])
-        open-lesson (subscribe [:open-lesson])
-        lessons     (subscribe [:lessons])
+  (let [lessons     (subscribe [:lessons])
         activities  (subscribe [:activities])
+        open-lesson (subscribe [:open-lesson])
+        open-page   (subscribe [:planbook-page])
         tabs [{:key :activities :str "Activities" :i "cube"}
               {:key :lessons    :str "Lessons"    :i "file outline"}
               {:key :units      :str "Units"      :i "briefcase"}]]
