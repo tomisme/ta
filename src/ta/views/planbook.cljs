@@ -17,7 +17,7 @@
     [:div {:class (sem "ui" (if selected? "black") "link card")}
       [:div {:class "content"
              :onClick #(dispatch [:set-open-lesson id])}
-        [:div {:style #js {:marginBottom 4}}
+        [:div {:style {:marginBottom 7}}
           (if year [:div {:class "ui olive mini label"} (str "Year " year)])
           (if subject [:div {:class "ui blue mini label"} subject])
           (if finished [:div {:class "ui green mini label"} "Ready"])]
@@ -40,7 +40,7 @@
 
 (defn lesson-details
   [id {:keys [year subject finished description title]}]
-  [:div {:class "ui form" :style #js {:marginBottom 15}}
+  [:div {:class "ui form" :style {:marginBottom 15}}
     [:div {:class "right aligned fields"}
       [:div {:class "field"}
         [:button {:class "ui green icon button"
@@ -69,7 +69,7 @@
                    :value subject
                    :options subjects
                    :starting "Subject"}]]
-      [:div {:class "field" :style #js {:marginTop 5}}
+      [:div {:class "field" :style {:marginTop 5}}
         [checkbox #(dispatch [:update-lesson id :finished %])
                   "Ready" finished]]
       [:div {:class "field"}
@@ -83,7 +83,7 @@
    [:h4 {:class "ui horizontal divider header"} "Objectives"]
    [:p "To add lesson objectives, you need to "
        [:a {:class "ui  horizontal label"
-            :style #js {:marginLeft 3 :marginTop 3}}
+            :style {:marginLeft 3 :marginTop 3}}
          "associate this lesson with a unit"]]
    [:p]])
 
@@ -108,7 +108,7 @@
     [:div {:class "content"} description]
     [:div {:class "content"}
       [:button {:class "ui icon button"
-                :style #js {:marginRight 10}}
+                :style {:marginRight 10}}
         [:i {:class "large icons"}
           (icon "file text")
           (icon "corner plus")]]
@@ -121,7 +121,7 @@
             (icon "delete icon")])]
     [:div {:class "content"}
       [:button {:class "ui icon button"
-                :style #js {:marginRight 10}}
+                :style {:marginRight 10}}
         [:i {:class "large icons"}
           (icon "tag")
           (icon "corner plus")]]
@@ -139,7 +139,7 @@
         ^{:key (str id)}
           [:div {:class "row"}
             [:div {:class "center aligned two wide column"
-                   :style #js {:paddingRight 0}}
+                   :style {:paddingRight 0}}
               [:a {:class "row"}
                 (icon "chevron circle up" :l)]
               [:div {:class "row"}
@@ -158,7 +158,7 @@
       [:div {:class "one column row"}
         [:div {:class "column"} [activity-card-list lesson-id activities]]]
       [:div {:class "center aligned one column row"
-             :style #js {:paddingTop 0}}
+             :style {:paddingTop 0}}
         [:div {:class "column"}
           [:button {:class "ui labeled icon button"}
             (icon "cube") "Add an Activity"]]]]])
