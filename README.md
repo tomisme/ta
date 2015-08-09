@@ -5,8 +5,8 @@
     + [ ] get drive access
 + classes
   + [x] add classes
-  + [ ] edit classes
-  + [ ] remove classes
+  + [x] edit classes
+  + [x] remove classes
   + [ ] automatically pre-fill calendar with lesson slots
 + calendar
   + [ ] day/week view of class slots and attached lessons

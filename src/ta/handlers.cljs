@@ -10,19 +10,23 @@
 (def fb-lessons    (m/get-in fb-root [:lessons]))
 (def fb-activities (m/get-in fb-root [:activities]))
 
-(def starting-db
-  {:user {:name "Tom Hutchinson"
-          :flag :australia}
-   :active-page :calendar
-   :calendar-view :week
-   :active-week 11
-   :planbook {:open-page :lessons}
-   :new-class {:color (rand-nth colors)
-               :schedule {:mon   [:slot :slot :slot :slot :slot]
-                          :tues  [:slot :slot :slot :slot :slot]
-                          :wed   [:slot :slot :slot :slot :slot]
-                          :thurs [:slot :slot :slot :slot :slot]
-                          :fri   [:slot :slot :slot :slot :slot]}}})
+(def starting-db {:user {:name "Tom Hutchinson"
+                         :flag :australia}
+                  :active-page :calendar
+                  :calendar-view :week
+                  :active-week 11
+                  :planbook {:open-page :lessons}})
+
+(def new-class {:name "New Class"
+                :editing? true
+                :color (rand-nth colors)
+                :schedule {:mon   [:slot :slot :slot :slot :slot]
+                           :tues  [:slot :slot :slot :slot :slot]
+                           :wed   [:slot :slot :slot :slot :slot]
+                           :thurs [:slot :slot :slot :slot :slot]
+                           :fri   [:slot :slot :slot :slot :slot]}})
+
+(def new-lesson {:description "New Lesson"})
 
 (register-handler
   :inspect-db
@@ -40,29 +44,14 @@
   :setup-db
   (fn [db _]
     (m/listen-to fb-classes
-                 :value (fn [[_ val]]
-                          (dispatch [:update-classes val])))
+                 :value (fn [[_ val]] (dispatch [:update-classes val])))
     (m/listen-to fb-lessons
-                 :value (fn [[_ val]]
-                          (dispatch [:update-lessons val])))
+                 :value (fn [[_ val]] (dispatch [:update-lessons val])))
     (m/listen-to fb-activities
-                 :value (fn [[_ val]]
-                          (dispatch [:update-activities val])))
+                 :value (fn [[_ val]] (dispatch [:update-activities val])))
     starting-db))
 
  ;; CLASSES =======================
-
-(register-handler
- :update-new-class
- (fn [db [_ input value]]
-   (assoc-in db [:new-class input] value)))
-
-(register-handler
-  :add-new-class
-  (fn [db [_ _]]
-    (let [class (:new-class db)]
-      (m/conj! fb-classes class)
-      (assoc db :new-class (:new-class starting-db))))) ;; reset form
 
 (register-handler
   :update-classes
@@ -71,10 +60,11 @@
 
 (register-handler
   :class
-  (fn [db [_ id command attribute value]]
+  (fn [db [_ command id attribute value]]
     (case command
       :delete (m/dissoc-in! fb-classes [id])
-      :update (m/reset-in!  fb-classes [id attribute] value))
+      :update (m/reset-in!  fb-classes [id attribute] value)
+      :new    (m/conj! fb-classes new-class))
     db))
 
  ;; PLANBOOK =======================
@@ -108,7 +98,7 @@
 (register-handler
   :new-empty-lesson
   (fn [db _]
-    (m/conj! fb-lessons {:description "New Lesson"})
+    (m/conj! fb-lessons new-lesson)
     db))
 
 (register-handler

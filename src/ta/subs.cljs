@@ -20,16 +20,6 @@
     (reaction (:active-week @db))))
 
 (register-sub
-  :classes
-  (fn [db _]
-    (reaction (:classes @db))))
-
-(register-sub
-  :new-class
-  (fn [db _]
-    (reaction (:new-class @db))))
-
-(register-sub
   :planbook-page
   (fn [db _]
     (reaction (get-in @db [:planbook :open-page]))))
@@ -60,18 +50,19 @@
     (reaction (get-in @db [:planbook :open-lesson]))))
 
 (register-sub
-  :calendar
-  (fn [db [_ page]]
-    (reaction (get-in @db [:calendar page]))))
+  :classes
+  (fn [db _]
+    (reaction (:classes @db))))
 
-(defn class-in-slot [classes day session]
+(defn class-in-slot
   "The id keyword of the first class found for the slot or nil"
-  ;; TODO: handle class clashes
+  [classes day session]
   (some #(if % %) ;; get the first truthy value (a filled slot)
         (for [[id class] classes]
           (if (= :selected (get-in class [:schedule day session])) id))))
 
-(defn classes->schedule [classes]
+(defn classes->schedule
+  [classes]
   "A matrix of combined class schedules"
   (zipmap weekdays (for [day weekdays]
                      (into [] (for [session (range 5)]
