@@ -69,6 +69,12 @@
   (fn [db [_ classes]]
     (assoc db :classes classes)))
 
+(register-handler
+  :class
+  (fn [db [_ command id data]]
+    (case command :delete (m/dissoc-in! fb-classes [id]))
+    db))
+
  ;; PLANBOOK =======================
 
 (register-handler
