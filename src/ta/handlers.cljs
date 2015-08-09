@@ -71,8 +71,10 @@
 
 (register-handler
   :class
-  (fn [db [_ command id data]]
-    (case command :delete (m/dissoc-in! fb-classes [id]))
+  (fn [db [_ id command attribute value]]
+    (case command
+      :delete (m/dissoc-in! fb-classes [id])
+      :update (m/reset-in!  fb-classes [id attribute] value))
     db))
 
  ;; PLANBOOK =======================

@@ -43,18 +43,6 @@
       [:div {:class "content"}
         [schedule-table @schedule @classes]]]))
 
-(defn class-card
-  [[id {:keys [name color schedule] :as class}]]
-  ^{:key id}
-    [:div {:class (sem "ui card" (get color-strings color))}
-      [:div {:class "content"}
-        name
-        [:div {:class "right floated"}
-          [:button {:class "ui red icon button"
-                    :onClick #(dispatch [:class :delete id])}
-            (icon "trash")]]]
-      [:div {:class "content"} [class-schedule schedule color]]])
-
 (defn color-selector
   [on-change selected-color]
   [:div {:class "ui mini horizontal list"}
@@ -70,7 +58,47 @@
 (defn schedule-selector
   "When an empty class slot in the table is clicked, it calls on-change
    with an updated weekly timetable"
-  [on-change schedule new-schedule selected-color]
+  [{:keys [on-change class-schedule selected-color id]}]
+  (let [schedule @(subscribe [:schedule])
+        day-labels {:mon   "Mo"
+                    :tues  "Tu"
+                    :wed   "We"
+                    :thurs "Th"
+                    :fri   "Fr"}]
+    (fn [{:keys [on-change class-schedule selected-color]}]
+      [:div {:class "ui equal width center aligned padded grid"}
+        (for [row (conj (range 5) :label)] ;; prepend :label
+         ^{:key row} [:div {:class "row"}
+           (for [col (into [:label] weekdays)] ;; prepend :label
+             ;; what kind if table cell are we?
+             (let [col-label? (= col :label)
+                   row-label? (= row :label)
+                   cell-id    (get-in schedule [col row])
+                   taken?     (and (not= cell-id id) cell-id)
+                   slot?      (not (or col-label? row-label? taken?))
+                   selected?  (if slot?
+                                (= (get-in class-schedule [col row]) :selected))
+                   on-select  (if slot?
+                                #(on-change (assoc-in class-schedule
+                                                      [col row] (if selected?
+                                                                  :slot
+                                                                  :selected))))
+                   color-str  (cond taken? "black"
+                                    selected? (selected-color color-strings))]
+               ^{:key col}
+                 [:div {:class (sem color-str "column")
+                        :on-click on-select}
+               (cond
+                 row-label? [:span (col day-labels)]
+                 col-label? [:span (str "S" (inc row))]
+                 taken?     (icon "close")
+                 selected?  (icon "check")
+                 :else      (icon "circle" :s))]))])])))
+
+#_(defn schedule-selector
+  "When an empty class slot in the table is clicked, it calls on-change
+   with an updated weekly timetable"
+  [on-change schedule class-schedule selected-color]
   (let [day-labels {:mon   "Mo"
                     :tues  "Tu"
                     :wed   "We"
@@ -86,9 +114,9 @@
                  class?     (get-in schedule [col row])
                  slot?      (not (or col-label? row-label? class?))
                  selected?  (if slot?
-                              (= (get-in new-schedule [col row]) :selected))
+                              (= (get-in class-schedule [col row]) :selected))
                  on-select  (if slot?
-                              #(on-change (assoc-in new-schedule
+                              #(on-change (assoc-in class-schedule
                                                     [col row] (if selected?
                                                                 :slot
                                                                 :selected))))
@@ -134,6 +162,32 @@
                     :on-click #(dispatch [:add-new-class])}
             (icon "plus")
             "Add Class"]]])))
+
+(defn class-card
+  [[id {:keys [name color schedule editing?] :as class}]]
+  ^{:key id}
+    [:div {:class (sem "ui card" (get color-strings color))}
+      [:div {:class "content"}
+        name
+        (if editing?
+          [:div {:class "right floated"}
+            [:button {:class "ui red icon button"
+                      :onClick #(dispatch [:class id :delete])}
+              (icon "trash")]
+            [:button {:class "ui green icon button"
+                      :onClick #(dispatch [:class id :update :editing? false])}
+              (icon "check")]]
+          [:div {:class "right floated"}
+            [:button {:class "ui green icon button"
+                      :onClick #(dispatch [:class id :update :editing? true])}
+              (icon "edit")]])]
+      (if editing?
+        [:div {:class "content"}
+          [schedule-selector
+            {:on-change #(dispatch [:class id :update :schedule %])
+             :class-schedule schedule
+             :selected-color color
+             :id id}]])])
 
 (defn classes-view
   []
