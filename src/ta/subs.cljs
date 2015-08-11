@@ -30,6 +30,12 @@
     (reaction (get-in @db [:planbook :lessons]))))
 
 (register-sub
+  :lesson
+  (fn [db [_ id]]
+    (let [lessons (subscribe [:lessons])]
+      (reaction (get @lessons id)))))
+
+(register-sub
   :activities
   (fn [db _]
     (reaction (get-in @db [:planbook :activities]))))
