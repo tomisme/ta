@@ -34,11 +34,7 @@
         (build)))
 
 (deftask production []
-  (task-options! cljs {:optimizations :advanced
-                       ;; pseudo-names true is currently required
-                       ;; https://github.com/martinklepsch/pseudo-names-error
-                       ;; hopefully fixed soon
-                       :pseudo-names true})
+  (task-options! cljs {:optimizations :advanced})
   identity)
 
 (deftask development []
@@ -49,7 +45,11 @@
   identity)
 
 (deftask dev
-  "Simple alias to run application in development mode"
   []
   (comp (development)
         (run)))
+
+(deftask prod
+  []
+  (comp (production)
+        (build)))
