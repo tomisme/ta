@@ -15,7 +15,7 @@
                   :active-page :calendar
                   :calendar-view :week
                   :active-week 11
-                  :planbook {:open-page :lessons}})
+                  :planbook {:open {:page :lessons}}})
 
 (def new-class {:name "New Class"
                 :editing? true
@@ -80,15 +80,16 @@
     (assoc-in db [:planbook :activities] activities)))
 
 (register-handler
-  :set-open-lesson
-  (fn [db [_ id]]
-    (assoc-in db [:planbook :open-lesson] id)))
+  :set-open
+  (fn [db [_ thing id]]
+    (assoc-in db [:planbook :open thing] id)))
 
 (register-handler
   :set-planbook-page
   (fn [db [_ page]]
     (assoc-in db [:planbook :open-page] page)))
 
+;; TODO: break into :activity/ :new/:update/:delete like :class handler
 (register-handler
   :new-activity
   (fn [db [_ activity]]

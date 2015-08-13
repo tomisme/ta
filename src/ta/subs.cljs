@@ -20,11 +20,6 @@
     (reaction (:active-week @db))))
 
 (register-sub
-  :planbook-page
-  (fn [db _]
-    (reaction (get-in @db [:planbook :open-page]))))
-
-(register-sub
   :lessons
   (fn [db _]
     (reaction (get-in @db [:planbook :lessons]))))
@@ -41,6 +36,12 @@
     (reaction (get-in @db [:planbook :activities]))))
 
 (register-sub
+  :activity
+  (fn [db [_ id]]
+    (let [activities (subscribe [:activities])]
+      (reaction (get @activities id)))))
+
+(register-sub
   :lesson-activities
   (fn [db [_ lesson-id]]
     (let [activities @(subscribe [:activities])
@@ -54,6 +55,11 @@
   :open-lesson
   (fn [db _]
     (reaction (get-in @db [:planbook :open-lesson]))))
+
+(register-sub
+  :open
+  (fn [db [_ thing]]
+    (reaction (get-in @db [:planbook :open thing]))))
 
 (register-sub
   :classes
