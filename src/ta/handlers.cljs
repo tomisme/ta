@@ -28,6 +28,19 @@
 
 (def new-lesson {:description "New Lesson"})
 
+(def test-activity
+  {:tags [{:text "english"}
+          {:text "poetry"}
+          {:text "8s"}
+          {:text "9s"}]
+   :description "Students write several Haikus using a starter sheet"
+   :length 30 ;in minutes
+   :resources [{:sides 2
+                :type :worksheet
+                :format :pdf
+                :description "Haiku Starter"
+                :url test-url}]})
+
 (register-handler
   :inspect-db
   (fn [db _]
@@ -89,7 +102,6 @@
   (fn [db [_ page]]
     (assoc-in db [:planbook :open-page] page)))
 
-;; TODO: break into :activity/ :new/:update/:delete like :class handler
 (register-handler
   :new-activity
   (fn [db [_ activity]]
@@ -97,21 +109,21 @@
     db))
 
 (register-handler
-  :new-empty-lesson
-  (fn [db _]
-    (m/conj! fb-lessons new-lesson)
+  :activity
+  (fn [db [_ command id attribute value]]
+    (case command
+      :delete (m/dissoc-in! fb-activities [id])
+      :update (m/reset-in!  fb-activities [id attribute] value)
+      :new    (m/conj!      fb-activities test-activity))
     db))
 
 (register-handler
-  :remove-lesson
-  (fn [db [_ id]]
-    (m/dissoc-in! fb-lessons [id])
-    db))
-
-(register-handler
-  :update-lesson
-  (fn [db [_ id attribute value]]
-    (m/reset-in! fb-lessons [id attribute] value)
+  :lesson
+  (fn [db [_ command id attribute value]]
+    (case command
+      :delete (m/dissoc-in! fb-lessons [id])
+      :update (m/reset-in!  fb-lessons [id attribute] value)
+      :new    (m/conj!      fb-lessons new-lesson))
     db))
 
  ;; ROUTING =======================

@@ -17,7 +17,7 @@
   [{:keys [id lesson]}]
   (let [{:keys [year subject finished description title]} @lesson
         update-fn (fn [attribute]
-                    #(dispatch [:update-lesson @id attribute (e->val %)]))]
+                    #(dispatch [:lesson :update @id attribute (e->val %)]))]
     [:div {:class "ui form"
            :style {:marginBottom 15}}
       [:div {:class "right aligned fields"}
@@ -27,7 +27,7 @@
               (icon "check")]]
         [:div {:class "field"}
           [:button {:class "ui red icon button"
-                    :on-click #(dispatch [:remove-lesson @id])}
+                    :on-click #(dispatch [:lesson :delete @id])}
             (icon "trash")]]]
       [:div {:class "field"}
         [:input {:onChange (update-fn :description)
@@ -50,23 +50,8 @@
            (icon "calendar")
            "Teach"]]
        [:div {:class "field" :style {:marginTop 5}}
-          [checkbox #(dispatch [:update-lesson @id :finished %])
+          [checkbox #(dispatch [:lesson :update @id :finished %])
                     "Ready" finished]]]]))
-
-(def test-url "readwritethink.org/files/resources/printouts/30697_haiku.pdf")
-
-(def test-activity
-  {:tags [{:text "english"}
-          {:text "poetry"}
-          {:text "8s"}
-          {:text "9s"}]
-   :description "Students write several Haikus using a starter sheet"
-   :length 30 ;in minutes
-   :resources [{:sides 2
-                :type :worksheet
-                :format :pdf
-                :description "Haiku Starter"
-                :url test-url}]})
 
 (defn lesson-activity-card
   [{:keys [activity]}]
@@ -160,7 +145,7 @@
   [{:keys [lessons selected]}]
   [:div {:class "ui center aligned segment"}
     [:div {:class "ui labeled icon button"
-           :on-click #(dispatch [:new-empty-lesson])}
+           :on-click #(dispatch [:lesson :new])}
       (icon "plus") "Lesson"]
     (if (not (seq @lessons)) [:div {:class "ui active inline loader"}]
       [:div {:class "ui items"}
@@ -186,7 +171,7 @@
     (fn []
       [:div {:class "ui center aligned segment"}
         [:button {:class "ui labeled icon button"
-                  :on-click #(dispatch [:new-activity test-activity])}
+                  :on-click #(dispatch [:activity :new])}
          (icon "plus") "Create New Activity"]
         (if (seq @activities)
           (for [[id activity] @activities]
