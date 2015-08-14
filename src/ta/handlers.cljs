@@ -19,18 +19,8 @@
 
 (def test-url "readwritethink.org/files/resources/printouts/30697_haiku.pdf")
 
-;; this needs a better name
 (def new-plan-of-category
-  {:class    {:name "New Class"
-              :editing? true
-              :color (rand-nth colors)
-              :schedule {:mon   [:slot :slot :slot :slot :slot]
-                         :tues  [:slot :slot :slot :slot :slot]
-                         :wed   [:slot :slot :slot :slot :slot]
-                         :thurs [:slot :slot :slot :slot :slot]
-                         :fri   [:slot :slot :slot :slot :slot]}}
-   :lesson   {:description "New Lesson"}
-   :activity {:tags [{:text "english"}
+  {:activity {:tags [{:text "english"}
                      {:text "poetry"}
                      {:text "8s"}
                      {:text "9s"}]
@@ -40,7 +30,16 @@
                            :type :worksheet
                            :format :pdf
                            :description "Haiku Starter"
-                           :url test-url}]}})
+                           :url test-url}]}
+   :class    {:name "New Class"
+              :editing? true
+              :color (rand-nth colors)
+              :schedule {:mon   [:slot :slot :slot :slot :slot]
+                         :tues  [:slot :slot :slot :slot :slot]
+                         :wed   [:slot :slot :slot :slot :slot]
+                         :thurs [:slot :slot :slot :slot :slot]
+                         :fri   [:slot :slot :slot :slot :slot]}}
+   :lesson   {:description "New Lesson"}})
 
 (register-handler
   :inspect-db
@@ -55,14 +54,21 @@
     db))
 
 (register-handler
+  :fb-update
+  (fn [db [_ k v]]
+    (case k
+      :activities (assoc-in db [:planbook :activities] v)
+      :lessons    (assoc-in db [:planbook :lessons] v)
+      :classes    (assoc db :classes v))))
+
+(register-handler
   :setup-db
   (fn [db _]
-    (m/listen-to fb-classes
-                 :value (fn [[_ val]] (dispatch [:update-classes val])))
-    (m/listen-to fb-lessons
-                 :value (fn [[_ val]] (dispatch [:update-lessons val])))
-    (m/listen-to fb-activities
-                 :value (fn [[_ val]] (dispatch [:update-activities val])))
+    (doall
+      (for [{:keys [fb k]} [{:fb fb-activities :k :activities}
+                            {:fb fb-classes    :k :classes}
+                            {:fb fb-lessons    :k :lessons}]]
+        (m/listen-to fb :value (fn [[_ v]] (dispatch [:fb-update k v])))))
     starting-db))
 
 (register-handler
@@ -71,7 +77,7 @@
     (case command
       :delete (m/dissoc-in! fb-classes [id])
       :update (m/reset-in!  fb-classes [id attribute] value)
-      :new    (m/conj! fb-classes (:class new-plan-of-category)))
+      :new    (m/conj!      fb-classes (:class new-plan-of-category)))
     db))
 
 (register-handler
@@ -92,40 +98,10 @@
       :new    (m/conj!      fb-lessons (:lesson new-plan-of-category)))
     db))
 
- ;; CLASSES =======================
-
-(register-handler
-  :update-classes
-  (fn [db [_ classes]]
-    (assoc db :classes classes)))
-
- ;; PLANBOOK =======================
-
-(register-handler
-  :update-lessons
-  (fn [db [_ lessons]]
-    (assoc-in db [:planbook :lessons] lessons)))
-
-(register-handler
-  :update-activities
-  (fn [db [_ activities]]
-    (assoc-in db [:planbook :activities] activities)))
-
 (register-handler
   :set-open
   (fn [db [_ thing id]]
     (assoc-in db [:planbook :open thing] id)))
-
-(register-handler
-  :set-planbook-page
-  (fn [db [_ page]]
-    (assoc-in db [:planbook :open-page] page)))
-
-(register-handler
-  :new-activity
-  (fn [db [_ activity]]
-    (m/conj! fb-activities activity)
-    db))
 
  ;; ROUTING =======================
 
