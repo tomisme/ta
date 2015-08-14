@@ -141,22 +141,52 @@
                 "Untitled"
                 description)]]]))
 
+(defn menu-item
+  [{:keys [id content active? handler]}]
+  ^{:key id} [:a {:class (sem (if active? "active") "item")
+                  :on-click handler}
+               content])
+
+(defn menu
+  "Each item in items sequence should be a map with at least :id and :content"
+  [{:keys [class items active-id]}]
+  [:div {:class class}
+    (for [{:keys [id str on i]} items]
+      ^{:key id} [:a {:class (sem (if (= id active-id) "active") "item")
+                      :on-click on}
+                  (icon i) str])])
+
 (defn lesson-list
-  [{:keys [lessons selected]}]
-  [:div {:class "ui center aligned segment"}
-    [:div {:class "ui labeled icon button"
-           :on-click #(dispatch [:lesson :new])}
-      (icon "plus") "Lesson"]
-    (if (not (seq @lessons)) [:div {:class "ui active inline loader"}]
-      [:div {:class "ui items"}
-        (doall
-          (for [lesson @lessons
-                :let [[id content] lesson
-                      selected? (= @selected id)]]
-            ^{:key (str id)}
-              [lesson-list-item {:id id
-                                 :lesson content
-                                 :selected? selected?}]))])])
+  []
+  (let [lessons  (subscribe [:lessons])
+        selected (subscribe [:open :lesson])
+        filters  (subscribe [:filter :lessons])]
+    (fn []
+      [:div {:class "five wide column"}
+          [:div {:class "ui labeled icon button"
+                 :on-click #(dispatch [:lesson :new])}
+            (icon "plus") "New Lesson"]
+        (menu {:class "ui fluid vertical menu"
+               :active-id (if (:finished @filters) :finished :unfinished)
+               :items [{:id  :unfinished
+                        :str "Unfinished Lessons"
+                        :i   "circle outline"
+                        :on  #(dispatch [:set-filter :lessons :finished false])}
+                       {:id  :finished
+                        :str "Finished Lessons"
+                        :i   "check circle outline"
+                        :on  #(dispatch [:set-filter :lessons :finished true])}]})
+        [:div {:class "ui center aligned basic segment"}
+          (if (not (seq @lessons)) [:div {:class "ui active inline loader"}]
+            [:div {:class "ui items"}
+              (doall
+                (for [lesson @lessons
+                      :let [[id content] lesson
+                            selected? (= @selected id)]]
+                  ^{:key (str id)}
+                    [lesson-list-item {:id id
+                                       :lesson content
+                                       :selected? selected?}]))])]])))
 
 (defn activity-list-item
   [{:keys [id activity]}]
@@ -221,12 +251,10 @@
 
 (defn lessons-tab
   []
-  (let [lessons     (subscribe [:lessons])
-        open-lesson (subscribe [:open :lesson])]
+  (let [open-lesson (subscribe [:open :lesson])]
     (fn []
       [:div {:class "row"}
-        [:div {:class "five wide column"}
-          [lesson-list {:lessons lessons :selected open-lesson}]]
+        [lesson-list]
         [:div {:class "eleven wide column"}
           (if @open-lesson
             [lesson-details-panel {:id open-lesson}]
@@ -237,7 +265,7 @@
 (defn planbook-view
   []
   (let [active-tab (subscribe [:open :page])
-        tabs [{:key :activities :str "Activities" :i "cube"}
+        tabs [{:key :activities :str "Activities" :i "cubes"}
               {:key :lessons    :str "Lessons"    :i "file outline"}
               {:key :units      :str "Units"      :i "briefcase"}]]
     (fn []

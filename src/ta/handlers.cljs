@@ -103,6 +103,11 @@
   (fn [db [_ thing id]]
     (assoc-in db [:planbook :open thing] id)))
 
+(register-handler
+  :set-filter
+  (fn [db [_ filter k v]]
+    (assoc-in db [:planbook :filters filter k] v)))
+
  ;; ROUTING =======================
 
 (register-handler

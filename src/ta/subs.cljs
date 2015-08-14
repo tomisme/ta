@@ -52,14 +52,14 @@
                   [id (get activities id)])))))
 
 (register-sub
-  :open-lesson
-  (fn [db _]
-    (reaction (get-in @db [:planbook :open-lesson]))))
-
-(register-sub
   :open
   (fn [db [_ thing]]
     (reaction (get-in @db [:planbook :open thing]))))
+
+(register-sub
+  :filter
+  (fn [db [_ filter]]
+    (reaction (get-in @db [:planbook :filters filter]))))
 
 (register-sub
   :classes

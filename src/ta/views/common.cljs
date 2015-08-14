@@ -2,16 +2,19 @@
   (:require [shodan.inspection :refer [inspect]]
             [clojure.string :as string]))
 
-(defn sem [& parts]
+(defn sem
   "Returns a space separated string for use as an HTML component's :class"
+  [& parts]
   (string/join " " parts))
 
-(defn e->val [e]
-  "Take an input component's :on-change event and returns the its value"
-  (-> e .-target .-value))
+(defn e->val
+  "Take an input component's :on-change event and returns its target value"
+  [event]
+  (-> event .-target .-value))
 
-(defn ibut [value]
+(defn ibut
   "Handy inspection button! Click to inspect a value in the console"
+  [value]
   [:button {:on-click #(inspect value)} "what?"])
 
 (defn icon
@@ -24,12 +27,14 @@
                          :l "large")]
     [:i {:class (sem "icon" name size-str)}])))
 
-(defn flag-img [country]
+(defn flag-img
   "Takes a country keyword and returns a flag icon element"
+  [country]
   (case country
     :australia [:i {:class "australia flag" :style #js {:paddingLeft 5}}]))
 
-(defn checkbox [on-click label checked]
+(defn checkbox
+  [on-click label checked]
   [:div {:class "ui checkbox"
          :onClick #(on-click (not checked))}
     [:input {:type "checkbox"
@@ -39,7 +44,8 @@
              :readOnly true}]
     [:label label]])
 
-(defn dropdown [{:keys [value options starting on-change]}]
+(defn dropdown
+  [{:keys [value options starting on-change]}]
   [:select {:value value
             :onChange #(on-change %)}
     [:option {:value ""} starting]
@@ -47,7 +53,8 @@
                    ^{:key (str i "-" option)}
                      [:option {:value option} option]) options)])
 
-(defn semantic-dropdown []
+(defn semantic-dropdown
+  []
   [:div {:class "ui selection dropdown"}
     [:input {:type "hidden" :name "gender"}]
     [:div {:class "default text"} "Gender"]
