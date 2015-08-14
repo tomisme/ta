@@ -17,29 +17,30 @@
                   :active-week 11
                   :planbook {:open {:page :lessons}}})
 
-(def new-class {:name "New Class"
-                :editing? true
-                :color (rand-nth colors)
-                :schedule {:mon   [:slot :slot :slot :slot :slot]
-                           :tues  [:slot :slot :slot :slot :slot]
-                           :wed   [:slot :slot :slot :slot :slot]
-                           :thurs [:slot :slot :slot :slot :slot]
-                           :fri   [:slot :slot :slot :slot :slot]}})
+(def test-url "readwritethink.org/files/resources/printouts/30697_haiku.pdf")
 
-(def new-lesson {:description "New Lesson"})
-
-(def test-activity
-  {:tags [{:text "english"}
-          {:text "poetry"}
-          {:text "8s"}
-          {:text "9s"}]
-   :description "Students write several Haikus using a starter sheet"
-   :length 30 ;in minutes
-   :resources [{:sides 2
-                :type :worksheet
-                :format :pdf
-                :description "Haiku Starter"
-                :url test-url}]})
+;; this needs a better name
+(def new-plan-of-category
+  {:class    {:name "New Class"
+              :editing? true
+              :color (rand-nth colors)
+              :schedule {:mon   [:slot :slot :slot :slot :slot]
+                         :tues  [:slot :slot :slot :slot :slot]
+                         :wed   [:slot :slot :slot :slot :slot]
+                         :thurs [:slot :slot :slot :slot :slot]
+                         :fri   [:slot :slot :slot :slot :slot]}}
+   :lesson   {:description "New Lesson"}
+   :activity {:tags [{:text "english"}
+                     {:text "poetry"}
+                     {:text "8s"}
+                     {:text "9s"}]
+              :description "Students write several Haikus using a starter sheet"
+              :length 30 ;in minutes
+              :resources [{:sides 2
+                           :type :worksheet
+                           :format :pdf
+                           :description "Haiku Starter"
+                           :url test-url}]}})
 
 (register-handler
   :inspect-db
@@ -64,21 +65,39 @@
                  :value (fn [[_ val]] (dispatch [:update-activities val])))
     starting-db))
 
- ;; CLASSES =======================
-
-(register-handler
-  :update-classes
-  (fn [db [_ classes]]
-    (assoc db :classes classes)))
-
 (register-handler
   :class
   (fn [db [_ command id attribute value]]
     (case command
       :delete (m/dissoc-in! fb-classes [id])
       :update (m/reset-in!  fb-classes [id attribute] value)
-      :new    (m/conj! fb-classes new-class))
+      :new    (m/conj! fb-classes (:class new-plan-of-category)))
     db))
+
+(register-handler
+  :activity
+  (fn [db [_ command id attribute value]]
+    (case command
+      :delete (m/dissoc-in! fb-activities [id])
+      :update (m/reset-in!  fb-activities [id attribute] value)
+      :new    (m/conj!      fb-activities (:activity new-plan-of-category)))
+    db))
+
+(register-handler
+  :lesson
+  (fn [db [_ command id attribute value]]
+    (case command
+      :delete (m/dissoc-in! fb-lessons [id])
+      :update (m/reset-in!  fb-lessons [id attribute] value)
+      :new    (m/conj!      fb-lessons (:lesson new-plan-of-category)))
+    db))
+
+ ;; CLASSES =======================
+
+(register-handler
+  :update-classes
+  (fn [db [_ classes]]
+    (assoc db :classes classes)))
 
  ;; PLANBOOK =======================
 
@@ -106,24 +125,6 @@
   :new-activity
   (fn [db [_ activity]]
     (m/conj! fb-activities activity)
-    db))
-
-(register-handler
-  :activity
-  (fn [db [_ command id attribute value]]
-    (case command
-      :delete (m/dissoc-in! fb-activities [id])
-      :update (m/reset-in!  fb-activities [id attribute] value)
-      :new    (m/conj!      fb-activities test-activity))
-    db))
-
-(register-handler
-  :lesson
-  (fn [db [_ command id attribute value]]
-    (case command
-      :delete (m/dissoc-in! fb-lessons [id])
-      :update (m/reset-in!  fb-lessons [id attribute] value)
-      :new    (m/conj!      fb-lessons new-lesson))
     db))
 
  ;; ROUTING =======================
