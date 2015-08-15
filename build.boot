@@ -14,7 +14,7 @@
                  [cljsjs/moment "2.9.0-0"]
                  [secretary "1.2.3"]
                  [bidi "1.20.0"]
-                 [matchbox "0.0.6"]])
+                 [matchbox "0.0.7"]])
 
 (require
  '[adzerk.boot-cljs      :refer [cljs]]
