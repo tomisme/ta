@@ -7,47 +7,37 @@
             [re-frame.core :refer [subscribe dispatch]]
             [shodan.inspection :refer [inspect]]))
 
-(def page-links [{:key :calendar
-                  :icon "calendar"
-                  :label "Calendar"
-                  :url "#/calendar"}
-                 {:key :planbook
-                  :icon "book"
-                  :label "Planbook"
-                  :url "#/planbook"}
-                 {:key :classes
-                  :icon "table"
-                  :label "Classes"
-                  :url "#/classes"}])
-
-(defn nav-links [active-page]
-  (let [current-page @active-page]
-    (for [link page-links]
-      (let [class (sem (if (= current-page (:key link)) "active") "item")
-            icon [:span {:style #js {:paddingRight 4}} (icon (:icon link))]
-            label (:label link)
-            url (:url link)]
-        ^{:key label} [:a {:class class :href url} icon label]))))
-
-(defn top-bar [active-page]
+(defn top-bar
+  [active-page]
   (let [user (subscribe [:user])
-        name (reaction (:name @user))
-        flag (reaction (:flag @user))]
+        pages {:calendar {:i "calendar"
+                          :label "Calendar"
+                          :url "#/calendar"}
+               :planbook {:i "book"
+                          :label "Planbook"
+                          :url "#/planbook"}
+               :classes  {:i "table"
+                          :label "Classes"
+                          :url "#/classes"}}]
     (fn []
-      [:div {:class "row"}
+      [:div {:class "one column row"}
         [:div {:class "column"}
           [:div {:class "ui secondary pointing menu"}
-            (nav-links active-page)
+            (doall (for [[k {:keys [i label url]}] pages
+                         :let [class (sem (if (= @active-page k) "active") "item")
+                               icon [:span {:style #js {:paddingright 4}} (icon i)]]]
+                     ^{:key label} [:a {:class class :href url} icon label]))
             [:div {:class "right menu"}
               [:a {:class "ui item"}
-                @name (flag-img @flag) (icon "caret down")]
+                (:name @user) (flag-img (:flag @user)) (icon "caret down")]
               [:div {:class "ui item"}
                 [:div {:class "ui labeled icon button"
                        :onClick #(dispatch [:inspect-db])}
-                  (icon "world") "db"]]]]]])))
+                  (icon "search") "db"]]]]]])))
 
-(defn main-view [active-page]
-  [:div {:class "row"}
+(defn main-view
+  [active-page]
+  [:div {:class "one column row"}
     [:div {:class "column"}
       (case @active-page :calendar [calendar-view]
                          :planbook [planbook-view]
@@ -57,6 +47,6 @@
 (defn app-container []
   (let [active-page (subscribe [:active-page])]
     (fn []
-      [:div {:class "ui grid container" :style #js {:margin 0}} ;; better way?
+      [:div {:class "ui grid container" :style #js {:margin 0}}
         [top-bar active-page]
         [main-view active-page]])))
