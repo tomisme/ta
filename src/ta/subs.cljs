@@ -19,10 +19,16 @@
   (fn [db _]
     (reaction (:active-week @db))))
 
+;; TODO work out why filter won't work inside a reaction
 (register-sub
   :lessons
-  (fn [db _]
-    (reaction (get-in @db [:planbook :lessons]))))
+  (fn [db [_ type]]
+    (if (= :filtered type)
+      (let [filter (subscribe [:filter :lessons])]
+        (reaction (filter (fn [lesson]
+                            (= (:finished filter) (:finished lesson)))
+                          (get-in @db [:planbook :lessons]))))
+      (reaction (get-in @db [:planbook :lessons])))))
 
 (register-sub
   :lesson

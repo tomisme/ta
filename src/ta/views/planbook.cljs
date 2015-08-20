@@ -1,4 +1,4 @@
-;;  work on activities tab, create activities independently of lessons
+;; TODO work on activities tab, create activities independently of lessons
 
 (ns ta.views.planbook
   (:require-macros [reagent.ratom :refer [reaction]])
@@ -162,31 +162,37 @@
         selected (subscribe [:open :lesson])
         filters  (subscribe [:filter :lessons])]
     (fn []
-      [:div {:class "five wide column"}
-          [:div {:class "ui labeled icon button"
-                 :on-click #(dispatch [:lesson :new])}
-            (icon "plus") "New Lesson"]
-        (menu {:class "ui fluid vertical menu"
-               :active-id (if (:finished @filters) :finished :unfinished)
-               :items [{:id  :unfinished
-                        :str "Unfinished Lessons"
-                        :i   "circle outline"
-                        :on  #(dispatch [:set-filter :lessons :finished false])}
-                       {:id  :finished
-                        :str "Finished Lessons"
-                        :i   "check circle outline"
-                        :on  #(dispatch [:set-filter :lessons :finished true])}]})
-        [:div {:class "ui center aligned basic segment"}
-          (if (not (seq @lessons)) [:div {:class "ui active inline loader"}]
-            [:div {:class "ui items"}
-              (doall
-                (for [lesson @lessons
-                      :let [[id content] lesson
-                            selected? (= @selected id)]]
-                  ^{:key (str id)}
-                    [lesson-list-item {:id id
-                                       :lesson content
-                                       :selected? selected?}]))])]])))
+      #_(inspect )
+      ;; TODO loop through filters in :filters map and check all
+      (let [filtered-lessons (filter (fn [[id lesson]]
+                                       (= (:finished lesson) (:finished @filters)))
+                                     @lessons)]
+        [:div {:class "five wide column"}
+            [:div {:class "ui labeled icon button"
+                   :on-click #(dispatch [:lesson :new])}
+              (icon "plus") "New Lesson"]
+          (menu {:class "ui fluid vertical menu"
+                 :active-id (if (:finished @filters) :finished :unfinished)
+                 :items [{:id  :unfinished
+                          :str "Unfinished Lessons"
+                          :i   "circle outline"
+                          :on  #(dispatch [:set-filter :lessons :finished false])}
+                         {:id  :finished
+                          :str "Finished Lessons"
+                          :i   "check circle outline"
+                          :on  #(dispatch [:set-filter :lessons :finished true])}]})
+          [:div {:class "ui center aligned basic segment"}
+            (if (not (seq filtered-lessons))
+              [:div {:class "ui active inline loader"}]
+              [:div {:class "ui items"}
+                (doall
+                  (for [lesson filtered-lessons
+                        :let [[id content] lesson
+                              selected? (= @selected id)]]
+                    ^{:key (str id)}
+                      [lesson-list-item {:id id
+                                         :lesson content
+                                         :selected? selected?}]))])]]))))
 
 (defn activity-list-item
   [{:keys [id activity]}]
