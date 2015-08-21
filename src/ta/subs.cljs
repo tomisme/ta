@@ -19,15 +19,18 @@
   (fn [db _]
     (reaction (:active-week @db))))
 
-;; TODO work out why filter won't work inside a reaction
+(defn filtered-lessons
+  [lessons filters]
+  (filter (fn [[id lesson]]
+            (= (:finished lesson) (:finished filters)))
+          lessons))
+
 (register-sub
   :lessons
   (fn [db [_ type]]
     (if (= :filtered type)
-      (let [filter (subscribe [:filter :lessons])]
-        (reaction (filter (fn [lesson]
-                            (= (:finished filter) (:finished lesson)))
-                          (get-in @db [:planbook :lessons]))))
+      (let [filters  (subscribe [:filter :lessons])]
+        (reaction (filtered-lessons (get-in @db [:planbook :lessons]) @filters)))
       (reaction (get-in @db [:planbook :lessons])))))
 
 (register-sub
