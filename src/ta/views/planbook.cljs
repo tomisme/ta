@@ -165,15 +165,16 @@
       [:div {:class "five wide column"}
         [:div {:class "ui labeled icon button"
                :on-click #(dispatch [:lesson :new])}
-          (icon "plus") "New Lesson"]
+          (icon "plus") "New"]
         (menu {:class "ui fluid vertical menu"
-               :active-id (if (:finished @filters) :finished :unfinished)
-               :items [{:id  :unfinished
-                        :str "Unfinished Lessons"
+               :active-id (if (contains? @filters :finished)
+                            (:finished @filters))
+               :items [{:id  false
+                        :str "Unfinished"
                         :i   "circle outline"
                         :on  #(dispatch [:set-filter :lessons :finished false])}
-                       {:id  :finished
-                        :str "Finished Lessons"
+                       {:id  true
+                        :str "Finished"
                         :i   "check circle outline"
                         :on  #(dispatch [:set-filter :lessons :finished true])}]})
         [:div {:class "ui center aligned basic segment"}
@@ -258,14 +259,11 @@
         [lesson-list]
         [:div {:class "eleven wide column"}
           (if @open-lesson
-            [lesson-details-panel {:id open-lesson}]
-            [:div {:class "circular ui large green inverted label"}
-              (icon "left arrow")
-              "Got time to work on a lesson from your stack?"])]])))
+            [lesson-details-panel {:id open-lesson}])]])))
 
 (defn planbook-view
   []
-  (let [active-tab (subscribe [:open :page])
+  (let [active-tab (subscribe [:open :tab])
         tabs [{:key :activities :str "Activities" :i "cubes"}
               {:key :lessons    :str "Lessons"    :i "file outline"}
               {:key :units      :str "Units"      :i "briefcase"}]]
@@ -276,7 +274,7 @@
             (doall
               (for [tab tabs :let [{:keys [key str i]} tab]]
                 ^{:key str}
-                  [:button {:on-click #(dispatch [:set-open :page key])
+                  [:button {:on-click #(dispatch [:set-open :tab key])
                             :class (sem (if (= @active-tab key) "active")
                                         "ui labeled icon button")}
                     (icon i) str]))]]

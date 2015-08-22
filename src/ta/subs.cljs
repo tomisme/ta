@@ -22,7 +22,9 @@
 (defn filtered-lessons
   [lessons filters]
   (filter (fn [[id lesson]]
-            (= (:finished lesson) (:finished filters)))
+            (if (contains? filters :finished)
+              (= (:finished lesson) (:finished filters))
+              true))
           lessons))
 
 (register-sub

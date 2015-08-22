@@ -15,7 +15,7 @@
                   :active-page :calendar
                   :calendar-view :week
                   :active-week 11
-                  :planbook {:open {:page :lessons}}})
+                  :planbook {:open {:tab :lessons}}})
 
 (def test-url "readwritethink.org/files/resources/printouts/30697_haiku.pdf")
 
