@@ -191,46 +191,57 @@
                                        :selected? selected?}]))])]])))
 
 (defn activity-list-item
-  [{:keys [id activity]}]
+  [{:keys [id activity selected?]}]
   (let [{:keys [description length resources tags]} activity]
-    [:div {:class "ui link card"}
+    [:div {:class (sem "ui" (if selected? "black") "link card")
+           :onClick #(dispatch [:set-open :activity id])}
       [:div {:class "content"}
         [:span description]]]))
 
 (defn activity-list
   []
-  (let [activities (subscribe [:activities])]
+  (let [activities (subscribe [:activities])
+        selected   (subscribe [:open :activity])]
     (fn []
       [:div {:class "ui center aligned segment"}
         [:button {:class "ui labeled icon button"
                   :on-click #(dispatch [:activity :new])}
          (icon "plus") "Create New Activity"]
         (if (seq @activities)
-          (for [[id activity] @activities]
-            ^{:key (str id)} [activity-list-item {:id id :activity activity}])
-          [:p "No lessons.... yet?"])])))
+          (doall
+            (for [[id activity] @activities]
+              ^{:key (str id)}
+                [activity-list-item {:id id
+                                     :activity activity
+                                     :selected? (= @selected id)}]))
+          [:p "No activities.... yet?"])])))
+
+(defn resource
+  [{:keys [description url type sides]}]
+  ^{:key description}
+    [:div {:class "ui violet label"}
+      [:a (icon (type resource-icon-names))]
+      description
+      (icon "delete icon")])
 
 (defn activity-editor
   [{:keys [id activity]}]
   (let [id       (subscribe [:open :activity])
         activity (reaction @(subscribe [:activity @id]))]
     (fn []
-      (let [{:keys [description length resources tags]} activity]
+      (let [{:keys [description length resources tags]} @activity]
+        [:div
         [:div {:class "ui fluid segment"}
-          [:div {:class "content"} description]
+          [:div {:class "content"} description]]
+        [:div {:class "ui fluid segment"}
           [:div {:class "content"}
             [:button {:class "ui icon disabled button"
                       :style {:marginRight 10}}
               [:i {:class "large icons"}
                 (icon "file text")
                 (icon "corner plus")]]
-            (for [resource resources
-                  :let [{:keys [description url type sides]} resource]]
-              ^{:key description}
-                [:div {:class "ui violet label"}
-                  [:a (icon (type resource-icon-names))]
-                  description
-                  (icon "delete icon")])]
+            (map resource resources)]]
+        [:div {:class "ui fluid segment"}
           [:div {:class "content"}
             [:button {:class "ui icon disabled button"
                       :style {:marginRight 10}}
@@ -241,7 +252,7 @@
                            ^{:key (str i text)}
                              [:div {:class "ui yellow label"}
                                text (icon "delete icon")])
-                         tags)]]))))
+                         tags)]]]))))
 
 (defn activities-tab
   []
