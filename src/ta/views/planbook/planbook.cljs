@@ -14,14 +14,12 @@
     (fn []
       [:div {:class "ui grid"}
         [:div {:class "centered one colum row"}
-          [:div {:class "colum"}
-            (doall
-              (for [tab tabs :let [{:keys [key str i]} tab]]
-                ^{:key str}
-                  [:button {:on-click #(dispatch [:set-open :tab key])
-                            :class (sem (if (= @active-tab key) "active")
-                                        "ui labeled icon button")}
-                    (icon i) str]))]]
+          [:div {:class "ui pointing menu"}
+            (doall (for [tab tabs :let [{:keys [key str i]} tab]]
+                     ^{:key str}
+                       [:a {:class (sem "item" (if (= @active-tab key) "active"))
+                            :on-click #(dispatch [:set-open :tab key])}
+                         [:span {:style {:marginRight 5}} (icon i)] str]))]]
        (case @active-tab
           :units      [:p "Lets make some units!"]
           :lessons    [lessons-tab]
