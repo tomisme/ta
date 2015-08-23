@@ -1,7 +1,7 @@
 (ns ta.views.app
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [ta.views.calendar :refer [calendar-view]]
-            [ta.views.planbook :refer [planbook-view]]
+  (:require [ta.views.planbook.planbook :refer [planbook-view]]
+            [ta.views.calendar :refer [calendar-view]]
             [ta.views.classes :refer [classes-view]]
             [ta.views.common :refer [sem icon flag-img]]
             [re-frame.core :refer [subscribe dispatch]]
