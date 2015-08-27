@@ -2,7 +2,8 @@
   (:require [ta.util :refer [colors]]
             [re-frame.core :refer [register-handler dispatch]]
             [matchbox.core :as m]
-            [shodan.inspection :refer [inspect]]))
+            [shodan.inspection :refer [inspect]]
+            [json-html.core :refer [edn->hiccup]]))
 
 (def fb-root (m/connect "https://frederick.firebaseio.com/"))
 
@@ -42,9 +43,10 @@
    :lesson   {:description "New Lesson"}})
 
 (register-handler
-  :inspect-db
+  :launch-db-modal
   (fn [db _]
-    (inspect db)
+    (dispatch [:modal :launch {:scrollbox? true
+                               :text (edn->hiccup (dissoc db :modal))}])
     db))
 
 (register-handler
@@ -107,6 +109,15 @@
   :set-filter
   (fn [db [_ filter k v]]
     (assoc-in db [:planbook :filters filter k] v)))
+
+(register-handler
+  :modal
+  (fn [db [_ action model-data]]
+    (case action
+      :launch (-> db
+                (assoc-in [:modal :data] model-data)
+                (assoc-in [:modal :active?] true))
+      :close (assoc-in db [:modal :active?] false))))
 
  ;; ROUTING =======================
 

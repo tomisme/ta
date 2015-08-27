@@ -19,6 +19,11 @@
   (fn [db _]
     (reaction (:active-week @db))))
 
+(register-sub
+  :modal
+  (fn [db _]
+    (reaction (:modal @db))))
+
 (defn filtered-lessons
   [lessons filters]
   (filter (fn [[id lesson]]

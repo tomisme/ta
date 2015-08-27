@@ -17,7 +17,8 @@
                  [cljsjs/moment "2.9.0-0"]
                  [secretary "1.2.3"]
                  [bidi "1.20.0"]
-                 [matchbox "0.0.7"]]
+                 [matchbox "0.0.7"]
+                 [json-html "0.3.4"]]
 
   :plugins [[lein-cljsbuild "1.0.5"]
             [lein-figwheel "0.3.5"]]
