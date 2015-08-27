@@ -1,4 +1,4 @@
-(ns ^:figwheel-always ta.core
+(ns ta.core
   (:require-macros [secretary.core :refer [defroute]])
   (:import goog.History)
   (:require [reagent.core :refer [render]]
@@ -11,13 +11,10 @@
             [ta.handlers]
             [ta.subs] ))
 
-(render [app/app-container] (.getElementById js/document "app"))
-
 (defn on-js-reload []
-  ;; optionally touch your app-state to force rerendering depending on
-  ;; your application
-  ;; (swap! app-state update-in [:__figwheel_counter] inc)
-  )
+  (render [app/app-container] (.getElementById js/document "app")))
+
+(on-js-reload)
 
 (secretary/set-config! :prefix "#")
 
