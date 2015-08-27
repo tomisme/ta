@@ -11,32 +11,6 @@
 (def resource-icon-names {:booklet "book"
                           :worksheet "file"})
 
-(defn activity-list-item
-  [{:keys [id activity selected?]}]
-  (let [{:keys [description length resources tags]} activity]
-    [:div {:class (sem "ui" (if selected? "black") "link card")
-           :onClick #(dispatch [:set-open :activity id])}
-      [:div {:class "content"}
-        [:span description]]]))
-
-(defn activity-list
-  []
-  (let [activities (subscribe [:activities])
-        selected   (subscribe [:open :activity])]
-    (fn []
-      [:div {:class "ui center aligned segment"}
-        [:button {:class "ui labeled icon button"
-                  :on-click #(dispatch [:activity :new])}
-         (icon "plus") "Create New Activity"]
-        (if (seq @activities)
-          (doall
-            (for [[id activity] @activities]
-              ^{:key (str id)}
-                [activity-list-item {:id id
-                                     :activity activity
-                                     :selected? (= @selected id)}]))
-          [:p "No activities.... yet?"])])))
-
 (defn resource
   [{:keys [description url type sides]}]
   ^{:key description}
@@ -46,7 +20,7 @@
       (icon "delete icon")])
 
 (defn activity-editor
-  [{:keys [id activity]}]
+  []
   (let [id       (subscribe [:open :activity])
         activity (reaction @(subscribe [:activity @id]))]
     (fn []
@@ -74,6 +48,32 @@
                              [:div {:class "ui yellow label"}
                                text (icon "delete icon")])
                          tags)]]]))))
+
+(defn activity-list-item
+  [{:keys [id activity selected?]}]
+  (let [{:keys [description length resources tags]} activity]
+    [:div {:class (sem "ui" (if selected? "black") "link card")
+           :onClick #(dispatch [:set-open :activity id])}
+      [:div {:class "content"}
+        [:span description]]]))
+
+(defn activity-list
+  []
+  (let [activities (subscribe [:activities])
+        selected   (subscribe [:open :activity])]
+    (fn []
+      [:div {:class "ui center aligned segment"}
+        [:button {:class "ui labeled icon button"
+                  :on-click #(dispatch [:activity :new])}
+         (icon "plus") "Create New Activity"]
+        (if (seq @activities)
+          (doall
+            (for [[id activity] @activities]
+              ^{:key (str id)}
+                [activity-list-item {:id id
+                                     :activity activity
+                                     :selected? (= @selected id)}]))
+          [:p "No activities.... yet?"])])))
 
 (defn activities-tab
   []
