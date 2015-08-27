@@ -1,2 +1,0 @@
-{:require  [ta.core]
- :init-fns [ta.core/init]}
