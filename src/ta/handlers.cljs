@@ -45,8 +45,9 @@
 (register-handler
   :launch-db-modal
   (fn [db _]
-    (dispatch [:modal :launch {:scrollbox? true
-                               :text (edn->hiccup (dissoc db :modal))}])
+    (dispatch [:modal :launch {:type :scrollbox
+                               :header "app db"
+                               :content (edn->hiccup (dissoc db :modal))}])
     db))
 
 (register-handler

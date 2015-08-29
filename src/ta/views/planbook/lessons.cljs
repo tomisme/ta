@@ -15,17 +15,21 @@
   [{:keys [id lesson]}]
   (let [{:keys [year subject finished description title]} @lesson
         update-fn (fn [attribute]
-                    #(dispatch [:lesson :update @id attribute (e->val %)]))]
+                    #(dispatch [:lesson :update @id attribute (e->val %)]))
+        delete-modal {:type :confirm
+                      :i "trash"
+                      :question "Are you sure you want to delete this lesson?"
+                      :on-yes #(dispatch [:lesson :delete @id])}]
     [:div {:class "ui form"
            :style {:marginBottom 15}}
       [:div {:class "right aligned fields"}
         [:div {:class "field"}
           [:button {:class "ui green icon button"
                     :on-click #(dispatch [:set-open :lesson nil])}
-              (icon "check")]]
+            (icon "check")]]
         [:div {:class "field"}
           [:button {:class "ui red icon button"
-                    :on-click #(dispatch [:lesson :delete @id])}
+                    :on-click #(dispatch [:modal :launch delete-modal])}
             (icon "trash")]]]
       [:div {:class "field"}
         [:input {:onChange (update-fn :description)

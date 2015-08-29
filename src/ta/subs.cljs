@@ -85,9 +85,8 @@
 (defn class-in-slot
   "The id keyword of the first class found for the slot or nil"
   [classes day session]
-  (some #(if % %) ;; get the first truthy value (a filled slot)
-        (for [[id class] classes]
-          (if (= :selected (get-in class [:schedule day session])) id))))
+  (some #(if % %) (for [[id class] classes]
+                    (if (= :selected (get-in class [:schedule day session])) id))))
 
 (defn classes->schedule
   [classes]
