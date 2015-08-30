@@ -87,7 +87,9 @@
   :activity
   (fn [db [_ command id attribute value]]
     (case command
-      :delete (m/dissoc-in! fb-activities [id])
+      :delete (do (m/dissoc-in! fb-activities [id])
+                  (if (= id (get-in db [:planbook :open :activity]))
+                    (dispatch [:set-open :activity nil])))
       :update (m/reset-in!  fb-activities [id attribute] value)
       :new    (m/conj!      fb-activities (:activity new-plan-of-category)))
     db))
