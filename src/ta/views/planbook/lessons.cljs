@@ -29,7 +29,7 @@
             (icon "check")]]
         [:div {:class "field"}
           [:button {:class "ui red icon button"
-                    :on-click #(dispatch [:modal :launch delete-modal])}
+                    :on-click #(dispatch [:modal :update delete-modal])}
             (icon "trash")]]]
       [:div {:class "field"}
         [:input {:onChange (update-fn :description)

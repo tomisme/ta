@@ -45,7 +45,7 @@
 (register-handler
   :launch-db-modal
   (fn [db _]
-    (dispatch [:modal :launch {:type :scrollbox
+    (dispatch [:modal :update {:type :scrollbox
                                :header "app db"
                                :content (edn->hiccup (dissoc db :modal))}])
     db))
@@ -94,6 +94,8 @@
       :new    (m/conj!      fb-activities (:activity new-plan-of-category)))
     db))
 
+#_[:activity :update activity-id :resources :add resource-id]
+
 (register-handler
   :lesson
   (fn [db [_ command id attribute value]]
@@ -115,12 +117,17 @@
 
 (register-handler
   :modal
-  (fn [db [_ action model-data]]
+  (fn [db [_ action model-data k v]]
     (case action
-      :launch (-> db
-                (assoc-in [:modal :data] model-data)
-                (assoc-in [:modal :active?] true))
-      :close (assoc-in db [:modal :active?] false))))
+      :update (-> db
+                (assoc-in [:modal :dom] model-data)
+                (assoc-in [:modal :dom :active?] true))
+      :close  (assoc-in db [:modal :dom :active?] false))))
+
+(register-handler
+  :set-modal-data-attr
+  (fn [db [_ k v]]
+    (assoc-in db [:modal :data k] v)))
 
  ;; ROUTING =======================
 

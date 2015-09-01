@@ -90,13 +90,18 @@
         :scrollbox [:div {:class "content"}
                      [:div {:style {:overflow-y "auto"
                                     :max-height "500px"}} (:content arg-map)]]
-        :confirm [:div {:class "image content"}
-                   [:div {:class "image"} (icon (:i arg-map))]
-                   [:div {:class "description"}
-                     [:p (:question arg-map)]]]
-        nil)
+        :confirm   [:div {:class "image content"}
+                     [:div {:class "image"} (icon (:i arg-map))]
+                     [:div {:class "description"}
+                       [:p (:question arg-map)]]]
+        [:div {:class "content"} (get arg-map :content)])
       (case type
         :confirm [:div {:class "actions"}
                    [:div {:class "ui button"
-                          :on-click #(do-and-close (:on-yes arg-map))} "Yes, I'm sure"]]
+                          :on-click #(do-and-close (:on-yes arg-map))}
+                     "Yes, I'm sure"]]
+        :form    [:div {:class "actions"}
+                   [:div {:class "ui green button"
+                          :on-click #(do-and-close (:on-submit arg-map))}
+                     (:submit-text arg-map)]]
         nil)]))

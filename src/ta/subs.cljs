@@ -21,8 +21,10 @@
 
 (register-sub
   :modal
-  (fn [db _]
-    (reaction (:modal @db))))
+  (fn [db [_ option k]]
+    (case option
+      :dom  (reaction (get-in @db [:modal :dom]))
+      :data (reaction (get-in @db [:modal :data k])))))
 
 (defn filtered-lessons
   [lessons filters]

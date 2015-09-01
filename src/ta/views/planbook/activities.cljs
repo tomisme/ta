@@ -11,14 +11,6 @@
 (def resource-icon-names {:booklet "book"
                           :worksheet "file"})
 
-(defn resource
-  [{:keys [description url type sides]}]
-  ^{:key description}
-    [:div {:class "ui violet label"}
-      [:a (icon (type resource-icon-names))]
-      description
-      (icon "delete icon")])
-
 #_(defn tag-list
   [{:keys [plan-type tag-ids]}]
   {:pre [(or (= :lesson plan-type) (= :activity plan-type))]}
@@ -36,6 +28,36 @@
             ^{:key (str id)}
               [:div {:class "ui yellow label"}
                 text (icon "delete icon")])]])))
+
+(defn resource
+  [{:keys [description url type sides]}]
+  ^{:key description}
+    [:div {:class "ui violet label"}
+      [:a (icon (type resource-icon-names)) description]
+      (icon "delete icon")])
+
+(defn resource-panel
+  [{:keys [resource-ids plan-id]}]
+  (let [set-new-url #(dispatch [:set-modal-data-attr :url (e->val %)])
+        add-modal {:type :form
+                   :header "Add a new resource"
+                   :submit-text "Add resource"
+                   :on-submit #(inspect "Adding a new resource...")
+                   :content [:div {:class "ui fluid left icon input"}
+                              (icon "globe")
+                              [:input {:type "text"
+                                       :placeholder "http://url-of-resource.com"
+                                       :on-change set-new-url
+                                       :value "How do I make dynamic modals?"}]]}]
+    [:div {:class "ui fluid segment"}
+      [:div {:class "content"}
+        [:button {:class "ui icon button"
+                  :style {:marginRight 10}
+                  :on-click #(dispatch [:modal :update add-modal])}
+          [:i {:class "large icons"}
+            (icon "file text")
+            (icon "corner plus")]]
+        (map resource resource-ids)]]))
 
 (defn activity-editor
   []
@@ -57,14 +79,8 @@
                        :value description
                        :placeholder "Enter a short description of the activity"
                        :on-change (update-attr :description)}]]]
-          [:div {:class "ui fluid segment"}
-            [:div {:class "content"}
-              [:button {:class "ui icon disabled button"
-                        :style {:marginRight 10}}
-                [:i {:class "large icons"}
-                  (icon "file text")
-                  (icon "corner plus")]]
-              (map resource resources)]]
+          [resource-panel {:plan-id @id
+                           :resource-ids resources}]
           #_[tag-list {:plan-type :activity
                      :tag-ids tags}]
           [:div {:class "ui center aligned segment"}
@@ -72,7 +88,7 @@
                       :on-click #(dispatch [:set-open :activity nil])}
               "Done" (icon "check")]
             [:button {:class "ui red labeled icon button"
-                      :on-click #(dispatch [:modal :launch delete-modal])}
+                      :on-click #(dispatch [:modal :update delete-modal])}
               "Delete" (icon "trash")]]]))))
 
 (defn activity-list-item

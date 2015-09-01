@@ -47,12 +47,12 @@
 (defn app-container
   []
   (let [active-page  (subscribe [:active-page])
-        global-modal (subscribe [:modal])]
+        global-modal (subscribe [:modal :dom])]
     (fn []
       (let [active-modal? (:active? @global-modal)]
         [:div {:class "ui grid container"
                :style #js {:margin 0}}
           [dimmer {:active? active-modal?}]
-          [modal (assoc (get @global-modal :data) :active? active-modal?)]
+          [modal (assoc @global-modal :active? active-modal?)]
           [top-bar active-page]
           [main-view active-page]]))))
