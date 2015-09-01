@@ -19,6 +19,24 @@
       description
       (icon "delete icon")])
 
+#_(defn tag-list
+  [{:keys [plan-type tag-ids]}]
+  {:pre [(or (= :lesson plan-type) (= :activity plan-type))]}
+  (let [all-tags  (subscribe [:tags])]
+    (fn []
+      [:div {:class "ui fluid segment"}
+        [:div {:class "content"}
+          [:button {:class "ui icon disabled button"
+                    :style {:marginRight 10}}
+            [:i {:class "large icons"}
+              (icon "tag")
+              (icon "corner plus")]]
+          (inspect tag-ids)
+          #_(for [tag-id tag-ids]
+            ^{:key (str id)}
+              [:div {:class "ui yellow label"}
+                text (icon "delete icon")])]])))
+
 (defn activity-editor
   []
   (let [id       (subscribe [:open :activity])
@@ -27,7 +45,7 @@
     (fn []
       (let [{:keys [description length resources tags]} @activity
             update-attr (fn [attr]
-                        #(dispatch [:activity :update @id attr (e->val %)]))
+                          #(dispatch [:activity :update @id attr (e->val %)]))
             delete-modal {:type :confirm
                           :i "trash"
                           :question "Are you sure you want to delete this activity?"
@@ -47,18 +65,8 @@
                   (icon "file text")
                   (icon "corner plus")]]
               (map resource resources)]]
-          [:div {:class "ui fluid segment"}
-            [:div {:class "content"}
-              [:button {:class "ui icon disabled button"
-                        :style {:marginRight 10}}
-                [:i {:class "large icons"}
-                  (icon "tag")
-                  (icon "corner plus")]]
-              (map-indexed (fn [i {:keys [text]}]
-                             ^{:key (str i text)}
-                               [:div {:class "ui yellow label"}
-                                 text (icon "delete icon")])
-                           tags)]]
+          #_[tag-list {:plan-type :activity
+                     :tag-ids tags}]
           [:div {:class "ui center aligned segment"}
             [:button {:class "ui green labeled icon button"
                       :on-click #(dispatch [:set-open :activity nil])}
@@ -83,7 +91,7 @@
       [:div {:class "ui center aligned segment"}
         [:button {:class "ui labeled icon button"
                   :on-click #(dispatch [:activity :new])}
-         (icon "plus") "Create New Activity"]
+         (icon "plus") "New Activity"]
         (if (seq @activities)
           (doall
             (for [[id activity] @activities]
@@ -97,6 +105,6 @@
   []
   (let [selected (subscribe [:open :activity])]
     [:div {:class "centered row"}
-      [:div {:class "six wide column"}
+      [:div {:class (sem (if @selected "six" "sixteen") "wide column")}
         [activity-list]]
       (if @selected [activity-editor])]))
