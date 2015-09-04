@@ -1,24 +1,15 @@
-(defproject ta "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
-  :url "http://example.com/FIXME"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
-
+(defproject ta "0.1.0"
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/clojurescript "0.0-3297"]
-                 [adzerk/boot-cljs      "0.0-3308-0"       :scope "test"]
-                 [adzerk/boot-cljs-repl "0.1.10-SNAPSHOT"  :scope "test"]
-                 [adzerk/boot-reload    "0.3.1"            :scope "test"]
-                 [pandeiro/boot-http    "0.6.3-SNAPSHOT"   :scope "test"]
+                 [org.clojure/clojurescript "1.7.48"]
                  [reagent "0.5.0"]
                  [re-frame "0.4.1"]
-                 [shodan "0.4.2"]
-                 [com.andrewmcveigh/cljs-time "0.3.10"]
-                 [cljsjs/moment "2.9.0-0"]
-                 [secretary "1.2.3"]
-                 [bidi "1.20.0"]
                  [matchbox "0.0.7"]
-                 [json-html "0.3.4"]]
+                 [secretary "1.2.3"]
+                 [json-html "0.3.4"]
+                 [shodan "0.4.2"]
+                 #_[bidi "1.20.0"]
+                 #_[com.andrewmcveigh/cljs-time "0.3.10"]
+                 #_[cljsjs/moment "4.9.0-0"]]
 
   :plugins [[lein-cljsbuild "1.0.5"]
             [lein-figwheel "0.3.5"]]
