@@ -67,11 +67,7 @@
     (fn []
       (let [{:keys [description length resources tags]} @activity
             update-attr (fn [attr]
-                          #(dispatch [:activity :update @id attr (e->val %)]))
-            delete-modal {:type :confirm
-                          :i "trash"
-                          :question "Are you sure you want to delete this activity?"
-                          :on-yes #(dispatch [:activity :delete @id])}]
+                          #(dispatch [:activity :update @id attr (e->val %)]))]
         [:div {:class "ten wide column"}
           [:div {:class "ui fluid segment"}
             [:div {:class "ui transparent fluid input"}
@@ -88,7 +84,7 @@
                       :on-click #(dispatch [:set-open :activity nil])}
               "Done" (icon "check")]
             [:button {:class "ui red labeled icon button"
-                      :on-click #(dispatch [:modal :update delete-modal])}
+                      :on-click #(dispatch [:modal :launch :delete-activity {:id @id}])}
               "Delete" (icon "trash")]]]))))
 
 (defn activity-list-item

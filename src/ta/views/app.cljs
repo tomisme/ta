@@ -4,7 +4,8 @@
             [ta.views.planbook.planbook :refer [planbook-view]]
             [ta.views.calendar :refer [calendar-view]]
             [ta.views.classes :refer [classes-view]]
-            [ta.views.common :refer [sem icon flag dimmer modal]]
+            [ta.views.common :refer [sem icon flag]]
+            [ta.views.modal :refer [global-modal dimmer]]
             [re-frame.core :refer [subscribe dispatch]]))
 
 (defn top-bar
@@ -46,13 +47,12 @@
 
 (defn app-container
   []
-  (let [active-page  (subscribe [:active-page])
-        global-modal (subscribe [:modal :dom])]
+  (let [active-page (subscribe [:active-page])
+        modal?      (subscribe [:modal :active?])]
     (fn []
-      (let [active-modal? (:active? @global-modal)]
-        [:div {:class "ui grid container"
-               :style #js {:margin 0}}
-          [dimmer {:active? active-modal?}]
-          [modal (assoc @global-modal :active? active-modal?)]
-          [top-bar active-page]
-          [main-view active-page]]))))
+      [:div {:class "ui grid container"
+             :style #js {:margin 0}}
+        [dimmer {:active? @modal?}]
+        [global-modal]
+        [top-bar active-page]
+        [main-view active-page]])))

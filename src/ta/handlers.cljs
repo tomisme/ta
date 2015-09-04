@@ -117,12 +117,10 @@
 
 (register-handler
   :modal
-  (fn [db [_ action model-data k v]]
+  (fn [db [_ action type data]]
     (case action
-      :update (-> db
-                (assoc-in [:modal :dom] model-data)
-                (assoc-in [:modal :dom :active?] true))
-      :close  (assoc-in db [:modal :dom :active?] false))))
+      :launch (assoc db :modal {:active? true :type type :data data})
+      :close  (assoc db :modal {:active? false}))))
 
 (register-handler
   :set-modal-data-attr
