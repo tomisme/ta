@@ -3,7 +3,7 @@
                  [org.clojure/clojurescript "1.7.48"]
                  [reagent "0.5.0"]
                  [re-frame "0.4.1"]
-                 [matchbox "0.0.7"]
+                 [matchbox "0.0.8-SNAPSHOT"]
                  [secretary "1.2.3"]
                  [json-html "0.3.4"]
                  [shodan "0.4.2"]

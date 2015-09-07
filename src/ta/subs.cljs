@@ -71,6 +71,17 @@
                   [id (get activities id)])))))
 
 (register-sub
+  :resources
+  (fn [db _]
+    (reaction (get-in @db [:planbook :resources]))))
+
+(register-sub
+  :resource
+  (fn [db [_ id]]
+    (let [resources (subscribe [:resources])]
+      (reaction (get @resources id)))))
+
+(register-sub
   :open
   (fn [db [_ thing]]
     (reaction (get-in @db [:planbook :open thing]))))

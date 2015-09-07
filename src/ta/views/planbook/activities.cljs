@@ -29,35 +29,28 @@
               [:div {:class "ui yellow label"}
                 text (icon "delete icon")])]])))
 
-(defn resource
-  [{:keys [description url type sides]}]
-  ^{:key description}
-    [:div {:class "ui violet label"}
-      [:a (icon (type resource-icon-names)) description]
-      (icon "delete icon")])
+(defn resource-thing
+  [k resource-id plan-id]
+  (let [resource-data (subscribe [:resource resource-id])]
+    (fn []
+      [:div {:class "ui violet label"}
+        [:a {:href (:url @resource-data)}
+          (icon "globe") (:name @resource-data)]
+        [:a {:on-click #(dispatch [:remove-resource-from-activity k plan-id])}
+          (icon "delete icon")]])))
 
-(defn resource-panel
+(defn resources-panel
   [{:keys [resource-ids plan-id]}]
-  (let [set-new-url #(dispatch [:set-modal-data-attr :url (e->val %)])
-        add-modal {:type :form
-                   :header "Add a new resource"
-                   :submit-text "Add resource"
-                   :on-submit #(inspect "Adding a new resource...")
-                   :content [:div {:class "ui fluid left icon input"}
-                              (icon "globe")
-                              [:input {:type "text"
-                                       :placeholder "http://url-of-resource.com"
-                                       :on-change set-new-url
-                                       :value "How do I make dynamic modals?"}]]}]
-    [:div {:class "ui fluid segment"}
-      [:div {:class "content"}
-        [:button {:class "ui icon button"
-                  :style {:marginRight 10}
-                  :on-click #(dispatch [:modal :update add-modal])}
-          [:i {:class "large icons"}
-            (icon "file text")
-            (icon "corner plus")]]
-        (map resource resource-ids)]]))
+  [:div {:class "ui fluid segment"}
+    [:div {:class "content"}
+      [:button {:class "ui icon button"
+                :style {:marginRight 10}
+                :on-click #(dispatch [:modal :launch :add-resource-to-activity {:id plan-id}])}
+        [:i {:class "large icons"}
+          (icon "file text")
+          (icon "corner plus")]]
+      (for [[k id] resource-ids]
+        ^{:key k} [resource-thing k id plan-id])]])
 
 (defn activity-editor
   []
@@ -75,7 +68,7 @@
                        :value description
                        :placeholder "Enter a short description of the activity"
                        :on-change (update-attr :description)}]]]
-          [resource-panel {:plan-id @id
+          [resources-panel {:plan-id @id
                            :resource-ids resources}]
           #_[tag-list {:plan-type :activity
                      :tag-ids tags}]
