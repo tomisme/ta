@@ -4,17 +4,17 @@
             [ta.views.common :refer [sem icon e->val]]
             [re-frame.core :refer [subscribe dispatch]]))
 
-(defn do-and-close [do-me] (do-me) (dispatch [:modal :close]))
+(defn do-and-close [do-me] (do-me) (dispatch [:close-modal]))
 
 (defn modal
   [{:keys [active? type] :as arg-map}]
   (let [do-and-close (fn [thing-to-do] (thing-to-do)
-                                       (dispatch [:modal :close]))]
+                                       (dispatch [:close-modal]))]
     [:div {:class (sem "ui modal transition #_active"
                        (if active? "visible"))
            :style {:top "10%"}}
       [:i {:class "close icon"
-           :on-click #(dispatch [:modal :close])}]
+           :on-click #(dispatch [:close-modal])}]
       (case type
         :confirm [:div {:class "header"} "Confirm"]
         [:div {:class "header"} (:header arg-map)])
@@ -45,11 +45,11 @@
                   :url (:url data)}
         handle-submit (fn []
                         (dispatch [:add-resource-to-activity activity-id resource])
-                        (dispatch [:modal :close]))]
+                        (dispatch [:close-modal]))]
     [:div {:class (sem "ui modal transition" (if active? "active"))
            :style {:top "10%"}}
       [:i {:class "close icon"
-           :on-click #(dispatch [:modal :close])}]
+           :on-click #(dispatch [:close-modal])}]
     [:div {:class "header"} "Add a new resource"]
     [:div {:class "content"}
       [:div {:class "ui form"}

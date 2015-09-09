@@ -14,11 +14,11 @@
     (fn []
       [:div {:class "ui grid"}
         [:div {:class "centered one colum row"}
-          [:div {:class "ui pointing menu"}
+          [:div {:class "ui menu"}
             (doall (for [tab tabs :let [{:keys [key str i]} tab]]
                      ^{:key str}
                        [:a {:class (sem "item" (if (= @active-tab key) "active"))
-                            :on-click #(dispatch [:set-open :tab key])}
+                            :on-click #(dispatch [:set-planbook-open :tab key])}
                          [:span {:style {:marginRight 5}} (icon i)] str]))]]
        (case @active-tab
           :units      [:p "Lets make some units!"]

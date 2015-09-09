@@ -8,7 +8,7 @@
 
 (def subjects ["English" "Media"])
 
-(def resource-icon-names {:booklet "book"
+#_(def resource-icon-names {:booklet "book"
                           :worksheet "file"})
 
 #_(defn tag-list
@@ -29,6 +29,24 @@
               [:div {:class "ui yellow label"}
                 text (icon "delete icon")])]])))
 
+(defn steps-panel
+  [{:keys [plan-id steps]}]
+  [:div
+    [:div {:class "ui internally celled grid"}
+      [:div {:class "row"}
+        [:div {:class "right aligned two wide column"}
+          [:a {:class "ui blue circular label"} 1]]
+        [:div {:class "fourteen wide column"} "This is step one! Maybe the kids would sit down and prepare here?"]]
+      [:div {:class "row"}
+        [:div {:class "right aligned two wide column"}
+          [:a {:class "ui blue circular label"} 2]]
+        [:div {:class "fourteen wide column"} "This is step two! What should we do here? All kinds of wonderful possibilities"]]
+     ]
+     [:center
+       [:div {:class "ui green icon button"
+              :on-click #(dispatch [:add-new-step-to-activity plan-id])}
+         (icon "plus")]]])
+
 (defn resource-thing
   [k resource-id plan-id]
   (let [resource-data (subscribe [:resource resource-id])]
@@ -45,12 +63,14 @@
     [:div {:class "content"}
       [:button {:class "ui icon button"
                 :style {:marginRight 10}
-                :on-click #(dispatch [:modal :launch :add-resource-to-activity {:id plan-id}])}
+                :on-click #(dispatch [:launch-modal :add-resource-to-activity {:id plan-id}])}
         [:i {:class "large icons"}
           (icon "file text")
           (icon "corner plus")]]
-      (for [[k id] resource-ids]
-        ^{:key k} [resource-thing k id plan-id])]])
+      (if resource-ids
+        (for [[k id] resource-ids]
+          ^{:key k} [resource-thing k id plan-id])
+        [:span "No resources... yet?"])]])
 
 (defn activity-editor
   []
@@ -58,7 +78,7 @@
         dyn-sub  (reaction (subscribe [:activity @id]))
         activity (reaction @@dyn-sub)]
     (fn []
-      (let [{:keys [description length resources tags]} @activity
+      (let [{:keys [description length resources tags steps]} @activity
             update-attr (fn [attr]
                           #(dispatch [:activity :update @id attr (e->val %)]))]
         [:div {:class "ten wide column"}
@@ -68,23 +88,25 @@
                        :value description
                        :placeholder "Enter a short description of the activity"
                        :on-change (update-attr :description)}]]]
+          [steps-panel {:plan-id @id
+                        :steps steps}]
           [resources-panel {:plan-id @id
                            :resource-ids resources}]
           #_[tag-list {:plan-type :activity
                      :tag-ids tags}]
-          [:div {:class "ui center aligned segment"}
+          [:div {:class "ui center aligned basic segment"}
             [:button {:class "ui green labeled icon button"
-                      :on-click #(dispatch [:set-open :activity nil])}
+                      :on-click #(dispatch [:set-planbook-open :activity nil])}
               "Done" (icon "check")]
             [:button {:class "ui red labeled icon button"
-                      :on-click #(dispatch [:modal :launch :delete-activity {:id @id}])}
+                      :on-click #(dispatch [:launch-modal :delete-activity {:id @id}])}
               "Delete" (icon "trash")]]]))))
 
 (defn activity-list-item
   [{:keys [id activity selected?]}]
   (let [{:keys [description length resources tags]} activity]
     [:div {:class (sem "ui" (if selected? "black") "link card")
-           :onClick #(dispatch [:set-open :activity id])}
+           :onClick #(dispatch [:set-planbook-open :activity id])}
       [:div {:class "content"}
         [:span description]]]))
 

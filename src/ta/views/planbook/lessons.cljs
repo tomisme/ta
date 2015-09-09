@@ -25,7 +25,7 @@
       [:div {:class "right aligned fields"}
         [:div {:class "field"}
           [:button {:class "ui green icon button"
-                    :on-click #(dispatch [:set-open :lesson nil])}
+                    :on-click #(dispatch [:set-planbook-open :lesson nil])}
             (icon "check")]]
         [:div {:class "field"}
           [:button {:class "ui red icon button"
@@ -134,7 +134,7 @@
   (let [{:keys [description subject year finished activity-ids]} lesson]
     [:div {:class (sem "ui" (if selected? "black") "link card")}
       [:div {:class "content"
-             :on-click #(dispatch [:set-open :lesson id])}
+             :on-click #(dispatch [:set-planbook-open :lesson id])}
         [:div {:style {:marginBottom 7}}
           (if year [:div {:class "ui olive mini label"} (str "Year " year)])
           (if subject [:div {:class "ui blue mini label"} subject])
@@ -174,11 +174,11 @@
                :items [{:id  false
                         :str "Unfinished"
                         :i   "circle outline"
-                        :on  #(dispatch [:set-filter :lessons :finished false])}
+                        :on  #(dispatch [:set-planbook-filter :lessons :finished false])}
                        {:id  true
                         :str "Finished"
                         :i   "check circle outline"
-                        :on  #(dispatch [:set-filter :lessons :finished true])}]})
+                        :on  #(dispatch [:set-planbook-filter :lessons :finished true])}]})
         [:div {:class "ui center aligned basic segment"}
           (if (not (seq @lessons))
             [:div {:class "ui active inline loader"}]

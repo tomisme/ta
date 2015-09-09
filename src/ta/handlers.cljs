@@ -46,7 +46,7 @@
   :launch-db-modal
   (fn [db _]
     (inspect db)
-    #_(dispatch [:modal :launch {:type :scrollbox
+    #_(dispatch [:launch-modal {:type :scrollbox
                                :header "app db"
                                :content (edn->hiccup (dissoc db :modal))}])
     db))
@@ -93,10 +93,10 @@
     (case command
       :delete (do (m/dissoc-in! fb-activities [id])
                   (if (= id (get-in db [:planbook :open :activity]))
-                    (dispatch [:set-open :activity nil])))
+                    (dispatch [:set-planbook-open :activity nil])))
       :update (m/reset-in! fb-activities [id attribute] value)
       :new    (m/conj! fb-activities (:activity new-default)
-                       #(dispatch [:set-open :activity (ref->k %)])))
+                       #(dispatch [:set-planbook-open :activity (ref->k %)])))
     db))
 
 (register-handler
@@ -105,16 +105,15 @@
     (case command
       :delete (do (m/dissoc-in! fb-resources [id])
                   (if (= id (get-in db [:planbook :open :resource]))
-                    (dispatch [:set-open :resource nil])))
+                    (dispatch [:set-planbook-open :resource nil])))
       :update (m/reset-in! fb-resources [id attribute] value)
       :new    (m/conj! fb-resources (:resource new-default)
-                       #(dispatch [:set-open :resource (ref->k %)])))
+                       #(dispatch [:set-planbook-open :resource (ref->k %)])))
     db))
 
 (register-handler
   :add-resource-to-activity
   (fn [db [_ id resource]]
-    #_(dispatch [:activity :update id :resources [{:description "yo"}]])
     (m/conj! fb-resources resource
              #(m/conj-in! fb-activities [id :resources] (ref->k %)))
     db))
@@ -135,21 +134,24 @@
     db))
 
 (register-handler
-  :set-open
+  :set-planbook-open
   (fn [db [_ thing id]]
     (assoc-in db [:planbook :open thing] id)))
 
 (register-handler
-  :set-filter
+  :set-planbook-filter
   (fn [db [_ filter k v]]
     (assoc-in db [:planbook :filters filter k] v)))
 
 (register-handler
-  :modal
-  (fn [db [_ action type data]]
-    (case action
-      :launch (assoc db :modal {:active? true :type type :data data})
-      :close  (assoc db :modal {:active? false}))))
+  :launch-modal
+  (fn [db [_ type data]]
+    (assoc db :modal {:active? true :type type :data data})))
+
+(register-handler
+  :close-modal
+  (fn [db _]
+    (assoc db :modal {:active? false})))
 
 (register-handler
   :update-modal
