@@ -120,9 +120,24 @@
 
 (register-handler
   :remove-resource-from-activity
-  (fn [db [_ resource-key activity-id]]
-    (m/dissoc-in! fb-activities [activity-id :resources resource-key])
+  (fn [db [_ id resource-key]]
+    (m/dissoc-in! fb-activities [id :resources resource-key])
     db))
+
+(register-handler
+  :delete-activity-step
+  (fn [db [_ id step-key]]
+    (m/dissoc-in! fb-activities [id :steps step-key])
+    db))
+
+(register-handler
+  :new-activity-step
+  (fn [db [_ activity-id]]
+    (let [current-steps (get-in db [:planbook :activities activity-id :steps])
+          new-step {:num (inc (count current-steps))
+                    :content "New step!"}]
+      (m/conj-in! fb-activities [activity-id :steps] new-step)
+      db)))
 
 (register-handler
   :lesson

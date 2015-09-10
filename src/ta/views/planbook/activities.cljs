@@ -1,6 +1,6 @@
 (ns ta.views.planbook.activities
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [ta.views.common :refer [sem e->val icon checkbox dropdown]]
+  (:require [ta.views.common :refer [sem e->val icon checkbox dropdown input-el]]
             [re-frame.core :refer [subscribe dispatch]]
             [shodan.inspection :refer [inspect]]))
 
@@ -30,22 +30,29 @@
                 text (icon "delete icon")])]])))
 
 (defn steps-panel
-  [{:keys [plan-id steps]}]
-  [:div
-    [:div {:class "ui internally celled grid"}
-      [:div {:class "row"}
-        [:div {:class "right aligned two wide column"}
-          [:a {:class "ui blue circular label"} 1]]
-        [:div {:class "fourteen wide column"} "This is step one! Maybe the kids would sit down and prepare here?"]]
-      [:div {:class "row"}
-        [:div {:class "right aligned two wide column"}
-          [:a {:class "ui blue circular label"} 2]]
-        [:div {:class "fourteen wide column"} "This is step two! What should we do here? All kinds of wonderful possibilities"]]
-     ]
-     [:center
-       [:div {:class "ui green icon button"
-              :on-click #(dispatch [:add-new-step-to-activity plan-id])}
-         (icon "plus")]]])
+  [{:keys [activity-id]}]
+  (let [dyn-sub (reaction (subscribe [:activity-steps @activity-id]))
+        steps   (reaction @@dyn-sub)]
+    (fn []
+      (let [delete-step #(dispatch [:delete-activity-step @activity-id %])
+            new-step    #(dispatch [:new-activity-step @activity-id])]
+        [:div
+          [:div {:class "ui internally celled grid"}
+            (for [[k {:keys [num content]}] @steps]
+              ^{:key (str k)}
+                [:div {:class "row"}
+                  [:div {:class "right aligned two wide middle aligned column"}
+                    [:a {:class "ui blue circular label"} num]]
+                  [:div {:class "fourteen wide column"}
+                    [:div {:class "ui grid"}
+                      [:div {:class "row"}
+                        [:div {:class "fourteen wide column"} content]
+                        [:div {:class "two wide middle aligned column"}
+                          [:a {:on-click #(delete-step k)} (icon "delete")]]]]]])]
+           [:center
+             [:div {:class "ui blue labeled icon button"
+                    :on-click new-step}
+               (icon "plus") "Add Step"]]]))))
 
 (defn resource-thing
   [k resource-id plan-id]
@@ -54,23 +61,24 @@
       [:div {:class "ui violet label"}
         [:a {:href (:url @resource-data)}
           (icon "globe") (:name @resource-data)]
-        [:a {:on-click #(dispatch [:remove-resource-from-activity k plan-id])}
+        [:a {:on-click #(dispatch [:remove-resource-from-activity plan-id k])}
           (icon "delete icon")]])))
 
 (defn resources-panel
   [{:keys [resource-ids plan-id]}]
-  [:div {:class "ui fluid segment"}
-    [:div {:class "content"}
-      [:button {:class "ui icon button"
-                :style {:marginRight 10}
-                :on-click #(dispatch [:launch-modal :add-resource-to-activity {:id plan-id}])}
-        [:i {:class "large icons"}
-          (icon "file text")
-          (icon "corner plus")]]
-      (if resource-ids
-        (for [[k id] resource-ids]
-          ^{:key k} [resource-thing k id plan-id])
-        [:span "No resources... yet?"])]])
+  (let [on-add #(dispatch [:launch-modal :add-resource-to-activity {:id plan-id}])]
+    [:div {:class "ui fluid segment"}
+      [:div {:class "content"}
+        [:button {:class "ui icon button"
+                  :style {:marginRight 10}
+                  :on-click on-add}
+          [:i {:class "large icons"}
+            (icon "file text")
+            (icon "corner plus")]]
+        (if resource-ids
+          (for [[k id] resource-ids]
+            ^{:key k} [resource-thing k id plan-id])
+          [:span (icon "left arrow") "Click here to add a new resource link"])]]))
 
 (defn activity-editor
   []
@@ -78,18 +86,17 @@
         dyn-sub  (reaction (subscribe [:activity @id]))
         activity (reaction @@dyn-sub)]
     (fn []
-      (let [{:keys [description length resources tags steps]} @activity
+      (let [{:keys [description length resources]} @activity
             update-attr (fn [attr]
                           #(dispatch [:activity :update @id attr (e->val %)]))]
         [:div {:class "ten wide column"}
           [:div {:class "ui fluid segment"}
             [:div {:class "ui transparent fluid input"}
-              [:input {:type "text"
-                       :value description
-                       :placeholder "Enter a short description of the activity"
-                       :on-change (update-attr :description)}]]]
-          [steps-panel {:plan-id @id
-                        :steps steps}]
+              [input-el {:type "text"
+                              :val description
+                              :placeholder "Enter a short description of the activity"
+                              :on-blur (update-attr :description)}]]]
+          [steps-panel {:activity-id id}]
           [resources-panel {:plan-id @id
                            :resource-ids resources}]
           #_[tag-list {:plan-type :activity
@@ -118,7 +125,7 @@
       [:div {:class "ui center aligned segment"}
         [:button {:class "ui labeled icon button"
                   :on-click #(dispatch [:activity :new])}
-         (icon "plus") "New Activity"]
+          (icon "plus") "New Activity"]
         (if (seq @activities)
           (doall
             (for [[id activity] @activities]

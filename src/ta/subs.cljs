@@ -61,6 +61,11 @@
       (reaction (get @activities id)))))
 
 (register-sub
+  :activity-steps
+  (fn [db [_ id]]
+    (reaction (sort-by :num (get-in @db [:planbook :activities id :steps])))))
+
+(register-sub
   :lesson-activities
   (fn [db [_ lesson-id]]
     (let [activities @(subscribe [:activities])

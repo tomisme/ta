@@ -68,3 +68,13 @@
     [:div {:class "menu"}
      [:div {:class "item" :data-value "1"} "Male"]
      [:div {:class "item" :data-value "0"} "Female"]]])
+
+(defn input-el [{:keys [id name type placeholder on-blur val]}]
+  "An input element which updates its value on change"
+  ^{:key val} [:input {:id id
+                       :name name
+                       :placeholder placeholder
+                       :class "form-control"
+                       :type type
+                       :default-value val
+                       :on-blur on-blur}])
