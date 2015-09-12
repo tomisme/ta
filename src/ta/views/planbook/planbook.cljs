@@ -1,9 +1,9 @@
 (ns ta.views.planbook.planbook
-  (:require [ta.views.common :refer [sem icon-el]]
+  (:require [re-frame.core :as rf]
+            [shodan.inspection :refer [inspect]]
+            [ta.views.common :refer [sem icon-el]]
             [ta.views.planbook.activities :refer [activities-tab]]
-            [ta.views.planbook.lessons :refer [lessons-tab]]
-            [re-frame.core :as rf]
-            [shodan.inspection :refer [inspect]]))
+            [ta.views.planbook.lessons :refer [lessons-tab]]))
 
 (defn planbook-view
   []

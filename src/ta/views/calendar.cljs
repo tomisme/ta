@@ -1,8 +1,8 @@
 (ns ta.views.calendar
-  (:require [ta.util :refer [weekdays day-strings color-strings]]
-            [ta.views.common :refer [sem icon-el]]
-            [re-frame.core :as rf]
-            [shodan.inspection :refer [inspect]]))
+  (:require [re-frame.core :as rf]
+            [shodan.inspection :refer [inspect]]
+            [ta.util :refer [weekdays day-strings color-strings]]
+            [ta.views.common :refer [sem icon-el]]))
 
 (defn class-slot [id classes]
   (if (not id)

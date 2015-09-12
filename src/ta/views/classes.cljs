@@ -1,9 +1,9 @@
 (ns ta.views.classes
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [ta.util :refer [weekdays colors color-strings]]
-            [ta.views.common :refer [sem e->val icon-el]]
-            [re-frame.core :as rf]
-            [shodan.inspection :refer [inspect]]))
+  (:require [re-frame.core :as rf]
+            [shodan.inspection :refer [inspect]]
+            [ta.util :refer [weekdays colors color-strings]]
+            [ta.views.common :refer [sem e->val icon-el]]))
 
 (defn schedule-table
   [{:keys [schedule classes]}]

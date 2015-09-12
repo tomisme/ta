@@ -1,9 +1,9 @@
 (ns ta.core
   (:require-macros [secretary.core :refer [defroute]])
   (:import goog.History)
-  (:require [reagent.core :as r]
+  (:require [re-frame.core :as rf]
+            [reagent.core :as r]
             [secretary.core :as secretary]
-            [re-frame.core :as rf]
             [goog.events :as events]
             [goog.history.EventType :as EventType]
             [ta.views.app :as app]

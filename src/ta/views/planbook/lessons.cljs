@@ -1,12 +1,10 @@
 (ns ta.views.planbook.lessons
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [ta.views.common :refer [sem e->val icon-el checkbox-el dropdown-el]]
-            [re-frame.core :as rf]
-            [shodan.inspection :refer [inspect]]))
+  (:require [re-frame.core :as rf]
+            [shodan.inspection :refer [inspect]]
+            [ta.util :refer [year-levels subjects]]
+            [ta.views.common :refer [sem e->val icon-el checkbox-el dropdown-el]]))
 
-(def year-levels [7 8 9 10 11 12])
-
-(def subjects ["English" "Media"])
 
 (def resource-icon-names {:booklet "book"
                           :worksheet "file"})
@@ -39,21 +37,21 @@
       [:div {:class "fields"}
         [:div {:class "field"}
           [dropdown-el {:on-change (update-fn :year)
-                     :value year
-                     :options year-levels
-                     :starting "Year"}]]
+                        :value year
+                        :options year-levels
+                        :starting "Year"}]]
         [:div {:class "field"}
           [dropdown-el {:on-change (update-fn :subject)
-                     :value subject
-                     :options subjects
-                     :starting "Subject"}]]
+                        :value subject
+                        :options subjects
+                        :starting "Subject"}]]
        [:div {:class "field"}
          [:button {:class "ui labeled icon disabled button"}
            (icon-el "calendar")
            "Teach"]]
        [:div {:class "field" :style {:marginTop 5}}
           [checkbox-el #(rf/dispatch [:lesson :update @id :finished %])
-                    "Ready" finished]]]]))
+                       "Ready" finished]]]]))
 
 (defn lesson-activity-card
   [{:keys [activity]}]

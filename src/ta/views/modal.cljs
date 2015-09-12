@@ -1,8 +1,8 @@
 (ns ta.views.modal
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [shodan.inspection :refer [inspect]]
-            [ta.views.common :refer [sem icon-el e->val]]
-            [re-frame.core :as rf]))
+  (:require [re-frame.core :as rf]
+            [shodan.inspection :refer [inspect]]
+            [ta.views.common :refer [sem icon-el e->val]]))
 
 (defn do-and-close [do-me] (do-me) (rf/dispatch [:close-modal]))
 

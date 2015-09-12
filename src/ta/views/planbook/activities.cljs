@@ -1,15 +1,9 @@
 (ns ta.views.planbook.activities
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [ta.views.common :refer [sem e->val icon-el checkbox-el dropdown-el input-el]]
-            [re-frame.core :as rf]
-            [shodan.inspection :refer [inspect]]))
-
-(def year-levels [7 8 9 10 11 12])
-
-(def subjects ["English" "Media"])
-
-#_(def resource-icon-names {:booklet "book"
-                          :worksheet "file"})
+  (:require [re-frame.core :as rf]
+            [shodan.inspection :refer [inspect]]
+            [ta.util :refer [year-levels subjects]]
+            [ta.views.common :refer [sem e->val icon-el checkbox-el dropdown-el input-el]]))
 
 #_(defn tag-list
   [{:keys [plan-type tag-ids]}]
@@ -93,9 +87,9 @@
           [:div {:class "ui fluid segment"}
             [:div {:class "ui transparent fluid input"}
               [input-el {:type "text"
-                              :val description
-                              :placeholder "Enter a short description of the activity"
-                              :on-blur (update-attr :description)}]]]
+                         :val description
+                         :placeholder "Enter a short description of the activity"
+                         :on-blur (update-attr :description)}]]]
           [steps-panel {:activity-id id}]
           [resources-panel {:plan-id @id
                            :resource-ids resources}]

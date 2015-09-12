@@ -1,9 +1,7 @@
 (ns ta.views.common
-  (:require [shodan.inspection :refer [inspect]]
-            [clojure.string :as string]
-            [re-frame.core :as rf]))
-
-;; HELPERS
+  (:require [re-frame.core :as rf]
+            [shodan.inspection :refer [inspect]]
+            [clojure.string :as string]))
 
 (defn sem
   "Returns a space separated string for use as an HTML component's :class"
@@ -14,13 +12,6 @@
   "Take an input component's :on-change event and returns its target value"
   [event]
   (-> event .-target .-value))
-
-;; COMPONENTS
-
-(defn ibut
-  "Handy inspection button! Click to inspect a value in the console"
-  [value]
-  [:button {:on-click #(inspect value)} "what?"])
 
 (defn icon-el
   "Takes name string and optional size keyword and returns an icon element"
@@ -60,7 +51,7 @@
                    ^{:key (str i "-" option)}
                      [:option {:value option} option]) options)])
 
-#_(defn dropdown
+#_(defn semantic-ui-dropdown
   []
   [:div {:class "ui selection dropdown"}
     [:input {:type "hidden" :name "gender"}]

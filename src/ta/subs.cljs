@@ -1,8 +1,8 @@
 (ns ta.subs
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [ta.util :refer [weekdays]]
-            [shodan.inspection :refer [inspect]]
-            [re-frame.core :as rf]))
+  (:require [re-frame.core :as rf]
+            [ta.util :refer [weekdays]]
+            [shodan.inspection :refer [inspect]]))
 
 (rf/register-sub
   :user

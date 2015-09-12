@@ -1,12 +1,12 @@
 (ns ta.views.app
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [shodan.inspection :refer [inspect]]
+  (:require [re-frame.core :as rf]
+            [shodan.inspection :refer [inspect]]
+            [ta.views.common :refer [sem icon-el flag-el]]
             [ta.views.planbook.planbook :refer [planbook-view]]
             [ta.views.calendar :refer [calendar-view]]
             [ta.views.classes :refer [classes-view]]
-            [ta.views.common :refer [sem icon-el flag-el]]
-            [ta.views.modal :refer [global-modal dimmer]]
-            [re-frame.core :as rf]))
+            [ta.views.modal :refer [global-modal dimmer]]))
 
 (defn top-bar
   [active-page]

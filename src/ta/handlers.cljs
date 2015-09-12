@@ -1,6 +1,6 @@
 (ns ta.handlers
-  (:require [ta.util :refer [colors]]
-            [re-frame.core :as rf]
+  (:require [re-frame.core :as rf]
+            [ta.util :refer [colors]]
             [matchbox.core :as m]
             [shodan.inspection :refer [inspect]]
             [json-html.core :refer [edn->hiccup]]))
