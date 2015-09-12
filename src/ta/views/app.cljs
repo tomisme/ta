@@ -6,11 +6,11 @@
             [ta.views.classes :refer [classes-view]]
             [ta.views.common :refer [sem icon-el flag-el]]
             [ta.views.modal :refer [global-modal dimmer]]
-            [re-frame.core :as r]))
+            [re-frame.core :as rf]))
 
 (defn top-bar
   [active-page]
-  (let [user (r/subscribe [:user])
+  (let [user (rf/subscribe [:user])
         pages {:calendar {:i "calendar"
                           :label "Calendar"
                           :url "#/calendar"}
@@ -33,7 +33,7 @@
                 (:name @user) (flag-el (:flag @user)) (icon-el "caret down")]
               [:div {:class "ui item"}
                 [:div {:class "ui labeled icon button"
-                       :onClick #(r/dispatch [:launch-db-modal])}
+                       :onClick #(rf/dispatch [:launch-db-modal])}
                   (icon-el "search") "db"]]]]]])))
 
 (defn main-view
@@ -47,8 +47,8 @@
 
 (defn app-container
   []
-  (let [active-page (r/subscribe [:active-page])
-        modal?      (r/subscribe [:modal :active?])]
+  (let [active-page (rf/subscribe [:active-page])
+        modal?      (rf/subscribe [:modal :active?])]
     (fn []
       [:div {:class "ui grid container"
              :style #js {:margin 0}}

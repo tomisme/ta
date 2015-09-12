@@ -1,7 +1,7 @@
 (ns ta.views.planbook.lessons
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [ta.views.common :refer [sem e->val icon-el checkbox-el dropdown-el]]
-            [re-frame.core :as r]
+            [re-frame.core :as rf]
             [shodan.inspection :refer [inspect]]))
 
 (def year-levels [7 8 9 10 11 12])
@@ -15,21 +15,21 @@
   [{:keys [id lesson]}]
   (let [{:keys [year subject finished description title]} @lesson
         update-fn (fn [attribute]
-                    #(r/dispatch [:lesson :update @id attribute (e->val %)]))
+                    #(rf/dispatch [:lesson :update @id attribute (e->val %)]))
         delete-modal {:type :confirm
                       :i "trash"
                       :question "Are you sure you want to delete this lesson?"
-                      :on-yes #(r/dispatch [:lesson :delete @id])}]
+                      :on-yes #(rf/dispatch [:lesson :delete @id])}]
     [:div {:class "ui form"
            :style {:marginBottom 15}}
       [:div {:class "right aligned fields"}
         [:div {:class "field"}
           [:button {:class "ui green icon button"
-                    :on-click #(r/dispatch [:set-planbook-open :lesson nil])}
+                    :on-click #(rf/dispatch [:set-planbook-open :lesson nil])}
             (icon-el "check")]]
         [:div {:class "field"}
           [:button {:class "ui red icon button"
-                    :on-click #(r/dispatch [:modal :update delete-modal])}
+                    :on-click #(rf/dispatch [:modal :update delete-modal])}
             (icon-el "trash")]]]
       [:div {:class "field"}
         [:input {:onChange (update-fn :description)
@@ -52,7 +52,7 @@
            (icon-el "calendar")
            "Teach"]]
        [:div {:class "field" :style {:marginTop 5}}
-          [checkbox-el #(r/dispatch [:lesson :update @id :finished %])
+          [checkbox-el #(rf/dispatch [:lesson :update @id :finished %])
                     "Ready" finished]]]]))
 
 (defn lesson-activity-card
@@ -107,7 +107,7 @@
 
 (defn lesson-activities
   [{:keys [id]}]
-  (let [activities (reaction @(r/subscribe [:lesson-activities @id]))]
+  (let [activities (reaction @(rf/subscribe [:lesson-activities @id]))]
     [:div
       [:h4 {:class "ui horizontal divider header"} "Activities"]
       [:div {:class "ui grid"}
@@ -123,7 +123,7 @@
 
 (defn lesson-details-panel
   [{:keys [id]}]
-  (let [lesson (reaction @(r/subscribe [:lesson @id]))]
+  (let [lesson (reaction @(rf/subscribe [:lesson @id]))]
     (fn []
       [:div {:class "ui segment"}
         [lesson-details {:id id :lesson lesson}]
@@ -134,7 +134,7 @@
   (let [{:keys [description subject year finished activity-ids]} lesson]
     [:div {:class (sem "ui" (if selected? "black") "link card")}
       [:div {:class "content"
-             :on-click #(r/dispatch [:set-planbook-open :lesson id])}
+             :on-click #(rf/dispatch [:set-planbook-open :lesson id])}
         [:div {:style {:marginBottom 7}}
           (if year [:div {:class "ui olive mini label"} (str "Year " year)])
           (if subject [:div {:class "ui blue mini label"} subject])
@@ -160,13 +160,13 @@
 
 (defn lesson-list
   []
-  (let [lessons  (r/subscribe [:lessons :filtered])
-        selected (r/subscribe [:open :lesson])
-        filters  (r/subscribe [:filter :lessons])]
+  (let [lessons  (rf/subscribe [:lessons :filtered])
+        selected (rf/subscribe [:open :lesson])
+        filters  (rf/subscribe [:filter :lessons])]
     (fn []
       [:div {:class "five wide column"}
         [:div {:class "ui labeled icon button"
-               :on-click #(r/dispatch [:lesson :new])}
+               :on-click #(rf/dispatch [:lesson :new])}
           (icon-el "plus") "New"]
         (menu {:class "ui fluid vertical menu"
                :active-id (if (contains? @filters :finished)
@@ -174,11 +174,11 @@
                :items [{:id  false
                         :str "Unfinished"
                         :i   "circle outline"
-                        :on  #(r/dispatch [:set-planbook-filter :lessons :finished false])}
+                        :on  #(rf/dispatch [:set-planbook-filter :lessons :finished false])}
                        {:id  true
                         :str "Finished"
                         :i   "check circle outline"
-                        :on  #(r/dispatch [:set-planbook-filter :lessons :finished true])}]})
+                        :on  #(rf/dispatch [:set-planbook-filter :lessons :finished true])}]})
         [:div {:class "ui center aligned basic segment"}
           (if (not (seq @lessons))
             [:div {:class "ui active inline loader"}]
@@ -194,7 +194,7 @@
 
 (defn lessons-tab
   []
-  (let [open-lesson (r/subscribe [:open :lesson])]
+  (let [open-lesson (rf/subscribe [:open :lesson])]
     (fn []
       [:div {:class "row"}
         [lesson-list]

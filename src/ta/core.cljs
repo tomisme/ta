@@ -1,37 +1,37 @@
 (ns ta.core
   (:require-macros [secretary.core :refer [defroute]])
   (:import goog.History)
-  (:require [reagent.core :refer [render]]
-            [re-frame.core :as r]
-            [shodan.inspection :refer [inspect]]
+  (:require [reagent.core :as r]
             [secretary.core :as secretary]
+            [re-frame.core :as rf]
             [goog.events :as events]
             [goog.history.EventType :as EventType]
             [ta.views.app :as app]
+            [shodan.inspection :refer [inspect]]
             [ta.handlers]
-            [ta.subs] ))
+            [ta.subs]))
 
 (defn on-js-reload []
-  (render [app/app-container] (.getElementById js/document "app")))
+  (r/render [app/app-container] (.getElementById js/document "app")))
 
 (on-js-reload)
 
 (secretary/set-config! :prefix "#")
 
 (defroute "/" []
-  (r/dispatch [:navigate-to :calendar]))
+  (rf/dispatch [:navigate-to :calendar]))
 
 (defroute "/calendar" []
-  (r/dispatch [:navigate-to :calendar]))
+  (rf/dispatch [:navigate-to :calendar]))
 
 (defroute "/planbook" []
-  (r/dispatch [:navigate-to :planbook]))
+  (rf/dispatch [:navigate-to :planbook]))
 
 (defroute "/classes" []
-  (r/dispatch [:navigate-to :classes]))
+  (rf/dispatch [:navigate-to :classes]))
 
 (defroute "/calendar/:view/:id" [view id]
-  (r/dispatch [:view-calendar (case view "day" :day
+  (rf/dispatch [:view-calendar (case view "day" :day
                                        "week" :week)
                             (js/parseInt id)]))
 
@@ -40,4 +40,4 @@
                  (fn [event] (secretary/dispatch! (.-token event))))
   (.setEnabled true))
 
-(r/dispatch-sync [:setup-db])
+(rf/dispatch-sync [:setup-db])

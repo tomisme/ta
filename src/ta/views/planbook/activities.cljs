@@ -1,7 +1,7 @@
 (ns ta.views.planbook.activities
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [ta.views.common :refer [sem e->val icon-el checkbox-el dropdown-el input-el]]
-            [re-frame.core :as r]
+            [re-frame.core :as rf]
             [shodan.inspection :refer [inspect]]))
 
 (def year-levels [7 8 9 10 11 12])
@@ -14,7 +14,7 @@
 #_(defn tag-list
   [{:keys [plan-type tag-ids]}]
   {:pre [(or (= :lesson plan-type) (= :activity plan-type))]}
-  (let [all-tags  (r/subscribe [:tags])]
+  (let [all-tags  (rf/subscribe [:tags])]
     (fn []
       [:div {:class "ui fluid segment"}
         [:div {:class "content"}
@@ -31,11 +31,11 @@
 
 (defn steps-panel
   [{:keys [activity-id]}]
-  (let [dyn-sub (reaction (r/subscribe [:activity-steps @activity-id]))
+  (let [dyn-sub (reaction (rf/subscribe [:activity-steps @activity-id]))
         steps   (reaction @@dyn-sub)]
     (fn []
-      (let [delete-step #(r/dispatch [:delete-activity-step @activity-id %])
-            new-step    #(r/dispatch [:new-activity-step @activity-id])]
+      (let [delete-step #(rf/dispatch [:delete-activity-step @activity-id %])
+            new-step    #(rf/dispatch [:new-activity-step @activity-id])]
         [:div
           [:div {:class "ui internally celled grid"}
             (for [[k {:keys [num content]}] @steps]
@@ -56,17 +56,17 @@
 
 (defn resource-thing
   [k resource-id plan-id]
-  (let [resource-data (r/subscribe [:resource resource-id])]
+  (let [resource-data (rf/subscribe [:resource resource-id])]
     (fn []
       [:div {:class "ui violet label"}
         [:a {:href (:url @resource-data)}
           (icon-el "globe") (:name @resource-data)]
-        [:a {:on-click #(r/dispatch [:remove-resource-from-activity plan-id k])}
+        [:a {:on-click #(rf/dispatch [:remove-resource-from-activity plan-id k])}
           (icon-el "delete")]])))
 
 (defn resources-panel
   [{:keys [resource-ids plan-id]}]
-  (let [on-add #(r/dispatch [:launch-modal :add-resource-to-activity {:id plan-id}])]
+  (let [on-add #(rf/dispatch [:launch-modal :add-resource-to-activity {:id plan-id}])]
     [:div {:class "ui fluid segment"}
       [:div {:class "content"}
         [:button {:class "ui icon button"
@@ -82,13 +82,13 @@
 
 (defn activity-editor
   []
-  (let [id       (r/subscribe [:open :activity])
-        dyn-sub  (reaction (r/subscribe [:activity @id]))
+  (let [id       (rf/subscribe [:open :activity])
+        dyn-sub  (reaction (rf/subscribe [:activity @id]))
         activity (reaction @@dyn-sub)]
     (fn []
       (let [{:keys [description length resources]} @activity
             update-attr (fn [attr]
-                          #(r/dispatch [:activity :update @id attr (e->val %)]))]
+                          #(rf/dispatch [:activity :update @id attr (e->val %)]))]
         [:div {:class "ten wide column"}
           [:div {:class "ui fluid segment"}
             [:div {:class "ui transparent fluid input"}
@@ -103,28 +103,28 @@
                      :tag-ids tags}]
           [:div {:class "ui center aligned basic segment"}
             [:button {:class "ui green labeled icon button"
-                      :on-click #(r/dispatch [:set-planbook-open :activity nil])}
+                      :on-click #(rf/dispatch [:set-planbook-open :activity nil])}
               "Done" (icon-el "check")]
             [:button {:class "ui red labeled icon button"
-                      :on-click #(r/dispatch [:launch-modal :delete-activity {:id @id}])}
+                      :on-click #(rf/dispatch [:launch-modal :delete-activity {:id @id}])}
               "Delete" (icon-el "trash")]]]))))
 
 (defn activity-list-item
   [{:keys [id activity selected?]}]
   (let [{:keys [description length resources tags]} activity]
     [:div {:class (sem "ui" (if selected? "black") "link card")
-           :onClick #(r/dispatch [:set-planbook-open :activity id])}
+           :onClick #(rf/dispatch [:set-planbook-open :activity id])}
       [:div {:class "content"}
         [:span description]]]))
 
 (defn activity-list
   []
-  (let [activities (r/subscribe [:activities])
-        selected (r/subscribe [:open :activity])]
+  (let [activities (rf/subscribe [:activities])
+        selected (rf/subscribe [:open :activity])]
     (fn []
       [:div {:class "ui center aligned segment"}
         [:button {:class "ui labeled icon button"
-                  :on-click #(r/dispatch [:activity :new])}
+                  :on-click #(rf/dispatch [:activity :new])}
           (icon-el "plus") "New Activity"]
         (if (seq @activities)
           (doall
@@ -137,7 +137,7 @@
 
 (defn activities-tab
   []
-  (let [selected (r/subscribe [:open :activity])]
+  (let [selected (rf/subscribe [:open :activity])]
     [:div {:class "centered row"}
       [:div {:class (sem (if @selected "six" "sixteen") "wide column")}
         [activity-list]]

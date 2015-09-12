@@ -1,7 +1,7 @@
 (ns ta.views.common
   (:require [shodan.inspection :refer [inspect]]
             [clojure.string :as string]
-            [re-frame.core :as r]))
+            [re-frame.core :as rf]))
 
 ;; HELPERS
 

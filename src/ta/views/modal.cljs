@@ -2,19 +2,19 @@
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [shodan.inspection :refer [inspect]]
             [ta.views.common :refer [sem icon-el e->val]]
-            [re-frame.core :as r]))
+            [re-frame.core :as rf]))
 
-(defn do-and-close [do-me] (do-me) (r/dispatch [:close-modal]))
+(defn do-and-close [do-me] (do-me) (rf/dispatch [:close-modal]))
 
 (defn modal
   [{:keys [active? type] :as arg-map}]
   (let [do-and-close (fn [thing-to-do] (thing-to-do)
-                                       (r/dispatch [:close-modal]))]
+                                       (rf/dispatch [:close-modal]))]
     [:div {:class (sem "ui modal transition #_active"
                        (if active? "visible"))
            :style {:top "10%"}}
       [:i {:class "close icon"
-           :on-click #(r/dispatch [:close-modal])}]
+           :on-click #(rf/dispatch [:close-modal])}]
       (case type
         :confirm [:div {:class "header"} "Confirm"]
         [:div {:class "header"} (:header arg-map)])
@@ -44,12 +44,12 @@
         resource {:name (:name data)
                   :url (:url data)}
         handle-submit (fn []
-                        (r/dispatch [:add-resource-to-activity activity-id resource])
-                        (r/dispatch [:close-modal]))]
+                        (rf/dispatch [:add-resource-to-activity activity-id resource])
+                        (rf/dispatch [:close-modal]))]
     [:div {:class (sem "ui modal transition" (if active? "active"))
            :style {:top "10%"}}
       [:i {:class "close icon"
-           :on-click #(r/dispatch [:close-modal])}]
+           :on-click #(rf/dispatch [:close-modal])}]
     [:div {:class "header"} "Add a new resource"]
     [:div {:class "content"}
       [:div {:class "ui form"}
@@ -58,14 +58,14 @@
             (icon-el "file text outline")
             [:input {:type "text"
                      :placeholder "Name of the resource"
-                     :on-change #(r/dispatch [:update-modal :name (e->val %)])
+                     :on-change #(rf/dispatch [:update-modal :name (e->val %)])
                      :value (:name data)}]]]
         [:div {:class "field"}
           [:div {:class "ui fluid left icon input"}
             (icon-el "globe")
             [:input {:type "text"
                      :placeholder "http://url-of-resource.com"
-                     :on-change #(r/dispatch [:update-modal :url (e->val %)])
+                     :on-change #(rf/dispatch [:update-modal :url (e->val %)])
                      :value (:url data)}]]]]]
       [:div {:class "actions"}
         [:div {:class "ui green button"
@@ -74,16 +74,16 @@
 
 (defn global-modal
   []
-  (let [active? (r/subscribe [:modal :active?])
-        data    (r/subscribe [:modal :data])
-        type    (r/subscribe [:modal :type])]
+  (let [active? (rf/subscribe [:modal :active?])
+        data    (rf/subscribe [:modal :data])
+        type    (rf/subscribe [:modal :type])]
     (fn []
       (case @type
         :delete-activity [modal {:active? @active?
                                  :type :confirm
                                  :i "trash"
                                  :question "Are you sure you want to delete this activity?"
-                                 :on-yes #(r/dispatch [:activity :delete (:id @data)])}]
+                                 :on-yes #(rf/dispatch [:activity :delete (:id @data)])}]
         :add-resource-to-activity [add-activity-resource-modal {:active? @active?
                                                                 :data @data}]
         nil))))

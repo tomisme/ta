@@ -2,12 +2,12 @@
   (:require [ta.views.common :refer [sem icon-el]]
             [ta.views.planbook.activities :refer [activities-tab]]
             [ta.views.planbook.lessons :refer [lessons-tab]]
-            [re-frame.core :as r]
+            [re-frame.core :as rf]
             [shodan.inspection :refer [inspect]]))
 
 (defn planbook-view
   []
-  (let [active-tab (r/subscribe [:open :tab])
+  (let [active-tab (rf/subscribe [:open :tab])
         tabs [{:key :activities :label "Activities" :icon "cubes"}
               {:key :lessons    :label "Lessons"    :icon "file outline"}
               {:key :units      :label "Units"      :icon "briefcase"}]]
@@ -18,7 +18,7 @@
             (doall (for [tab tabs :let [{:keys [key label icon]} tab]]
                      ^{:key label}
                        [:a {:class (sem "item" (if (= @active-tab key) "active"))
-                            :on-click #(r/dispatch [:set-planbook-open :tab key])}
+                            :on-click #(rf/dispatch [:set-planbook-open :tab key])}
                          [:span {:style {:marginRight 5}} (icon-el icon)] label]))]]
        (case @active-tab
           :units      [:p "Lets make some units!"]

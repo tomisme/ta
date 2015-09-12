@@ -1,7 +1,7 @@
 (ns ta.views.calendar
   (:require [ta.util :refer [weekdays day-strings color-strings]]
             [ta.views.common :refer [sem icon-el]]
-            [re-frame.core :as r]
+            [re-frame.core :as rf]
             [shodan.inspection :refer [inspect]]))
 
 (defn class-slot [id classes]
@@ -17,8 +17,8 @@
           [:div {:class "description"} (str "Click to add a lessson")]]])))
 
 (defn weekday [day]
-  (let [schedule (r/subscribe [:schedule])
-        classes  (r/subscribe [:classes])]
+  (let [schedule (rf/subscribe [:schedule])
+        classes  (rf/subscribe [:classes])]
     (fn []
       [:div
         [:center (day-strings day)]
@@ -27,7 +27,7 @@
             [class-slot slot classes])])))
 
 (defn week-view []
-  (let [week (r/subscribe [:active-week])]
+  (let [week (rf/subscribe [:active-week])]
     [:div {:class "ui centered grid"}
       [:div {:class "row"}
         [:div {:class "center aligned column"}
