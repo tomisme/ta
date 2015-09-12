@@ -19,3 +19,7 @@
                     :teal "teal"})
 
 (def colors [:red :orange :yellow :green :blue :pink :teal])
+
+(def year-levels [7 8 9 10 11 12])
+
+(def subjects ["English" "Media"])

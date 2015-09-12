@@ -1,16 +1,16 @@
 (ns ta.views.app
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [shodan.inspection :refer [inspect]]
+  (:require [re-frame.core :as rf]
+            [shodan.inspection :refer [inspect]]
+            [ta.views.common :refer [sem icon-el flag-el]]
             [ta.views.planbook.planbook :refer [planbook-view]]
             [ta.views.calendar :refer [calendar-view]]
             [ta.views.classes :refer [classes-view]]
-            [ta.views.common :refer [sem icon flag]]
-            [ta.views.modal :refer [global-modal dimmer]]
-            [re-frame.core :refer [subscribe dispatch]]))
+            [ta.views.modal :refer [global-modal dimmer]]))
 
 (defn top-bar
   [active-page]
-  (let [user (subscribe [:user])
+  (let [user (rf/subscribe [:user])
         pages {:calendar {:i "calendar"
                           :label "Calendar"
                           :url "#/calendar"}
@@ -26,15 +26,15 @@
           [:div {:class "ui secondary pointing menu"}
             (doall (for [[k {:keys [i label url]}] pages
                          :let [class (sem (if (= @active-page k) "active") "item")
-                               icon [:span {:style #js {:paddingright 4}} (icon i)]]]
+                               icon [:span {:style #js {:paddingright 4}} (icon-el i)]]]
                      ^{:key label} [:a {:class class :href url} icon label]))
             [:div {:class "right menu"}
               [:a {:class "ui item"}
-                (:name @user) (flag (:flag @user)) (icon "caret down")]
+                (:name @user) (flag-el (:flag @user)) (icon-el "caret down")]
               [:div {:class "ui item"}
                 [:div {:class "ui labeled icon button"
-                       :onClick #(dispatch [:launch-db-modal])}
-                  (icon "search") "db"]]]]]])))
+                       :onClick #(rf/dispatch [:launch-db-modal])}
+                  (icon-el "search") "db"]]]]]])))
 
 (defn main-view
   [active-page]
@@ -47,8 +47,8 @@
 
 (defn app-container
   []
-  (let [active-page (subscribe [:active-page])
-        modal?      (subscribe [:modal :active?])]
+  (let [active-page (rf/subscribe [:active-page])
+        modal?      (rf/subscribe [:modal :active?])]
     (fn []
       [:div {:class "ui grid container"
              :style #js {:margin 0}}
