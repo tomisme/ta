@@ -43,10 +43,9 @@
                         [:div {:class "fourteen wide column"} content]
                         [:div {:class "two wide middle aligned column"}
                           [:a {:on-click #(delete-step k)} (icon-el "delete")]]]]]])]
-           [:center
-             [:div {:class "ui blue labeled icon button"
-                    :on-click new-step}
-               (icon-el "plus") "Add Step"]]]))))
+            [:center>div {:class "ui blue labeled icon button"
+                          :on-click new-step}
+              (icon-el "plus") "Add Step"]]))))
 
 (defn resource-thing
   [k resource-id plan-id]
