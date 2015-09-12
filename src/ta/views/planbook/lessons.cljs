@@ -1,7 +1,7 @@
 (ns ta.views.planbook.lessons
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [ta.views.common :refer [sem e->val icon checkbox dropdown]]
-            [re-frame.core :refer [subscribe dispatch]]
+  (:require [ta.views.common :refer [sem e->val icon-el checkbox-el dropdown-el]]
+            [re-frame.core :as r]
             [shodan.inspection :refer [inspect]]))
 
 (def year-levels [7 8 9 10 11 12])
@@ -15,22 +15,22 @@
   [{:keys [id lesson]}]
   (let [{:keys [year subject finished description title]} @lesson
         update-fn (fn [attribute]
-                    #(dispatch [:lesson :update @id attribute (e->val %)]))
+                    #(r/dispatch [:lesson :update @id attribute (e->val %)]))
         delete-modal {:type :confirm
                       :i "trash"
                       :question "Are you sure you want to delete this lesson?"
-                      :on-yes #(dispatch [:lesson :delete @id])}]
+                      :on-yes #(r/dispatch [:lesson :delete @id])}]
     [:div {:class "ui form"
            :style {:marginBottom 15}}
       [:div {:class "right aligned fields"}
         [:div {:class "field"}
           [:button {:class "ui green icon button"
-                    :on-click #(dispatch [:set-planbook-open :lesson nil])}
-            (icon "check")]]
+                    :on-click #(r/dispatch [:set-planbook-open :lesson nil])}
+            (icon-el "check")]]
         [:div {:class "field"}
           [:button {:class "ui red icon button"
-                    :on-click #(dispatch [:modal :update delete-modal])}
-            (icon "trash")]]]
+                    :on-click #(r/dispatch [:modal :update delete-modal])}
+            (icon-el "trash")]]]
       [:div {:class "field"}
         [:input {:onChange (update-fn :description)
                  :type "text"
@@ -38,21 +38,21 @@
                  :value description}]]
       [:div {:class "fields"}
         [:div {:class "field"}
-          [dropdown {:on-change (update-fn :year)
+          [dropdown-el {:on-change (update-fn :year)
                      :value year
                      :options year-levels
                      :starting "Year"}]]
         [:div {:class "field"}
-          [dropdown {:on-change (update-fn :subject)
+          [dropdown-el {:on-change (update-fn :subject)
                      :value subject
                      :options subjects
                      :starting "Subject"}]]
        [:div {:class "field"}
          [:button {:class "ui labeled icon disabled button"}
-           (icon "calendar")
+           (icon-el "calendar")
            "Teach"]]
        [:div {:class "field" :style {:marginTop 5}}
-          [checkbox #(dispatch [:lesson :update @id :finished %])
+          [checkbox-el #(r/dispatch [:lesson :update @id :finished %])
                     "Ready" finished]]]]))
 
 (defn lesson-activity-card
@@ -64,25 +64,25 @@
         [:button {:class "ui icon disabled button"
                   :style {:marginRight 10}}
           [:i {:class "large icons"}
-            (icon "file text")
-            (icon "corner plus")]]
+            (icon-el "file text")
+            (icon-el "corner plus")]]
         (for [resource resources
               :let [{:keys [description url type sides]} resource]]
           ^{:key description}
             [:div {:class "ui violet label"}
-              [:a (icon (type resource-icon-names))]
+              [:a (icon-el (type resource-icon-names))]
               description
-              (icon "delete icon")])]
+              (icon-el "delete")])]
       [:div {:class "content"}
         [:button {:class "ui icon disabled button"
                   :style {:marginRight 10}}
           [:i {:class "large icons"}
-            (icon "tag")
-            (icon "corner plus")]]
+            (icon-el "tag")
+            (icon-el "corner plus")]]
         (map-indexed (fn [i {:keys [text]}]
                        ^{:key (str i text)}
                          [:div {:class "ui yellow label"}
-                           text (icon "delete icon")])
+                           text (icon-el "delete")])
                      tags)]]))
 
 (defn lessson-activity-card-list
@@ -96,18 +96,18 @@
               [:div {:class "center aligned two wide column"
                      :style {:paddingRight 0}}
                 [:a {:class "row"}
-                  (icon "chevron circle up" :l)]
+                  (icon-el "chevron circle up" :l)]
                 [:div {:class "row"}
                   [:div {:class "ui blue label"}
                     (str length "m")]]
                 [:a {:class "row"}
-                  (icon "chevron circle down" :l)]]
+                  (icon-el "chevron circle down" :l)]]
               [:div {:class "fourteen wide column"}
                 [lesson-activity-card {:activity activity}]]]))])
 
 (defn lesson-activities
   [{:keys [id]}]
-  (let [activities (reaction @(subscribe [:lesson-activities @id]))]
+  (let [activities (reaction @(r/subscribe [:lesson-activities @id]))]
     [:div
       [:h4 {:class "ui horizontal divider header"} "Activities"]
       [:div {:class "ui grid"}
@@ -119,11 +119,11 @@
                :style {:paddingTop 0}}
           [:div {:class "column"}
             [:button {:class "ui labeled icon disabled button"}
-              (icon "cube") "Add an Activity"]]]]]))
+              (icon-el "cube") "Add an Activity"]]]]]))
 
 (defn lesson-details-panel
   [{:keys [id]}]
-  (let [lesson (reaction @(subscribe [:lesson @id]))]
+  (let [lesson (reaction @(r/subscribe [:lesson @id]))]
     (fn []
       [:div {:class "ui segment"}
         [lesson-details {:id id :lesson lesson}]
@@ -134,7 +134,7 @@
   (let [{:keys [description subject year finished activity-ids]} lesson]
     [:div {:class (sem "ui" (if selected? "black") "link card")}
       [:div {:class "content"
-             :on-click #(dispatch [:set-planbook-open :lesson id])}
+             :on-click #(r/dispatch [:set-planbook-open :lesson id])}
         [:div {:style {:marginBottom 7}}
           (if year [:div {:class "ui olive mini label"} (str "Year " year)])
           (if subject [:div {:class "ui blue mini label"} subject])
@@ -156,29 +156,29 @@
     (for [{:keys [id str on i]} items]
       ^{:key id} [:a {:class (sem (if (= id active-id) "active") "item")
                       :on-click on}
-                  (icon i) str])])
+                  (icon-el i) str])])
 
 (defn lesson-list
   []
-  (let [lessons  (subscribe [:lessons :filtered])
-        selected (subscribe [:open :lesson])
-        filters  (subscribe [:filter :lessons])]
+  (let [lessons  (r/subscribe [:lessons :filtered])
+        selected (r/subscribe [:open :lesson])
+        filters  (r/subscribe [:filter :lessons])]
     (fn []
       [:div {:class "five wide column"}
         [:div {:class "ui labeled icon button"
-               :on-click #(dispatch [:lesson :new])}
-          (icon "plus") "New"]
+               :on-click #(r/dispatch [:lesson :new])}
+          (icon-el "plus") "New"]
         (menu {:class "ui fluid vertical menu"
                :active-id (if (contains? @filters :finished)
                             (:finished @filters))
                :items [{:id  false
                         :str "Unfinished"
                         :i   "circle outline"
-                        :on  #(dispatch [:set-planbook-filter :lessons :finished false])}
+                        :on  #(r/dispatch [:set-planbook-filter :lessons :finished false])}
                        {:id  true
                         :str "Finished"
                         :i   "check circle outline"
-                        :on  #(dispatch [:set-planbook-filter :lessons :finished true])}]})
+                        :on  #(r/dispatch [:set-planbook-filter :lessons :finished true])}]})
         [:div {:class "ui center aligned basic segment"}
           (if (not (seq @lessons))
             [:div {:class "ui active inline loader"}]
@@ -194,7 +194,7 @@
 
 (defn lessons-tab
   []
-  (let [open-lesson (subscribe [:open :lesson])]
+  (let [open-lesson (r/subscribe [:open :lesson])]
     (fn []
       [:div {:class "row"}
         [lesson-list]

@@ -1,6 +1,6 @@
 (ns ta.handlers
   (:require [ta.util :refer [colors]]
-            [re-frame.core :refer [register-handler dispatch]]
+            [re-frame.core :as r]
             [matchbox.core :as m]
             [shodan.inspection :refer [inspect]]
             [json-html.core :refer [edn->hiccup]]))
@@ -42,22 +42,22 @@
                          :fri   [:slot :slot :slot :slot :slot]}}
    :lesson   {:description "New Lesson"}})
 
-(register-handler
+(r/register-handler
   :launch-db-modal
   (fn [db _]
     (inspect db)
-    #_(dispatch [:launch-modal {:type :scrollbox
+    #_(r/dispatch [:launch-modal {:type :scrollbox
                                :header "app db"
                                :content (edn->hiccup (dissoc db :modal))}])
     db))
 
-(register-handler
+(r/register-handler
   :inspect
   (fn [db [_ stuff]]
     (inspect stuff)
     db))
 
-(register-handler
+(r/register-handler
   :fb-update
   (fn [db [_ k v]]
     (case k
@@ -66,7 +66,7 @@
       :resources  (assoc-in db [:planbook :resources] v)
       :classes    (assoc db :classes v))))
 
-(register-handler
+(r/register-handler
   :setup-db
   (fn [db _]
     (doall
@@ -74,10 +74,10 @@
                             {:fb fb-classes    :k :classes}
                             {:fb fb-lessons    :k :lessons}
                             {:fb fb-resources  :k :resources}]]
-        (m/listen-to fb :value (fn [[_ v]] (dispatch [:fb-update k v])))))
+        (m/listen-to fb :value (fn [[_ v]] (r/dispatch [:fb-update k v])))))
     starting-db))
 
-(register-handler
+(r/register-handler
   :class
   (fn [db [_ command id attribute value]]
     (case command
@@ -87,50 +87,50 @@
     db))
 
 
-(register-handler
+(r/register-handler
   :activity
   (fn [db [_ command id attribute value]]
     (case command
       :delete (do (m/dissoc-in! fb-activities [id])
                   (if (= id (get-in db [:planbook :open :activity]))
-                    (dispatch [:set-planbook-open :activity nil])))
+                    (r/dispatch [:set-planbook-open :activity nil])))
       :update (m/reset-in! fb-activities [id attribute] value)
       :new    (m/conj! fb-activities (:activity new-default)
-                       #(dispatch [:set-planbook-open :activity (ref->k %)])))
+                       #(r/dispatch [:set-planbook-open :activity (ref->k %)])))
     db))
 
-(register-handler
+(r/register-handler
   :resource
   (fn [db [_ command id attribute value]]
     (case command
       :delete (do (m/dissoc-in! fb-resources [id])
                   (if (= id (get-in db [:planbook :open :resource]))
-                    (dispatch [:set-planbook-open :resource nil])))
+                    (r/dispatch [:set-planbook-open :resource nil])))
       :update (m/reset-in! fb-resources [id attribute] value)
       :new    (m/conj! fb-resources (:resource new-default)
-                       #(dispatch [:set-planbook-open :resource (ref->k %)])))
+                       #(r/dispatch [:set-planbook-open :resource (ref->k %)])))
     db))
 
-(register-handler
+(r/register-handler
   :add-resource-to-activity
   (fn [db [_ id resource]]
     (m/conj! fb-resources resource
              #(m/conj-in! fb-activities [id :resources] (ref->k %)))
     db))
 
-(register-handler
+(r/register-handler
   :remove-resource-from-activity
   (fn [db [_ id resource-key]]
     (m/dissoc-in! fb-activities [id :resources resource-key])
     db))
 
-(register-handler
+(r/register-handler
   :delete-activity-step
   (fn [db [_ id step-key]]
     (m/dissoc-in! fb-activities [id :steps step-key])
     db))
 
-(register-handler
+(r/register-handler
   :new-activity-step
   (fn [db [_ activity-id]]
     (let [current-steps (get-in db [:planbook :activities activity-id :steps])
@@ -139,7 +139,7 @@
       (m/conj-in! fb-activities [activity-id :steps] new-step)
       db)))
 
-(register-handler
+(r/register-handler
   :lesson
   (fn [db [_ command id attribute value]]
     (case command
@@ -148,39 +148,39 @@
       :new    (m/conj!      fb-lessons (:lesson new-default)))
     db))
 
-(register-handler
+(r/register-handler
   :set-planbook-open
   (fn [db [_ thing id]]
     (assoc-in db [:planbook :open thing] id)))
 
-(register-handler
+(r/register-handler
   :set-planbook-filter
   (fn [db [_ filter k v]]
     (assoc-in db [:planbook :filters filter k] v)))
 
-(register-handler
+(r/register-handler
   :launch-modal
   (fn [db [_ type data]]
     (assoc db :modal {:active? true :type type :data data})))
 
-(register-handler
+(r/register-handler
   :close-modal
   (fn [db _]
     (assoc db :modal {:active? false})))
 
-(register-handler
+(r/register-handler
   :update-modal
   (fn [db [_ k v]]
     (assoc-in db [:modal :data k] v)))
 
  ;; ROUTING =======================
 
-(register-handler
+(r/register-handler
   :navigate-to
   (fn [db [_ page]]
     (assoc db :active-page page)))
 
-(register-handler
+(r/register-handler
   :view-calendar
   (fn [db [_ view week]]
     (assoc db :active-page :calendar

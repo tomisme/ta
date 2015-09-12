@@ -2,24 +2,24 @@
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [ta.util :refer [weekdays]]
             [shodan.inspection :refer [inspect]]
-            [re-frame.core :refer [register-sub subscribe]]))
+            [re-frame.core :as r]))
 
-(register-sub
+(r/register-sub
   :user
   (fn [db]
     (reaction (:user @db))))
 
-(register-sub
+(r/register-sub
   :active-page
   (fn [db _]
     (reaction (:active-page @db))))
 
-(register-sub
+(r/register-sub
   :active-week
   (fn [db _]
     (reaction (:active-week @db))))
 
-(register-sub
+(r/register-sub
   :modal
   (fn [db [_ option]]
     (case option
@@ -35,68 +35,68 @@
               true))
           lessons))
 
-(register-sub
+(r/register-sub
   :lessons
   (fn [db [_ type]]
     (if (= :filtered type)
-      (let [filters  (subscribe [:filter :lessons])]
+      (let [filters  (r/subscribe [:filter :lessons])]
         (reaction (filtered-lessons (get-in @db [:planbook :lessons]) @filters)))
       (reaction (get-in @db [:planbook :lessons])))))
 
-(register-sub
+(r/register-sub
   :lesson
   (fn [db [_ id]]
-    (let [lessons (subscribe [:lessons])]
+    (let [lessons (r/subscribe [:lessons])]
       (reaction (get @lessons id)))))
 
-(register-sub
+(r/register-sub
   :activities
   (fn [db _]
     (reaction (get-in @db [:planbook :activities]))))
 
-(register-sub
+(r/register-sub
   :activity
   (fn [db [_ id]]
-    (let [activities (subscribe [:activities])]
+    (let [activities (r/subscribe [:activities])]
       (reaction (get @activities id)))))
 
-(register-sub
+(r/register-sub
   :activity-steps
   (fn [db [_ id]]
     (reaction (sort-by :num (get-in @db [:planbook :activities id :steps])))))
 
-(register-sub
+(r/register-sub
   :lesson-activities
   (fn [db [_ lesson-id]]
-    (let [activities @(subscribe [:activities])
-          lessons    (subscribe [:lessons])
+    (let [activities @(r/subscribe [:activities])
+          lessons    (r/subscribe [:lessons])
           lesson     (reaction (get @lessons lesson-id))
           ids        (reaction (get @lesson :activity-ids))]
       (reaction (for [id @ids]
                   [id (get activities id)])))))
 
-(register-sub
+(r/register-sub
   :resources
   (fn [db _]
     (reaction (get-in @db [:planbook :resources]))))
 
-(register-sub
+(r/register-sub
   :resource
   (fn [db [_ id]]
-    (let [resources (subscribe [:resources])]
+    (let [resources (r/subscribe [:resources])]
       (reaction (get @resources id)))))
 
-(register-sub
+(r/register-sub
   :open
   (fn [db [_ thing]]
     (reaction (get-in @db [:planbook :open thing]))))
 
-(register-sub
+(r/register-sub
   :filter
   (fn [db [_ filter]]
     (reaction (get-in @db [:planbook :filters filter]))))
 
-(register-sub
+(r/register-sub
   :classes
   (fn [db _]
     (reaction (:classes @db))))
@@ -115,7 +115,7 @@
                        (if (seq classes)
                          (class-in-slot classes day session)))))))
 
-(register-sub
+(r/register-sub
   :schedule
   (fn [db _]
     (reaction (classes->schedule (:classes @db)))))

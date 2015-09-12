@@ -1,7 +1,7 @@
 (ns ta.views.common
   (:require [shodan.inspection :refer [inspect]]
             [clojure.string :as string]
-            [re-frame.core :refer [dispatch]]))
+            [re-frame.core :as r]))
 
 ;; HELPERS
 
@@ -22,9 +22,9 @@
   [value]
   [:button {:on-click #(inspect value)} "what?"])
 
-(defn icon
+(defn icon-el
   "Takes name string and optional size keyword and returns an icon element"
-  ([name] (icon name :m))
+  ([name] (icon-el name :m))
   ([name size]
     (let [size-str (case size
                          :s "small"
@@ -32,14 +32,14 @@
                          :l "large")]
     [:i {:class (sem "icon" name size-str)}])))
 
-(defn flag
+(defn flag-el
   "Takes a country keyword and returns a flag icon element"
   [country]
   (case country
     :australia [:i {:class "australia flag" :style #js {:paddingLeft 5}}]
     [:div {:class "ui active small inline loader"}]))
 
-(defn checkbox
+(defn checkbox-el
   [on-click label checked]
   [:div {:class "ui checkbox"
          :onClick #(on-click (not checked))}
@@ -50,7 +50,8 @@
              :readOnly true}]
     [:label label]])
 
-(defn dropdown
+(defn dropdown-el
+  "Dropdown element, doesn't use semantic ui styling properly yet"
   [{:keys [value options starting on-change]}]
   [:select {:value value
             :onChange #(on-change %)}

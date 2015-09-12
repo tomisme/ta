@@ -1,8 +1,8 @@
 (ns ta.views.classes
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [ta.util :refer [weekdays colors color-strings]]
-            [ta.views.common :refer [sem e->val icon]]
-            [re-frame.core :refer [subscribe dispatch]]
+            [ta.views.common :refer [sem e->val icon-el]]
+            [re-frame.core :as r]
             [shodan.inspection :refer [inspect]]))
 
 (defn schedule-table
@@ -17,12 +17,12 @@
                       color-str (get color-strings (:color class))]]
             ^{:key (str day session)}
               [:div {:class (str color-str " column")}
-                (icon "circle" :s)])])])
+                (icon-el "circle" :s)])])])
 
 (defn week-schedule
   []
-  (let [schedule (subscribe [:schedule])
-        classes  (subscribe [:classes])]
+  (let [schedule (r/subscribe [:schedule])
+        classes  (r/subscribe [:classes])]
     [:div {:class "ui fluid card"}
       [:div {:class "content"}
         [:div {:class "center aligned header"}
@@ -45,7 +45,7 @@
 (defn schedule-selector
   "When a slot is clicked, on-change is called with an updated schedule map"
   [{:keys [on-change class-schedule selected-color id]}]
-  (let [schedule @(subscribe [:schedule]) ;; eww. but lets you make changes
+  (let [schedule @(r/subscribe [:schedule]) ;; eww. but lets you make changes
         day-labels {:mon   "Mo"
                     :tues  "Tu"
                     :wed   "We"
@@ -77,9 +77,9 @@
                (cond
                  row-label? [:span (col day-labels)]
                  col-label? [:span (str "S" (inc row))]
-                 taken?     (icon "close")
-                 selected?  (icon "check")
-                 :else      (icon "circle" :s))]))])])))
+                 taken?     (icon-el "close")
+                 selected?  (icon-el "check")
+                 :else      (icon-el "circle" :s))]))])])))
 
 (defn class-card
   [[id {:keys [name color schedule editing?] :as class}]]
@@ -87,7 +87,7 @@
     [:div {:class (sem (if-not editing? "link")
                        (get color-strings color) "ui fluid card")
          :on-click (if-not editing?
-                     #(dispatch [:class :update id :editing? true]))}
+                     #(r/dispatch [:class :update id :editing? true]))}
       [:div {:class "content"}
         [:div {:class "header"}
           [:div {:class (sem (get color-strings color) "ui large label")}
@@ -95,25 +95,25 @@
           (if editing?
             [:div {:class "right floated"}
               [:button {:class "ui red icon button"
-                        :onClick #(dispatch [:class :delete id])}
-                (icon "trash")]
+                        :onClick #(r/dispatch [:class :delete id])}
+                (icon-el "trash")]
               [:button {:class "ui green icon button"
-                        :onClick #(dispatch [:class :update id :editing? false])}
-                (icon "check")]])]]
+                        :onClick #(r/dispatch [:class :update id :editing? false])}
+                (icon-el "check")]])]]
       (if editing?
         [:div {:class "center aligned content"}
           [color-selector
-            {:on-change #(dispatch [:class :update id :color %])
+            {:on-change #(r/dispatch [:class :update id :color %])
              :selected-color color}]
           [schedule-selector
-            {:on-change #(dispatch [:class :update id :schedule %])
+            {:on-change #(r/dispatch [:class :update id :schedule %])
              :class-schedule schedule
              :selected-color color
              :id id}]])])
 
 (defn class-list
   []
-  (let [classes (subscribe [:classes])]
+  (let [classes (r/subscribe [:classes])]
     (fn []
       (if (seq @classes)
         [:div (map class-card @classes)]
@@ -127,7 +127,7 @@
         [class-list]
         [:div {:class "ui center aligned basic segment"}
           [:button {:class "ui labeled icon button"
-                    :on-click #(dispatch [:class :new])}
-            (icon "plus") "Add Class"]]]
+                    :on-click #(r/dispatch [:class :new])}
+            (icon-el "plus") "Add Class"]]]
       [:div {:class "column"}
         [week-schedule]]]])

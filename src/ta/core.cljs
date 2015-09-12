@@ -2,7 +2,7 @@
   (:require-macros [secretary.core :refer [defroute]])
   (:import goog.History)
   (:require [reagent.core :refer [render]]
-            [re-frame.core :refer [dispatch dispatch-sync]]
+            [re-frame.core :as r]
             [shodan.inspection :refer [inspect]]
             [secretary.core :as secretary]
             [goog.events :as events]
@@ -19,19 +19,19 @@
 (secretary/set-config! :prefix "#")
 
 (defroute "/" []
-  (dispatch [:navigate-to :calendar]))
+  (r/dispatch [:navigate-to :calendar]))
 
 (defroute "/calendar" []
-  (dispatch [:navigate-to :calendar]))
+  (r/dispatch [:navigate-to :calendar]))
 
 (defroute "/planbook" []
-  (dispatch [:navigate-to :planbook]))
+  (r/dispatch [:navigate-to :planbook]))
 
 (defroute "/classes" []
-  (dispatch [:navigate-to :classes]))
+  (r/dispatch [:navigate-to :classes]))
 
 (defroute "/calendar/:view/:id" [view id]
-  (dispatch [:view-calendar (case view "day" :day
+  (r/dispatch [:view-calendar (case view "day" :day
                                        "week" :week)
                             (js/parseInt id)]))
 
@@ -40,4 +40,4 @@
                  (fn [event] (secretary/dispatch! (.-token event))))
   (.setEnabled true))
 
-(dispatch-sync [:setup-db])
+(r/dispatch-sync [:setup-db])
