@@ -113,30 +113,57 @@
 
 (rf/register-handler
   :add-resource-to-activity
-  (fn [db [_ id resource]]
+  (fn [db [_ activity-id resource]]
     (m/conj! fb-resources resource
-             #(m/conj-in! fb-activities [id :resources] (ref->k %)))
+             #(m/conj-in! fb-activities [activity-id :resources] (ref->k %)))
     db))
 
 (rf/register-handler
   :remove-resource-from-activity
-  (fn [db [_ id resource-key]]
-    (m/dissoc-in! fb-activities [id :resources resource-key])
+  (fn [db [_ activity-id resource-key]]
+    (m/dissoc-in! fb-activities [activity-id :resources resource-key])
     db))
 
 (rf/register-handler
   :delete-activity-step
-  (fn [db [_ id step-key]]
-    (m/dissoc-in! fb-activities [id :steps step-key])
+  (fn [db [_ activity-id step-key]]
+    ;; use subvec to create a new vector without
+    ;; something like (vec (concat (subvec a 0 2) (subvec a 3 5)))
+    db))
+
+(rf/register-handler
+  :update-activity-step
+  (fn [db [_ activity-id step-key val]]
+    #_(m/reset-in! fb-activities [activity-id :steps step-key :content] val)
+    ;; ^ doesn't work?
     db))
 
 (rf/register-handler
   :new-activity-step
   (fn [db [_ activity-id]]
-    (let [current-steps (get-in db [:planbook :activities activity-id :steps])
-          new-step {:num (inc (count current-steps))
-                    :content "New step!"}]
-      (m/conj-in! fb-activities [activity-id :steps] new-step)
+    (m/swap-in! fb-activities [activity-id :steps] conj {:content ""})
+    db))
+
+  ; (let [new-step    #(rf/dispatch [:new-activity-step @id])
+  ;       delete-step #(rf/dispatch [:delete-activity-step @id %])
+  ;       toggle-step #(rf/dispatch [:toggle-activity-step @id %])
+  ;       move-step   (fn [key direction]
+  ;                     (rf/dispatch [:move-activity-step @id key direction]))
+  ;       update-step (fn [key event]
+  ;                     (rf/dispatch [:update-activity-step @id key (e->val event)]))]
+
+(rf/register-handler
+  :toggle-activity-step
+  (fn [db [_ activity-id step-index]]
+    (update-in db [:planbook :activities activity-id :steps step-index :open?] not)))
+
+(rf/register-handler
+  :move-activity-step
+  (fn [db [_ activity-id step-index direction]]
+    (let [steps (get-in db [:planbook :activities activity-id :steps])]
+      (inspect steps)
+      (inspect step-index)
+      (inspect direction)
       db)))
 
 (rf/register-handler
