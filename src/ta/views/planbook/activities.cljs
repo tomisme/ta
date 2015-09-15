@@ -36,34 +36,33 @@
             update-step (fn [key event]
                           (rf/dispatch [:update-activity-step @id key (e->val event)]))]
         [:div
-         [:div {:class "ui internally celled grid"}
-          (map-indexed (fn [index {:keys [content open?]}]
-                         ^{:key (str index)}
-                          [:div {:class "row"}
-                           [:div {:class "right aligned two wide middle aligned column"}
-                            (if open? [:a {:on-click #(move-step index :up)}
-                                       (icon-el "up arrow")])
-                            [:a {:class "ui blue circular label"
-                                 :on-click #(toggle-step index)}
-                             (inc index)]
-                            (if open? [:a {:on-click #(move-step index :down)}
-                                       (icon-el "down arrow")])]
-                           [:div {:class "fourteen wide column"}
-                            [:div {:class "ui grid"}
-                             [:div {:class "row"}
-                              [:div {:class "fourteen wide column"}
-                               [:div {:class "ui transparent fluid input"}
-                                [input-el {:type "text"
-                                           :val content
-                                           :placeholder "Enter the details of the step"
-                                           :on-blur #(update-step index %)}]]]
-                              [:div {:class "two wide middle aligned column"}
-                               [:a {:on-click #(delete-step index)}
-                                (icon-el "delete")]]]]]])
-                       @steps)]
-         [:center>div {:class "ui blue labeled icon button"
-                       :on-click new-step}
-          (icon-el "plus") "Add Step"]]))))
+          [:div {:class "ui internally celled grid"}
+            (for [[id {:keys [num content open?]}] @steps]
+              ^{:key id}
+                [:div {:class "row"}
+                  [:div {:class "right aligned two wide middle aligned column"}
+                    (if open? [:a {:on-click #(move-step id :up)}
+                                (icon-el "up arrow")])
+                    [:a {:class "ui blue circular label"
+                         :on-click #(toggle-step id)}
+                      num]
+                    (if open? [:a {:on-click #(move-step id :down)}
+                                (icon-el "down arrow")])]
+                  [:div {:class "fourteen wide column"}
+                    [:div {:class "ui grid"}
+                      [:div {:class "row"}
+                        [:div {:class "fourteen wide column"}
+                          [:div {:class "ui transparent fluid input"}
+                            [input-el {:type "text"
+                                       :val content
+                                       :placeholder "Enter the details of the step"
+                                       :on-blur #(update-step id %)}]]]
+                        [:div {:class "two wide middle aligned column"}
+                          [:a {:on-click #(delete-step id)}
+                            (icon-el "delete")]]]]]])]
+          [:center>div {:class "ui blue labeled icon button"
+                        :on-click new-step}
+            (icon-el "plus") "Add Step"]]))))
 
 (defn resource-tageything
   [k resource-id plan-id]

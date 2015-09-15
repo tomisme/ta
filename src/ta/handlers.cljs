@@ -127,21 +127,22 @@
 (rf/register-handler
   :delete-activity-step
   (fn [db [_ activity-id step-key]]
-    ;; use subvec to create a new vector without
-    ;; something like (vec (concat (subvec a 0 2) (subvec a 3 5)))
+    (m/dissoc-in! fb-activities [activity-id :steps step-key])
     db))
 
 (rf/register-handler
   :update-activity-step
   (fn [db [_ activity-id step-key val]]
-    #_(m/reset-in! fb-activities [activity-id :steps step-key :content] val)
-    ;; ^ doesn't work?
+    (m/reset-in! fb-activities [activity-id :steps step-key :content] val)
     db))
 
 (rf/register-handler
   :new-activity-step
   (fn [db [_ activity-id]]
-    (m/swap-in! fb-activities [activity-id :steps] conj {:content ""})
+    (let [current-steps (get-in db [:planbook :activities activity-id :steps])
+          new-step {:num (inc (count current-steps))
+                    :content ""}]
+      (m/conj-in! fb-activities [activity-id :steps] new-step))
     db))
 
   ; (let [new-step    #(rf/dispatch [:new-activity-step @id])
@@ -154,16 +155,14 @@
 
 (rf/register-handler
   :toggle-activity-step
-  (fn [db [_ activity-id step-index]]
-    (update-in db [:planbook :activities activity-id :steps step-index :open?] not)))
+  (fn [db [_ activity-id step-key]]
+    (update-in db [:planbook :activities activity-id :steps step-key :open?] not)))
 
 (rf/register-handler
   :move-activity-step
-  (fn [db [_ activity-id step-index direction]]
+  (fn [db [_ activity-id step-key direction]]
     (let [steps (get-in db [:planbook :activities activity-id :steps])]
       (inspect steps)
-      (inspect step-index)
-      (inspect direction)
       db)))
 
 (rf/register-handler
