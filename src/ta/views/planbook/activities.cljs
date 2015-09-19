@@ -1,6 +1,8 @@
 (ns ta.views.planbook.activities
-  (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [re-frame.core :as rf]
+  (:require-macros [reagent.ratom :refer [reaction]]
+                   [devcards.core :as dc :refer [defcard deftest]])
+  (:require [cljs.test :refer-macros [is testing]]
+            [re-frame.core :as rf]
             [shodan.inspection :refer [inspect]]
             [ta.util :refer [year-levels subjects]]
             [ta.views.common :refer [sem e->val icon-el input-el]]))
