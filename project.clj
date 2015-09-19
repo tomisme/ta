@@ -7,6 +7,7 @@
                  [secretary "1.2.3"]
                  [json-html "0.3.4"]
                  [shodan "0.4.2"]
+                 [devcards "0.2.0-SNAPSHOT"]
                  #_[bidi "1.20.0"]
                  #_[com.andrewmcveigh/cljs-time "0.3.10"]
                  #_[cljsjs/moment "4.9.0-0"]]
@@ -16,23 +17,32 @@
 
   :source-paths ["src"]
 
-  :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
+  :clean-targets ^{:protect false} ["resources/public/js/compiled"
+                                    "target"]
 
   :cljsbuild {
-    :builds [{:id "dev"
+    :builds [{:id "devcards"
               :source-paths ["src"]
-
-              :figwheel { :on-jsload "ta.core/on-js-reload" }
-
-              :compiler {:main ta.core
+              :figwheel {:devcards true }
+              :compiler {:main "ta.core"
+                         :asset-path "js/compiled/devcards_out"
+                         :output-to  "resources/public/js/compiled/ta_devcards.js"
+                         :output-dir "resources/public/js/compiled/devcards_out"
+                         :optimizations :none
+                         :source-map-timestamp true }}
+             {:id "dev"
+              :source-paths ["src"]
+              :figwheel {:on-jsload "ta.core/on-js-reload"}
+              :compiler {:main "ta.core"
                          :asset-path "js/compiled/out"
                          :output-to "resources/public/js/compiled/ta.js"
                          :output-dir "resources/public/js/compiled/out"
+                         :optimizations :none
                          :source-map-timestamp true }}
              {:id "min"
               :source-paths ["src"]
               :compiler {:output-to "resources/public/js/compiled/ta.js"
-                         :main ta.core
+                         :main "ta.core"
                          :optimizations :advanced
                          :pretty-print false}}]}
 

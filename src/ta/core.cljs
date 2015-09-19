@@ -1,5 +1,6 @@
 (ns ta.core
-  (:require-macros [secretary.core :refer [defroute]])
+  (:require-macros [secretary.core :refer [defroute]]
+                   [devcards.core :as dc :refer [defcard deftest]])
   (:import goog.History)
   (:require [re-frame.core :as rf]
             [reagent.core :as r]
@@ -11,8 +12,20 @@
             [ta.handlers]
             [ta.subs]))
 
+; (defn main []
+;   ;; conditionally start the app based on the presence of #main-app-area
+;   ;; node is on the page
+;   (if-let [node (.getElementById js/document "main-app-area")]
+;     (js/React.render (sab/html [:div "This is main app is ruunning."]) node)))
+;
+; (main)
+
+(defcard my-card)
+
+(def app-node (.getElementById js/document "app"))
+
 (defn on-js-reload []
-  (r/render [app/app-container] (.getElementById js/document "app")))
+  (if app-node (r/render [app/app-container] (.getElementById js/document "app"))))
 
 (on-js-reload)
 
