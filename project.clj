@@ -21,22 +21,22 @@
                                     "target"]
 
   :cljsbuild {
-    :builds [{:id "devcards"
+    :builds [{:id "dev"
+              :source-paths ["src"]
+              :figwheel {:on-jsload "ta.core/render-app"}
+              :compiler {:main "ta.core"
+                         :asset-path "js/compiled/out"
+                         :output-to "resources/public/js/compiled/ta.js"
+                         :output-dir "resources/public/js/compiled/out"
+                         :optimizations :none
+                         :source-map-timestamp true }}
+             {:id "devcards"
               :source-paths ["src"]
               :figwheel {:devcards true }
               :compiler {:main "ta.core"
                          :asset-path "js/compiled/devcards_out"
                          :output-to  "resources/public/js/compiled/ta_devcards.js"
                          :output-dir "resources/public/js/compiled/devcards_out"
-                         :optimizations :none
-                         :source-map-timestamp true }}
-             {:id "dev"
-              :source-paths ["src"]
-              :figwheel {:on-jsload "ta.core/on-js-reload"}
-              :compiler {:main "ta.core"
-                         :asset-path "js/compiled/out"
-                         :output-to "resources/public/js/compiled/ta.js"
-                         :output-dir "resources/public/js/compiled/out"
                          :optimizations :none
                          :source-map-timestamp true }}
              {:id "min"
