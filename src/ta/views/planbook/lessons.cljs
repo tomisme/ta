@@ -94,12 +94,14 @@
               [:div {:class "center aligned two wide column"
                      :style {:paddingRight 0}}
                 [:a {:class "row"}
-                  (icon-el "chevron circle up" :l)]
+                  (icon-el {:name "chevron circle up"
+                            :size :large})]
                 [:div {:class "row"}
                   [:div {:class "ui blue label"}
                     (str length "m")]]
                 [:a {:class "row"}
-                  (icon-el "chevron circle down" :l)]]
+                  (icon-el {:name "chevron circle down"
+                            :size :large})]]
               [:div {:class "fourteen wide column"}
                 [lesson-activity-card {:activity activity}]]]))])
 

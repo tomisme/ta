@@ -17,7 +17,7 @@
                       color-str (get color-strings (:color class))]]
             ^{:key (str day session)}
               [:div {:class (str color-str " column")}
-                (icon-el "circle" :s)])])])
+                (icon-el "small circle")])])])
 
 (defn week-schedule
   []
@@ -79,7 +79,7 @@
                  col-label? [:span (str "S" (inc row))]
                  taken?     (icon-el "close")
                  selected?  (icon-el "check")
-                 :else      (icon-el "circle" :s))]))])])))
+                 :else      (icon-el "small circle"))]))])])))
 
 (defn class-card
   [[id {:keys [name color schedule editing?] :as class}]]
