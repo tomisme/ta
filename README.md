@@ -24,7 +24,7 @@
   + [ ] unit builder
     + [ ] unit details/notes
     + [ ] syllabus outcomes
-    + [ ] associated lessons
+    + [ ] sequence of lessons
 
 ## Future
 + shift toward personal database to community of sharing/remixing
