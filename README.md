@@ -15,6 +15,7 @@
     + [ ] estimated time
     + [ ] re-orderable steps
     + [ ] drive/url resources
+    + [ ] requirements (projector/photocopying etc.)
   + [ ] lesson builder
     + [ ] can be used to fill lesson slots
     + [ ] made up of:
@@ -26,6 +27,9 @@
     + [ ] associated lessons
 
 ## Future
++ shift toward personal database to community of sharing/remixing
+  + tags on different plan types
+  + plans can be published/starred/shared/remixed
 + lesson performer
   +  generates a slideshow based on lesson activities
   +  separate student content (projected) and teacher content (on laptop/tablet)
@@ -33,7 +37,6 @@
 + syllabus outcomes come directly from Australian curriculum
 + plans can be built from suggested and customizable templates
 + plans can be reflected on
-+ plans can be published/starred/shared/remixed
 + structured formative assessment
 
 ## Planning a Lesson
