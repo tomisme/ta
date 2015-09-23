@@ -17,7 +17,7 @@
       [:div {:class "ui grid"}
         [:div {:class "centered one colum row"}
           [menu-el {:items planbook-tabs
-                    :active-items @active-tab
+                    :active-item @active-tab
                     :on-change #(rf/dispatch [:set-planbook-open :tab %])}]]
        (case @active-tab
          :units      [:p "Lets make some units!"]
