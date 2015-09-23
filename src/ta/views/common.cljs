@@ -147,7 +147,6 @@
                             :on-change (fn [new-val] (js/alert new-val))}]))
 
 (defn dropdown-el
-  "Dropdown element, doesn't use semantic ui styling properly yet"
   [{:keys [value options starting on-change]}]
   [:select {:value value
             :onChange #(on-change %)}
@@ -156,7 +155,19 @@
                    ^{:key (str i "-" option)}
                      [:option {:value option} option]) options)])
 
-#_(defn semantic-ui-dropdown
+(defcard
+  "```
+  [dropdown-el {:starting \"Simpson's Character\"
+                :options [\"Bart\" \"Lisa\" \"Maggie\"]
+                :value \"\"
+                :on-change (fn [event] (js/alert (e->val event)))}]
+  ```"
+  (dc/reagent [dropdown-el {:starting "Simpson's Character"
+                            :options ["Bart" "Lisa" "Maggie"]
+                            :value ""
+                            :on-change (fn [event] (js/alert (e->val event)))}]))
+
+(defn semantic-ui-dropdown
   []
   [:div {:class "ui selection dropdown"}
     [:input {:type "hidden" :name "gender"}]
@@ -166,12 +177,28 @@
      [:div {:class "item" :data-value "1"} "Male"]
      [:div {:class "item" :data-value "0"} "Female"]]])
 
-(defn input-el [{:keys [id name type placeholder on-blur on-change val]}]
+(dc/defcard-doc
+  "TODO: Use proper Semantic UI css for dropdown component. Here's a start:"
+  (dc/mkdn-pprint-source semantic-ui-dropdown))
+
+(defn input-el
+  [{:keys [id name type placeholder on-blur on-change val]}]
   ^{:key val} [:input {:id id
                        :name name
                        :placeholder placeholder
-                       :class "form-control"
                        :type type
                        :default-value val
                        :on-blur on-blur
                        :on-change on-change}])
+
+(defcard
+  "```
+  [input-el {:placeholder \"Enter your name\"
+             :type \"text\"
+             :val \"Here's your money\"
+             :on-blur (fn [event] (js/alert (e->val event)))}]
+  ```"
+  (dc/reagent [input-el {:placeholder "Enter your name"
+                         :type "text"
+                         :val "Here's your money"
+                         :on-blur (fn [event] (js/alert (e->val event)))}]))
