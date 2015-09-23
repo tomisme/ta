@@ -149,7 +149,7 @@
 (defn dropdown-el
   [{:keys [value options starting on-change]}]
   [:select {:value value
-            :onChange #(on-change %)}
+            :on-change #(on-change %)}
     [:option {:value ""} starting]
     (map-indexed (fn [i option]
                    ^{:key (str i "-" option)}
@@ -183,13 +183,13 @@
 
 (defn input-el
   [{:keys [id name type placeholder on-blur on-change val]}]
-  ^{:key val} [:input {:id id
-                       :name name
-                       :placeholder placeholder
-                       :type type
-                       :default-value val
-                       :on-blur on-blur
-                       :on-change on-change}])
+  [:input {:id id
+           :name name
+           :placeholder placeholder
+           :type type
+           :default-value val
+           :on-blur on-blur
+           :on-change on-change}])
 
 (defcard
   "```

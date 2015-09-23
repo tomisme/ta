@@ -30,7 +30,7 @@
                     :on-click #(rf/dispatch [:modal :update delete-modal])}
             (icon-el "trash")]]]
       [:div {:class "field"}
-        [:input {:onChange (update-fn :description)
+        [:input {:on-change (update-fn :description)
                  :type "text"
                  :placeholder "Enter a short description for your lesson"
                  :value description}]]
