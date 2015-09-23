@@ -50,8 +50,9 @@
            (icon-el "calendar")
            "Teach"]]
        [:div {:class "field" :style {:marginTop 5}}
-          [checkbox-el #(rf/dispatch [:lesson :update @id :finished %])
-                       "Ready" finished]]]]))
+          [checkbox-el {:label "Ready"
+                        :checked finished
+                        :on-change #(rf/dispatch [:lesson :update @id :finished %])}]]]]))
 
 (defn lesson-activity-card
   [{:keys [activity]}]

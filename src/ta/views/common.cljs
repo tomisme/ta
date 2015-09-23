@@ -33,15 +33,25 @@
   [event]
   (-> event .-target .-value))
 
-(deftest helper-tests
+(deftest sem-test
   "`sem` takes a sequence of strings and returns a space separated string.
 
    Useful as Semantic UI components are styled by applying multiple CSS classes, e.g.
-   `<i class=\"ui labeled button\" >`."
-   (is (= "ui labeled button" (sem "ui" "labeled" "button")))
+   `<i class=\"ui labeled button\">`."
+   (is (= "ui labeled button" (sem "ui" "labeled" "button"))))
 
-   "`e->val` takes an input component's :on-change event and returns its target value"
-   (is (= "green" (e->val "cheese"))))
+(def e->val-atom (atom {:event nil
+                        :val nil}))
+
+(defcard e->val-test
+  "`e->val` takes an event emmitted by an HTML element (like an `<input>`) and returns
+  the event target's value attribute"
+  (dc/reagent [:input {:on-change #(swap! e->val-atom (fn [data]
+                                                        (-> data
+                                                          (assoc :event %)
+                                                          (assoc :val (e->val %)))))}])
+  e->val-atom
+  {:inspect-data true})
 
 (defcard
   "##Enough of these boring helpers, let's make some components!
@@ -59,24 +69,42 @@
     [:i {:class (sem arg "icon")}]))
 
 (defcard
-  "`[icon-el \"red coffee\"]`"
+  "```
+  [icon-el \"red coffee\"]
+  ```"
   (dc/reagent [icon-el "red coffee"]))
 
 (defcard
-  "`[icon-el {:name \"home\" :color \"blue\" :size :big}]`"
+  "```
+  [icon-el {:name \"coffee\"
+           :color \"blue\"
+           :size :big}]
+  ```"
   (dc/reagent [icon-el {:name "coffee"
                         :color :blue
                         :size :big}]))
 
 (defn flag-el
-  "Takes a country keyword and returns a flag icon element"
-  [country]
-  (case country
-    :australia [:i {:class "australia flag" :style #js {:paddingLeft 5}}]
-    [:div {:class "ui active small inline loader"}]))
+  [arg]
+  (if (map? arg)
+    (flag-el (get arg :country))
+    (case arg
+      :australia [:i {:class "australia flag" :style #js {:paddingLeft 5}}]
+      [:div {:class "ui active small inline loader"}])))
+
+(defcard
+  "```
+  [flag-el :australia]
+  ```"
+  (dc/reagent [flag-el :australia]))
+
+(defcard
+  "```
+  [flag-el {:country :australia}]
+  ```"
+  (dc/reagent [flag-el {:country :australia}]))
 
 (defn menu-el
-  "Semantic UI menu element."
   [{:keys [items active-item on-change]}]
   [:div {:class "ui compact menu"}
     (for [{:keys [key label icon]} items]
@@ -85,16 +113,38 @@
              :on-click #(on-change key)}
          [:span {:style {:marginRight 5}} (icon-el icon)] label])])
 
+(defcard
+  "```
+  [menu-el {:items [{:key :home :label \"Home\" :icon \"home\"}
+                    {:key :plus :label \"Plus\" :icon \"plus\"}]
+            :active-item :home
+            :on-change (fn [new-key] (js/alert new-key))}]
+   ```"
+   (dc/reagent [menu-el {:items [{:key :home :label "Home" :icon "home"}
+                                 {:key :plus :label "Plus" :icon "plus"}]
+                         :active-item :home
+                         :on-change (fn [new-key] (js/alert new-key))}]))
+
 (defn checkbox-el
-  [on-click label checked]
+  [{:keys [label checked on-change]}]
   [:div {:class "ui checkbox"
-         :onClick #(on-click (not checked))}
+         :on-click #(on-change (not checked))}
     [:input {:type "checkbox"
              :tabIndex "0"
              :class "hidden"
              :checked checked
              :readOnly true}]
     [:label label]])
+
+(defcard
+  "```
+  [checkbox-el {:label \"Hello\"
+                :checked :true
+                :on-change (fn [new-val] (js/alert new-val))}]
+  ```"
+  (dc/reagent [checkbox-el {:label "Hello"
+                            :checked :true
+                            :on-change (fn [new-val] (js/alert new-val))}]))
 
 (defn dropdown-el
   "Dropdown element, doesn't use semantic ui styling properly yet"
@@ -116,12 +166,12 @@
      [:div {:class "item" :data-value "1"} "Male"]
      [:div {:class "item" :data-value "0"} "Female"]]])
 
-(defn input-el [{:keys [id name type placeholder on-blur val]}]
-  "An input element which updates its value on change"
+(defn input-el [{:keys [id name type placeholder on-blur on-change val]}]
   ^{:key val} [:input {:id id
                        :name name
                        :placeholder placeholder
                        :class "form-control"
                        :type type
                        :default-value val
-                       :on-blur on-blur}])
+                       :on-blur on-blur
+                       :on-change on-change}])
