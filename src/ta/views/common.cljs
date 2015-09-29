@@ -156,16 +156,19 @@
                      [:option {:value option} option]) options)])
 
 (defcard
-  "```
-  [dropdown-el {:starting \"Simpson's Character\"
-                :options [\"Bart\" \"Lisa\" \"Maggie\"]
-                :value \"\"
-                :on-change (fn [event] (js/alert (e->val event)))}]
+  "Dropdown component needs to be wrapped in a 'ui form' div in order to be styled.
+  ```
+  [:div {:class \"ui form\"}
+   [dropdown-el {:starting \"Simpson's Character\"
+                 :options [\"Bart\" \"Lisa\" \"Maggie\"]
+                 :value \"\"
+                 :on-change (fn [event] (js/alert (e->val event)))}]]
   ```"
-  (dc/reagent [dropdown-el {:starting "Simpson's Character"
-                            :options ["Bart" "Lisa" "Maggie"]
-                            :value ""
-                            :on-change (fn [event] (js/alert (e->val event)))}]))
+  (dc/reagent [:div {:class "ui form"}
+               [dropdown-el {:starting "Simpson's Character"
+                             :options ["Bart" "Lisa" "Maggie"]
+                             :value ""
+                             :on-change (fn [event] (js/alert (e->val event)))}]]))
 
 (defn semantic-ui-dropdown
   []
@@ -192,13 +195,16 @@
            :on-change on-change}])
 
 (defcard
-  "```
-  [input-el {:placeholder \"Enter your name\"
-             :type \"text\"
-             :val \"Here's your money\"
-             :on-blur (fn [event] (js/alert (e->val event)))}]
+  "Input component needs to be wrapped in a 'ui form' div in order to be styled.
+  ```
+  [:div {:class \"ui form\"}
+   [input-el {:placeholder \"Enter your name\"
+              :type \"text\"
+              :val \"Here's your money\"
+              :on-blur (fn [event] (js/alert (e->val event)))}]]
   ```"
-  (dc/reagent [input-el {:placeholder "Enter your name"
-                         :type "text"
-                         :val "Here's your money"
-                         :on-blur (fn [event] (js/alert (e->val event)))}]))
+  (dc/reagent [:div {:class "ui form"}
+               [input-el {:placeholder "Enter your name"
+                          :type "text"
+                          :val "Here's your money"
+                          :on-blur (fn [event] (js/alert (e->val event)))}]]))
