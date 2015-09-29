@@ -135,10 +135,7 @@
   (let [activities (rf/subscribe [:activities])
         selected (rf/subscribe [:open :activity])]
     (fn []
-      [:div {:class "ui center aligned segment"}
-        [:button {:class "ui labeled icon button"
-                  :on-click #(rf/dispatch [:activity :new])}
-          (icon-el "plus") "New Activity"]
+      [:div {:class "ui center aligned basic segment"}
         (if (seq @activities)
           (doall
             (for [[id activity] @activities]
@@ -153,5 +150,5 @@
   (let [selected (rf/subscribe [:open :activity])]
     [:div {:class "centered row"}
       [:div {:class (sem (if @selected "six" "sixteen") "wide column")}
-        [activity-list]]
+       [activity-list]]
       (if @selected [activity-editor])]))

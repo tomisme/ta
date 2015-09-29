@@ -1,5 +1,6 @@
 (ns ta.core
-  (:require-macros [secretary.core :refer [defroute]])
+  (:require-macros [secretary.core :refer [defroute]]
+                   [devcards.core :as dc :refer [defcard defcard-doc deftest]])
   (:import goog.History)
   (:require [re-frame.core :as rf]
             [reagent.core :as r]
@@ -10,6 +11,14 @@
             [shodan.inspection :refer [inspect]]
             [ta.handlers]
             [ta.subs]))
+
+(defcard "#ta
+  ##Development Lab
+
+  This is the developer playground and testing environment for the `ta` application.
+
+  `ta` is a tool for teachers. That makes this a tool for developers of tools
+  for teachers.")
 
 (secretary/set-config! :prefix "#")
 

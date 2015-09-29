@@ -1,9 +1,33 @@
 (ns ta.handlers
+  (:require-macros [devcards.core :as dc :refer [defcard defcard-doc deftest]])
   (:require [re-frame.core :as rf]
             [ta.util :refer [colors]]
             [matchbox.core :as m]
             [shodan.inspection :refer [inspect]]
             [json-html.core :refer [edn->hiccup]]))
+
+(defcard "#Handlers
+  ##Core logic of the application.
+
+  * Make changes to documents (`:resource`, `:activity`, `:lesson` or `:unit`)
+  * Create a beautiful printable pdf file from a document
+  * Log in / out of a personal account (with firebase)
+  * Make changes to personal app settings
+  * Sync necessary app state (with firebase)
+
+  Each action has an associated permission level (`:all`, `:logged-in` or `:account`)
+  ")
+
+(defcard firebase
+  "`ta` is entirely client side, all personal documents are loaded into memory from
+  firebase when the user logs in. Any changes to those documents are sent to firebase and
+  optimistically updated in local memory.
+
+  *Errors are not handled anywhere*."
+  (dc/reagent
+   (fn [data _]
+     [:div {:class "ui segment"} [:i ]]))
+  )
 
 (defn ref->k [ref] (keyword (m/key ref)))
 
