@@ -9,19 +9,23 @@
 (defcard "#Handlers
   ##Core logic of the application.
 
-  * Make changes to documents (`:resource`, `:activity`, `:lesson` or `:unit`)
-  * Create a beautiful printable pdf file from a document
-  * Log in / out of a personal account (with firebase)
-  * Make changes to personal app settings
+  * CRUD `:documents` (`:resource`, `:activity`, `:lesson` or `:unit`)
+  * CRUD calendar `:events` (`:teaching` or `:note`)
+  * CRUD `:classes`
   * Sync necessary app state (with firebase)
+  * Log in/out of a personal account (with firebase)
+  * Make changes to personal app settings
+  * Create beautiful, printable PDFs from document data
 
-  Each action has an associated permission level (`:all`, `:logged-in` or `:account`)
+  Each action has an associated permission level (`:all`, `:logged-in` or `:account`).
+
+  * View logic for pdf/web renders should be as shared as possible.*
   ")
 
 (defcard firebase
-  "`ta` is entirely client side, all personal documents are loaded into memory from
-  firebase when the user logs in. Any changes to those documents are sent to firebase and
-  optimistically updated in local memory.
+  "`ta` is entirely client side, all personal documents, calendar events and classes
+  are loaded into memory from firebase when the user logs in. Any changes are sent
+  (usually) to firebase and optimistically made to local memory.
 
   *Errors are not handled anywhere*."
   (dc/reagent
@@ -169,13 +173,15 @@
       (m/conj-in! fb-activities [activity-id :steps] new-step))
     db))
 
-  ; (let [new-step    #(rf/dispatch [:new-activity-step @id])
-  ;       delete-step #(rf/dispatch [:delete-activity-step @id %])
-  ;       toggle-step #(rf/dispatch [:toggle-activity-step @id %])
-  ;       move-step   (fn [key direction]
-  ;                     (rf/dispatch [:move-activity-step @id key direction]))
-  ;       update-step (fn [key event]
-  ;                     (rf/dispatch [:update-activity-step @id key (e->val event)]))]
+(defcard "```
+(let [new-step    #(rf/dispatch [:new-activity-step @id])
+      delete-step #(rf/dispatch [:delete-activity-step @id %])
+      toggle-step #(rf/dispatch [:toggle-activity-step @id %])
+      move-step   (fn [key direction]
+                    (rf/dispatch [:move-activity-step @id key direction]))
+      update-step (fn [key event]
+                    (rf/dispatch [:update-activity-step @id key (e->val event)]))]
+  ```")
 
 (rf/register-handler
   :toggle-activity-step
