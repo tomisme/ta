@@ -3,12 +3,12 @@
                    [devcards.core :as dc :refer [defcard defcard-doc deftest]])
   (:import goog.History)
   (:require [re-frame.core :as rf]
-            [reagent.core :as r]
+            [reagent.core :as rg]
             [secretary.core :as secretary]
             [goog.events :as events]
             [goog.history.EventType :as EventType]
-            [ta.views.app :as app]
             [shodan.inspection :refer [inspect]]
+            [ta.views.app :as app]
             [ta.handlers]
             [ta.subs]))
 
@@ -35,9 +35,7 @@
   (rf/dispatch [:navigate-to :classes]))
 
 (defroute "/calendar/:view/:id" [view id]
-  (rf/dispatch [:view-calendar (case view "day" :day
-                                       "week" :week)
-                            (js/parseInt id)]))
+  (rf/dispatch [:view-calendar (case view "day" :day "week" :week) (js/parseInt id)]))
 
 (doto (History.)
   (events/listen EventType/NAVIGATE
@@ -48,6 +46,6 @@
 
 (defn render-app []
   (if (.getElementById js/document "app")
-    (r/render [app/app-container] (.getElementById js/document "app"))))
+    (rg/render [app/app-container] (.getElementById js/document "app"))))
 
 (render-app)
