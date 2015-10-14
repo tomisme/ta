@@ -16,12 +16,11 @@
   * Sync necessary app state (with firebase)
   * Log in/out of a personal account (with firebase)
   * Make changes to personal app settings
-  * Create beautiful, printable PDFs from document data
+  * Create printable PDFs from document data
 
-  Each action has an associated permission level (`:all`, `:logged-in` or `:account`).
+  Each action has an associated permission level (`:public` or `:logged-in`).
 
-  * View logic for pdf/web renders should be as shared as possible.*
-  ")
+  *View logic for pdf/web renders should be as shared as possible.*")
 
 (defn ref->k [ref] (keyword (m/key ref)))
 
