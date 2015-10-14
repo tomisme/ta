@@ -1,10 +1,11 @@
 (ns ta.handlers
   (:require-macros [devcards.core :as dc :refer [defcard defcard-doc deftest]])
-  (:require [re-frame.core :as rf]
+  (:require [reagent.core :as rg]
+            [re-frame.core :as rf]
             [ta.util :refer [colors]]
+            [ta.views.common :refer [icon-el]]
             [matchbox.core :as m]
-            [shodan.inspection :refer [inspect]]
-            [json-html.core :refer [edn->hiccup]]))
+            [shodan.inspection :refer [inspect]]))
 
 (defcard "#Handlers
   ##Core logic of the application.
@@ -22,20 +23,28 @@
   * View logic for pdf/web renders should be as shared as possible.*
   ")
 
+(defn ref->k [ref] (keyword (m/key ref)))
+
+(def fb-root (m/connect "https://frederick.firebaseio.com/"))
+
+(def connected-ref (m/connect "https://frederick.firebaseio.com/.info/connected"))
+
+(def fb-test-atom (rg/atom {:fb nil :connected false}))
+
+(m/listen-to connected-ref :value #(swap! fb-test-atom assoc :connected (second %)))
+
 (defcard firebase
   "`ta` is entirely client side, all personal documents, calendar events and classes
   are loaded into memory from firebase when the user logs in. Any changes are sent
   (usually) to firebase and optimistically made to local memory.
 
   *Errors are not handled anywhere*."
-  (dc/reagent
-   (fn [data _]
-     [:div {:class "ui segment"} [:i ]]))
-  )
-
-(defn ref->k [ref] (keyword (m/key ref)))
-
-(def fb-root (m/connect "https://frederick.firebaseio.com/"))
+  (dc/reagent (fn [data _]
+                [:div {:class "ui segment"}
+                 (if (:connected @data)
+                   [:span (icon-el "check") "Connected to Firebase!"]
+                   [:span (icon-el "close") "Not Connected to Firebase :("])]))
+  fb-test-atom)
 
 (def fb-classes    (m/get-in fb-root [:classes]))
 (def fb-lessons    (m/get-in fb-root [:lessons]))
