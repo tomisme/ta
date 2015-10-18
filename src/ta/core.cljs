@@ -8,7 +8,7 @@
             [goog.events :as events]
             [goog.history.EventType :as EventType]
             [shodan.inspection :refer [inspect]]
-            [ta.views.app :as app]
+            [ta.view :as view]
             [ta.handlers]
             [ta.subs]))
 
@@ -46,6 +46,6 @@
 
 (defn render-app []
   (if (.getElementById js/document "app")
-    (rg/render [app/app-container] (.getElementById js/document "app"))))
+    (rg/render [view/container] (.getElementById js/document "app"))))
 
-(render-app)
+#_(render-app)

@@ -1,11 +1,11 @@
-(ns ta.views.planbook.resources
+(ns ta.planbook.resources.view
   (:require-macros [reagent.ratom :refer [reaction]]
                    [devcards.core :as dc :refer [defcard deftest]])
   (:require [reagent.core :as rg]
             [re-frame.core :as rf]
             [shodan.inspection :refer [inspect]]
             [cljs.test :refer-macros [is testing]]
-            [ta.views.common :refer [sem e->val icon-el input-el]]))
+            [ta.common.remantic :refer [sem e->val icon-el input-el]]))
 
 (def resource-types
   {:handout {:icon "file text outline" :label "Printed Handout"}

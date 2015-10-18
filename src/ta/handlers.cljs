@@ -3,7 +3,7 @@
   (:require [reagent.core :as rg]
             [re-frame.core :as rf]
             [ta.util :refer [colors]]
-            [ta.views.common :refer [icon-el]]
+            [ta.common.remantic :refer [icon-el]]
             [matchbox.core :as m]
             [shodan.inspection :refer [inspect]]))
 
