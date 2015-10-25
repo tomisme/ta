@@ -1,11 +1,46 @@
 (ns ta.planbook.activities.view
   (:require-macros [reagent.ratom :refer [reaction]]
-                   [devcards.core :as dc :refer [defcard deftest]])
+                   [devcards.core :as dc :refer [defcard deftest defcard-rg]])
   (:require [cljs.test :refer-macros [is testing]]
+            [reagent.core :as rg]
             [re-frame.core :as rf]
             [shodan.inspection :refer [inspect]]
             [ta.util :refer [year-levels subjects]]
             [ta.common.remantic :refer [sem e->val icon-el input-el]]))
+
+(def test-activities
+  {:activity-a {:description "I am :activity-a"
+                :length 20
+                :resources {:list-item-a :resource-a
+                            :list-item-b :resource-b}
+                :steps {:step-a {:content "I am a step"
+                                 :num 1}}}
+   :activity-b {:description "I am :activity-b"
+                :length 20
+                :resources {:list-item-a :resource-a}
+                :steps {:step-a {:content "I am a step"
+                                 :num 1}}}
+   :activity-c {:description "I am :activity-c"
+                :length 20
+                :resources {:list-item-a :resource-a}
+                :steps {:step-a {:content "I am a step"
+                                 :num 1}}}})
+
+(def test-resources
+  {:resource-a {:name "I am :resource-a, a cool worksheet?"
+                :url "http://reddit.com"}
+   :resource-b {:name "I am :resource-b, a cool worksheet?"
+                :url "http://google.com"}
+   :resource-c {:name "I am :resource-c, a cool worksheet?"
+                :url "http://digg.com"}})
+
+(def test-tags
+  {:tag-a {:label "english"
+           :type :subject}
+   :tag-b {:label "8s"
+           :type :year}
+   :tag-c {:label "essay writing"
+           :type :content}})
 
 #_(defn tag-list
     [{:keys [plan-type tag-ids]}]
@@ -23,7 +58,7 @@
           #_(for [tag-id tag-ids]
               ^{:key (str id)}
               [:div {:class "ui yellow label"}
-               text (icon-el "delete icon")])]])))
+               text (icon-el "delete")])]])))
 
 (defn steps-panel
   [{:keys [id]}]
@@ -92,6 +127,18 @@
           ^{:key k} [resource-tageything k id plan-id])
         [:span (icon-el "left arrow") "Click here to add a new resource link"])]]))
 
+(defcard-rg resources-panel-empty
+  [resources-panel])
+
+(defcard-rg resources-panel
+  "WORK IN PROGRESS"
+  (fn [state _]
+    [resources-panel {:resource-ids @state
+                      :remove-resource #(swap! state dissoc %)
+                      :resources test-resources}])
+  (rg/atom (-> test-activities :activity-a :resources))
+  {:inspect-data true})
+
 (defn activity-editor
   []
   (let [id       (rf/subscribe [:open :activity])
@@ -123,32 +170,42 @@
            "Delete" (icon-el "trash")]]]))))
 
 (defn activity-list-item
-  [{:keys [id activity selected?]}]
+  [{:keys [id activity selected? select-activity]}]
   (let [{:keys [description length resources tags]} activity]
     [:div {:class (sem "ui" (if selected? "black") "link card")
-           :onClick #(rf/dispatch [:set-planbook-open :activity id])}
+           :on-click #(select-activity id)}
      [:div {:class "content"}
       [:span description]]]))
 
 (defn activity-list
-  []
-  (let [activities (rf/subscribe [:activities])
-        selected (rf/subscribe [:open :activity])]
-    (fn []
-      [:div {:class "ui center aligned basic segment"}
-       (if (seq @activities)
-         (doall
-           (for [[id activity] @activities]
-             ^{:key (str id)}
-             [activity-list-item {:id id
-                                  :activity activity
-                                  :selected? (= @selected id)}]))
-         [:p "No activities.... yet?"])])))
+  [{:keys [activities selected select-activity]}]
+  [:div {:class "ui center aligned basic segment"}
+   (if (seq activities)
+     (for [[id activity] activities]
+       ^{:key (str id)} [activity-list-item {:id id
+                                             :activity activity
+                                             :selected? (= selected id)
+                                             :select-activity select-activity}])
+     [:p "No activities.... yet?"])])
+
+(defcard-rg activity-list-empty
+  [activity-list])
+
+(defcard-rg activity-list
+  (fn [state _]
+    [activity-list {:activities test-activities
+                    :selected (:selected @state)
+                    :select-activity #(swap! state assoc :selected %)}])
+  (rg/atom {:selected (key (second test-activities))})
+  {:inspect-data true})
 
 (defn activities-tab
   []
-  (let [selected (rf/subscribe [:open :activity])]
+  (let [activities (rf/subscribe [:activities])
+        selected   (rf/subscribe [:open :activity])]
     [:div {:class "centered row"}
      [:div {:class (sem (if @selected "six" "sixteen") "wide column")}
-      [activity-list]]
+      [activity-list {:activities @activities
+                      :selected @selected
+                      :select-activity #(rf/dispatch [:set-planbook-open :activity %])}]]
      (if @selected [activity-editor])]))
