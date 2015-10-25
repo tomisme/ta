@@ -6,7 +6,7 @@
                  [matchbox "0.0.8-SNAPSHOT"]
                  [secretary "1.2.3"]
                  [shodan "0.4.2"]
-                 [devcards "0.2.0-3"]
+                 [devcards "0.2.0-8"]
                  #_[json-html "0.3.4"]
                  #_[bidi "1.20.0"]
                  #_[com.andrewmcveigh/cljs-time "0.3.10"]
