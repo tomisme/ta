@@ -8,9 +8,8 @@
             [ta.classes.view :refer [classes-view]]))
 
 (defn top-bar
-  [active-page]
-  (let [user (rf/subscribe [:user])
-        pages {:calendar {:i "calendar"
+  [{:keys [user active-page]}]
+  (let [pages {:calendar {:i "calendar"
                           :label "Calendar"
                           :url "#/calendar"}
                :planbook {:i "book"
@@ -21,37 +20,35 @@
                           :url "#/classes"}}]
     (fn []
       [:div {:class "one column row"}
-       [:div {:class "column"}
-        [:div {:class "ui secondary pointing menu"}
-         (doall (for [[k {:keys [i label url]}] pages
-                      :let [class (sem (if (= @active-page k) "active") "item")
-                            icon [:span {:style #js {:paddingright 4}} (icon-el i)]]]
-                  ^{:key label} [:a {:class class :href url} icon label]))
-         [:div {:class "right menu"}
-          [:a {:class "ui item"}
-           (:name @user) (flag-el (:flag @user)) (icon-el "caret down")]
-          [:div {:class "ui item"}
-           [:div {:class "ui labeled icon button"
-                  :onClick #(rf/dispatch [:launch-db-modal])}
-            (icon-el "search") "db"]]]]]])))
+        [:div {:class "column"}
+          [:div {:class "ui secondary pointing menu"}
+            (doall (for [[k {:keys [i label url]}] pages
+                         :let [class (sem (if (= active-page k) "active") "item")
+                               icon [:span {:style #js {:paddingright 4}} (icon-el i)]]]
+                     ^{:key label} [:a {:class class :href url} icon label]))
+            [:div {:class "right menu"}
+              [:a {:class "ui item"}
+                (:name user) (flag-el (:flag user)) (icon-el "caret down")]
+              [:div {:class "ui item"}]]]]])))
 
 (defn main-view
-  [active-page]
+  [{:keys [active-page]}]
   [:div {:class "one column row"}
-   [:div {:class "column"}
-    (case @active-page :calendar [calendar-view]
-      :planbook [planbook-view]
-      :classes  [classes-view]
-      [:span "No Page Found!"])]])
+    [:div {:class "column"}
+      (case active-page :calendar [calendar-view]
+        :planbook [planbook-view]
+        :classes  [classes-view]
+        [:span "No Page Found!"])]])
 
 (defn container
   []
-  (let [active-page (rf/subscribe [:active-page])
-        modal?      (rf/subscribe [:modal :active?])]
+  (let [page   (rf/subscribe [:active-page])
+        modal? (rf/subscribe [:modal :active?])
+        user   (rf/subscribe [:user])]
     (fn []
       [:div {:class "ui grid container"
              :style #js {:margin 0}}
-       [dimmer {:active? @modal?}]
-       [global-modal]
-       [top-bar active-page]
-       [main-view active-page]])))
+        [global-modal]
+        [dimmer    {:active? @modal?}]
+        [top-bar   {:active-page @page :user @user}]
+        [main-view {:active-page @page}]])))

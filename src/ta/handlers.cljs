@@ -37,11 +37,11 @@
   are loaded into memory from firebase when the user logs in. Any changes are sent
   (usually) to firebase and optimistically made to local memory.
 
-  *Errors are not handled anywhere*."
+  *Errors are not handled anywhere!*."
   (dc/reagent (fn [data _]
                 [:div {:class "ui segment"}
                  (if (:connected @data)
-                   [:span (icon-el "check") "Connected to Firebase!"]
+                   [:span (icon-el "check") "This devcard is connected to Firebase!"]
                    [:span (icon-el "close") "Not Connected to Firebase :("])]))
   fb-test-atom)
 
@@ -77,15 +77,6 @@
                          :thurs [:slot :slot :slot :slot :slot]
                          :fri   [:slot :slot :slot :slot :slot]}}
    :lesson   {:description "New Lesson"}})
-
-(rf/register-handler
-  :launch-db-modal
-  (fn [db _]
-    (inspect db)
-    #_(rf/dispatch [:launch-modal {:type :scrollbox
-                               :header "app db"
-                               :content (edn->hiccup (dissoc db :modal))}])
-    db))
 
 (rf/register-handler
   :inspect
