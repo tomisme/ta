@@ -8,8 +8,8 @@
                  [shodan "0.4.2"]
                  [devcards "0.2.1"]]
 
-  :plugins [[lein-cljsbuild "1.0.5"]
-            [lein-figwheel "0.3.5"]]
+  :plugins [[lein-cljsbuild "1.1.1"]
+            [lein-figwheel "0.5.0-1"]]
 
   :source-paths ["src"]
 
