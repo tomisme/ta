@@ -1,12 +1,12 @@
 (defproject ta "0.1.0"
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/clojurescript "1.7.122"]
+                 [org.clojure/clojurescript "1.7.170"]
                  [reagent "0.5.1"]
-                 [re-frame "0.4.1"]
+                 [re-frame "0.5.0"]
                  [matchbox "0.0.8-SNAPSHOT"]
                  [secretary "1.2.3"]
                  [shodan "0.4.2"]
-                 [devcards "0.2.0-8"]]
+                 [devcards "0.2.1"]]
 
   :plugins [[lein-cljsbuild "1.0.5"]
             [lein-figwheel "0.3.5"]]
