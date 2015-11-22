@@ -1,4 +1,5 @@
 (ns ta.classes.subs
+  (:require-macros [reagent.ratom :refer [reaction]])
   (:require [re-frame.core :as rf]
             [ta.util :refer [weekdays]]))
 
@@ -11,9 +12,10 @@
 (defn classes->schedule
   [classes]
   "A matrix of combined class schedules"
-  (zipmap weekdays (for [day weekdays]
-                     (into [] (for [session (range 5)]
-                                (if (seq classes) (class-in-slot classes day session)))))))
+  (zipmap weekdays
+    (for [day weekdays]
+      (into [] (for [session (range 5)]
+                 (if (seq classes) (class-in-slot classes day session)))))))
 
 (rf/register-sub
   :schedule

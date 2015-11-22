@@ -1,7 +1,6 @@
 (ns ta.classes.view
-  (:require-macros [reagent.ratom :refer [reaction]])
+  (:require-macros [devcards.core :as dc :refer [defcard defcard-rg]])
   (:require [re-frame.core :as rf]
-            [shodan.inspection :refer [inspect]]
             [ta.util :refer [weekdays colors color-strings]]
             [ta.common.remantic :refer [sem e->val icon-el]]))
 
