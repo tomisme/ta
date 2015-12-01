@@ -1,10 +1,9 @@
 (ns ta.common.remantic
-  (:require-macros [devcards.core :as dc :refer [defcard deftest]])
+  (:require-macros [devcards.core :as dc :refer [defcard deftest defcard-rg]])
   (:require [cljs.test :refer-macros [is testing]]
             [re-frame.core :as rf]
-            [shodan.inspection :refer [inspect]]
             [clojure.string :as string]
-            [ta.util :as util]))
+            [ta.common.util :as util]))
 
 (def size-strings
   {:mini "mini"
@@ -41,15 +40,15 @@
   (is (= "ui labeled button" (sem "ui" "labeled" "button"))))
 
 (def e->val-atom (atom {:event nil
-                        :val nil}))
+                        :value nil}))
 
-(defcard e->val-test
+(defcard-rg e->val-test
   "`e->val` takes an event emmitted by an HTML element (like an `<input>`) and returns
-  the event target's value attribute"
-  (dc/reagent [:input {:on-change #(swap! e->val-atom (fn [data]
-                                                        (-> data
-                                                          (assoc :event %)
-                                                          (assoc :val (e->val %)))))}])
+  the event target's *value* attribute"
+  [:input {:on-change #(swap! e->val-atom (fn [data]
+                                              (-> data
+                                                (assoc :event %)
+                                                (assoc :value (e->val %)))))}]
   e->val-atom
   {:inspect-data true})
 
@@ -77,12 +76,12 @@
 (defcard
   "```
   [icon-el {:name \"coffee\"
-  :color \"blue\"
-  :size :big}]
+            :color :blue
+            :size :big}]
   ```"
   (dc/reagent [icon-el {:name "coffee"
-                        :color :blue
-                        :size :big}]))
+                          :color :blue
+                          :size :big}]))
 
 (defn flag-el
   [arg]
@@ -107,18 +106,18 @@
 (defn menu-el
   [{:keys [items active-item on-change]}]
   [:div {:class "ui compact menu"}
-   (for [{:keys [key label icon]} items]
-     ^{:key label}
-     [:a {:class (sem "item" (if (= active-item key) "active"))
-          :on-click #(on-change key)}
-      [:span {:style {:marginRight 5}} (icon-el icon)] label])])
+    (for [{:keys [key label icon]} items]
+      ^{:key label}
+      [:a {:class (sem "item" (if (= active-item key) "active"))
+           :on-click #(on-change key)}
+        [:span {:style {:marginRight 5}} (icon-el icon)] label])])
 
 (defcard
   "```
   [menu-el {:items [{:key :home :label \"Home\" :icon \"home\"}
-  {:key :plus :label \"Plus\" :icon \"plus\"}]
-  :active-item :home
-  :on-change (fn [new-key] (js/alert new-key))}]
+                    {:key :plus :label \"Plus\" :icon \"plus\"}]
+            :active-item :home
+            :on-change (fn [new-key] (js/alert new-key))}]
   ```"
   (dc/reagent [menu-el {:items [{:key :home :label "Home" :icon "home"}
                                 {:key :plus :label "Plus" :icon "plus"}]
@@ -129,18 +128,18 @@
   [{:keys [label checked on-change]}]
   [:div {:class "ui checkbox"
          :on-click #(on-change (not checked))}
-   [:input {:type "checkbox"
-            :tabIndex "0"
-            :class "hidden"
-            :checked checked
-            :readOnly true}]
-   [:label label]])
+    [:input {:type "checkbox"
+             :tabIndex "0"
+             :class "hidden"
+             :checked checked
+             :readOnly true}]
+    [:label label]])
 
 (defcard
   "```
   [checkbox-el {:label \"Hello\"
-  :checked :true
-  :on-change (fn [new-val] (js/alert new-val))}]
+                :checked :true
+                :on-change (fn [new-val] (js/alert new-val))}]
   ```"
   (dc/reagent [checkbox-el {:label "Hello"
                             :checked :true
@@ -149,36 +148,36 @@
 (defn dropdown-el
   [{:keys [value options starting on-change]}]
   [:select {:value value
-            :on-change #(on-change %)}
-   [:option {:value ""} starting]
-   (map-indexed (fn [i option]
-                  ^{:key (str i "-" option)}
-                  [:option {:value option} option]) options)])
+             :on-change #(on-change %)}
+    [:option {:value ""} starting]
+    (map-indexed (fn [i option]
+                   ^{:key (str i "-" option)}
+                   [:option {:value option} option] options))])
 
 (defcard
   "Dropdown component needs to be wrapped in a 'ui form' div in order to be styled.
   ```
   [:div {:class \"ui form\"}
-  [dropdown-el {:starting \"Simpson's Character\"
-  :options [\"Bart\" \"Lisa\" \"Maggie\"]
-  :value \"\"
-  :on-change (fn [event] (js/alert (e->val event)))}]]
+    [dropdown-el {:starting \"Simpson's Character\"
+                  :options [\"Bart\" \"Lisa\" \"Maggie\"]
+                  :value \"\"
+                  :on-change (fn [event] (js/alert (e->val event)))}]]
   ```"
   (dc/reagent [:div {:class "ui form"}
-               [dropdown-el {:starting "Simpson's Character"
-                             :options ["Bart" "Lisa" "Maggie"]
-                             :value ""
-                             :on-change (fn [event] (js/alert (e->val event)))}]]))
+                [dropdown-el {:starting "Simpson's Character"
+                              :options ["Bart" "Lisa" "Maggie"]
+                              :value ""
+                              :on-change (fn [event] (js/alert (e->val event)))}]]))
 
 (defn semantic-ui-dropdown
   []
   [:div {:class "ui selection dropdown"}
-   [:input {:type "hidden" :name "gender"}]
-   [:div {:class "default text"} "Gender"]
-   [:i {:class "dropdown icon"}]
-   [:div {:class "menu"}
-    [:div {:class "item" :data-value "1"} "Male"]
-    [:div {:class "item" :data-value "0"} "Female"]]])
+    [:input {:type "hidden" :name "gender"}]
+    [:div {:class "default text"} "Gender"]
+    [:i {:class "dropdown icon"}]
+    [:div {:class "menu"}
+      [:div {:class "item" :data-value "1"} "Male"]
+      [:div {:class "item" :data-value "0"} "Female"]]])
 
 (dc/defcard-doc
   "TODO: Use proper Semantic UI css for dropdown component. Here's a start:"
@@ -198,13 +197,13 @@
   "Input component needs to be wrapped in a 'ui form' div in order to be styled.
   ```
   [:div {:class \"ui form\"}
-  [input-el {:placeholder \"Enter your name\"
-  :type \"text\"
-  :val \"Here's your money\"
-  :on-blur (fn [event] (js/alert (e->val event)))}]]
+    [input-el {:placeholder \"Enter your name\"
+               :type \"text\"
+               :val \"Here's your money\"
+               :on-blur (fn [event] (js/alert (e->val event)))}]]
   ```"
   (dc/reagent [:div {:class "ui form"}
-               [input-el {:placeholder "Enter your name"
-                          :type "text"
-                          :val "Here's your money"
-                          :on-blur (fn [event] (js/alert (e->val event)))}]]))
+                [input-el {:placeholder "Enter your name"
+                           :type "text"
+                           :val "Here's your money"
+                           :on-blur (fn [event] (js/alert (e->val event)))}]]))

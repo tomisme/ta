@@ -1,51 +1,32 @@
 (ns ta.core
-  (:require-macros [secretary.core :refer [defroute]]
-                   [devcards.core :as dc :refer [defcard defcard-doc deftest]])
-  (:import goog.History)
-  (:require [re-frame.core :as rf]
-            [reagent.core :as rg]
-            [secretary.core :as secretary]
-            [goog.events :as events]
-            [goog.history.EventType :as EventType]
-            [shodan.inspection :refer [inspect]]
-            [ta.view :as view]
-            [ta.handlers]
-            [ta.subs]))
+  (:require-macros [devcards.core :as dc :refer [defcard deftest]])
+  (:require [ta.views]))
 
 (defcard "#ta
-  ##Development Lab
+  ##Welcome!
 
   This is the developer playground and testing environment for the `ta` application.
 
   `ta` is a tool for teachers. That makes this a tool for developers of tools
-  for teachers.")
+  for teachers!
 
-(secretary/set-config! :prefix "#")
+  ##Project Structure
+  Clojurescript source code is separated into areas of user functionality like so:
 
-(defroute "/" []
-  (rf/dispatch [:navigate-to :calendar]))
+  ```
+  ├── common
+  ├── calendar
+  ├── classes
+  └── planbook
+      ├── activities
+      ├── lessons
+      ├── resources
+      └── units
+  ```
+  Each folder usually contains some combination of:
 
-(defroute "/calendar" []
-  (rf/dispatch [:navigate-to :calendar]))
+  - `handlers.cljs` - domain specific logic
+  - `views.cljs` - presentation (for all platforms, as shared as possible)
+  - `subs.cljs` - data retrieval
 
-(defroute "/planbook" []
-  (rf/dispatch [:navigate-to :planbook]))
-
-(defroute "/classes" []
-  (rf/dispatch [:navigate-to :classes]))
-
-(defroute "/calendar/:view/:id" [view id]
-  (rf/dispatch [:view-calendar (case view "day" :day "week" :week) (js/parseInt id)]))
-
-(doto (History.)
-  (events/listen EventType/NAVIGATE
-                 (fn [event] (secretary/dispatch! (.-token event))))
-  (.setEnabled true))
-
-(rf/dispatch-sync [:setup-db])
-
-(defn render-app []
-  (if (.getElementById js/document "app")
-    (rg/render [view/container] (.getElementById js/document "app"))))
-
-#_(render-app)
+  A root version of each of these files stitches everything together.")

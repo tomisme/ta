@@ -1,4 +1,4 @@
-(ns ta.util)
+(ns ta.common.util)
 
 (def weekdays [:mon :tues :wed :thurs :fri])
 
