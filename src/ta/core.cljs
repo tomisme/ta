@@ -5,28 +5,29 @@
 (defcard "#ta
   ##Welcome!
 
-  This is the developer playground and testing environment for the `ta` application.
-
   `ta` is a tool for teachers. That makes this a tool for developers of tools
   for teachers!
 
-  ##Project Structure
   Clojurescript source code is separated into areas of user functionality like so:
 
   ```
+  │
   ├── common
+  │
   ├── calendar
   ├── classes
-  └── planbook
-      ├── activities
-      ├── lessons
-      ├── resources
-      └── units
+  ├── activities
+  ├── lessons
+  ├── resources
+  └── units
   ```
-  Each folder usually contains some combination of:
+  Clojurescript files in `common` contain reagent components used throughout the app.
 
-  - `handlers.cljs` - domain specific logic
-  - `views.cljs` - presentation (for all platforms, as shared as possible)
+  Each other folder contains some combination of:
+
+  - `handlers.cljs` - handles relevant user interaction events
+  - `views.cljs` - presentation logic for multi-platform components
   - `subs.cljs` - data retrieval
 
-  A root version of each of these files stitches everything together.")
+  A root version of each of these files stitches everything together.
+  ")
