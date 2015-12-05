@@ -1,4 +1,4 @@
-(ns ta.common.remantic
+(ns ta.common.components
   (:require-macros [devcards.core :as dc :refer [defcard deftest defcard-rg]])
   (:require [cljs.test :refer-macros [is testing]]
             [re-frame.core :as rf]
