@@ -16,7 +16,7 @@
                            :thurs [:slot :slot :slot :slot :slot]
                            :fri   [:slot :slot :slot :slot :slot]}})
 
-(defcard new-class-data
+(defcard new-class
   new-class)
 
 (defn schedule-table
@@ -33,19 +33,19 @@
         [:div {:class (str color-str " column")}
          (icon-el "small circle")])])])
 
-(defcard-rg schedule-table-test
+(defcard-rg schedule-table
   [schedule-table {:schedule (:schedule new-class)}])
 
-(defn week-schedule
-  []
-  (let [schedule (rf/subscribe [:schedule])
-        classes  (rf/subscribe [:classes])]
-    [:div {:class "ui fluid card"}
-     [:div {:class "content"}
-      [:div {:class "center aligned header"}
-       "Your Weekly Timetable"]]
-     [:div {:class "content"}
-      [schedule-table {:schedule @schedule :classes @classes}]]]))
+; (defn week-schedule
+;   []
+;   (let [schedule (rf/subscribe [:schedule])
+;         classes  (rf/subscribe [:classes])]
+;    [:div {:class "ui fluid card"}
+;     [:div {:class "content"}
+;      [:div {:class "center aligned header"}
+;       "Your Weekly Timetable"]]
+;     [:div {:class "content"}
+;      [schedule-table {:schedule @schedule :classes @classes}]]]))
 
 (defn color-selector
   [{:keys [on-change selected-color]}]
@@ -58,7 +58,7 @@
             :on-click #(on-change color)}
          (if selected? "✓")]])])
 
-(defcard-rg color-selector-test
+(defcard-rg color-selector
   (fn [data _] (color-selector {:selected-color (:color @data)
                                 :on-change #(swap! data assoc :color %)}))
   {:color :red}
@@ -67,7 +67,7 @@
 (defn schedule-selector
   "When a slot is clicked, on-change is called with an updated schedule map"
   [{:keys [on-change class-schedule selected-color id]}]
-  (let [schedule @(rf/subscribe [:schedule]) ;; eww. but lets you make changes
+  (let [schedule nil ;FIXME@!!!!!!
         day-labels {:mon   "Mo"
                     :tues  "Tu"
                     :wed   "We"
@@ -103,8 +103,14 @@
                              selected?  (icon-el "check")
                              :else      (icon-el "small circle"))]))])])))
 
+(defcard-rg schedule-selector
+  [schedule-selector {:on-change nil
+                      :class-schedule nil
+                      :selected-color :red
+                      :id nil}])
+
 (defn class-card
-  [[id {:keys [name color schedule editing?] :as class}]]
+  [{:keys [id name color schedule editing?]}]
   ^{:key id}
   [:div {:class (sem (if-not editing? "link")
                      (get color-strings color) "ui fluid card")
@@ -133,23 +139,22 @@
         :selected-color color
         :id id}]])])
 
-(defn class-list
-  []
-  (let [classes (rf/subscribe [:classes])]
-    (fn []
-      (if (seq @classes)
-        [:div (map class-card @classes)]
-        [:span "Loading Classes..."]))))
+(defcard-rg class-card
+  [class-card {:id :abc
+               :name "Year 11 ATAR English"
+               :color :blue
+               :schedule nil
+               :editing? true}])
 
-(defn classes-view
-  []
-  [:div {:class "ui grid"}
-   [:div {:class "two column row"}
-    [:div {:class "column"}
-     [class-list]
-     [:div {:class "ui center aligned basic segment"}
-      [:button {:class "ui labeled icon button"
-                :on-click #(rf/dispatch [:class :new])}
-       (icon-el "plus") "Add Class"]]]
-    [:div {:class "column"}
-     [week-schedule]]]])
+; (defn classes-view
+;   []
+;   [:div {:class "ui grid"}
+;    [:div {:class "two column row"}
+;     [:div {:class "column"}
+;      #_[class-list]
+;      [:div {:class "ui center aligned basic segment"}
+;       [:button {:class "ui labeled icon button"
+;                 :on-click #(rf/dispatch [:class :new])}
+;        (icon-el "plus") "Add Class"]]]
+;     [:div {:class "column"}
+;        [week-schedule]]]])
