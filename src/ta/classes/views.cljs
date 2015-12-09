@@ -110,7 +110,7 @@
                       :id nil}])
 
 (defn class-card
-  [{:keys [id name color schedule editing?]}]
+  [{:keys [id name color schedule editing? on-color-change on-schedule-change]}]
   ^{:key id}
   [:div {:class (sem (if-not editing? "link")
                      (get color-strings color) "ui fluid card")
@@ -131,20 +131,29 @@
    (if editing?
      [:div {:class "center aligned content"}
       [color-selector
-       {:on-change #(rf/dispatch [:class :update id :color %])
+       {:on-change on-color-change
+         #_(rf/dispatch [:class :update id :color %])
         :selected-color color}]
       [schedule-selector
-       {:on-change #(rf/dispatch [:class :update id :schedule %])
+       {:on-change on-schedule-change
+         #_(rf/dispatch [:class :update id :schedule %])
         :class-schedule schedule
         :selected-color color
         :id id}]])])
 
+(def schedule-atom (rg/atom {:color :green}))
+
 (defcard-rg class-card
   [class-card {:id :abc
                :name "Year 11 ATAR English"
-               :color :blue
+               :color (:color @schedule-atom)
                :schedule nil
-               :editing? true}])
+               :editing? true
+               :on-color-change #(swap! schedule-atom assoc :color %)
+               :on-schedule-change #(print %)}]
+
+  schedule-atom
+  {:inspect-data true})
 
 ; (defn classes-view
 ;   []
