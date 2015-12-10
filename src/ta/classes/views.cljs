@@ -132,11 +132,9 @@
      [:div {:class "center aligned content"}
       [color-selector
        {:on-change on-color-change
-         #_(rf/dispatch [:class :update id :color %])
         :selected-color color}]
       [schedule-selector
        {:on-change on-schedule-change
-         #_(rf/dispatch [:class :update id :schedule %])
         :class-schedule schedule
         :selected-color color
         :id id}]])])
@@ -154,6 +152,22 @@
 
   schedule-atom
   {:inspect-data true})
+
+(def count-atom (rg/atom 0))
+
+(defn counter
+  [num]
+  [:div
+    [:button {:on-click #(swap! count-atom inc)}
+      "Go!"]
+    [:span num]])
+
+(defn shell-component
+  []
+  [counter @count-atom])
+
+(defcard-rg counter-test
+  [shell-component])
 
 ; (defn classes-view
 ;   []
