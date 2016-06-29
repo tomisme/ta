@@ -48,4 +48,4 @@
   (if (.getElementById js/document "app")
     (rg/render [view/container] (.getElementById js/document "app"))))
 
-#_(render-app)
+(render-app)

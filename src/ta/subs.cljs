@@ -1,6 +1,7 @@
 (ns ta.subs
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [re-frame.core :as rf]))
+  (:require [re-frame.core :as rf]
+            [ta.classes.subs]))
 
 (rf/register-sub
   :user
