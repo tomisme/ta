@@ -1,3 +1,15 @@
+# ta
+
+Teacher's assistant app in clojurescript. Never finished.. maybe someday?
+
+![](screenshots/Screenshot_2016-06-29_14-16-31.png)
+
+![](screenshots/Screenshot_2016-06-29_14-17-32.png)
+
+![](screenshots/Screenshot_2016-06-29_14-18-07.png)
+
+![](screenshots/Screenshot_2016-06-29_14-20-39.png)
+
 ## First Release
 + [ ] login with Google credentials
   + [ ] get name
